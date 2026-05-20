@@ -3,6 +3,7 @@ from src.parser import parse_sql_schema
 from src.formatter import build_schema_json, build_vector_records, load_descriptions
 from src.vectorizer import embed_documents, build_faiss_index, save_index
 from src.description_fetcher import fetch_and_save, build_and_save_label_index
+from src.executor import get_accessible_tables
 
 # Load DDL
 print("[1/6] Parsing schema SQL...")
@@ -11,7 +12,19 @@ with open("data/schema.sql") as f:
 
 # Parse
 tables = parse_sql_schema(sql_text)
-print(f"      → {len(tables)} tables parsed")
+print(f"      → {len(tables)} tables parsed from DDL")
+
+# Cross-check against the live Oracle database — only embed tables that
+# actually exist so the LLM never generates SQL for ghost tables.
+print("[1/6] Fetching accessible tables from Oracle...")
+accessible = get_accessible_tables()
+if accessible:
+    before = len(tables)
+    tables = {t: cols for t, cols in tables.items() if t.upper() in accessible}
+    removed = before - len(tables)
+    print(f"      → {len(tables)} tables exist in Oracle  ({removed} DDL-only tables excluded)")
+else:
+    print("      → Could not reach Oracle; using all DDL tables (ORA-00942 risk)")
 
 # Load column descriptions from the JSON-formatted mapping file
 print("[2/6] Loading column descriptions from mapping file...")

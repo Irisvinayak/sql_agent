@@ -485,7 +485,12 @@ def validate_sql(sql, tables, columns):
     subquery_aliases |= set(re.findall(r'\)\s+([a-z_][a-z0-9_]*)\b', q))
 
     # 4 — every table in FROM / JOIN must be an allowed table OR a subquery alias
-    referenced_tables = set(re.findall(r'(?:from|join)\s+([a-z_][a-z0-9_]*)', q))
+    # Strip EXTRACT(... FROM ...) and TRIM(... FROM ...) before scanning for
+    # table references — otherwise "FROM RDATE" inside EXTRACT is mistakenly
+    # treated as a table name, causing false "hallucinated table" errors.
+    q_for_tables = re.sub(r'\bextract\s*\([^)]*\)', '', q)
+    q_for_tables = re.sub(r'\btrim\s*\([^)]*\)', '', q_for_tables)
+    referenced_tables = set(re.findall(r'(?:from|join)\s+([a-z_][a-z0-9_]*)', q_for_tables))
     real_table_refs = referenced_tables - subquery_aliases
     hallucinated_tables = real_table_refs - valid_table_names
     if hallucinated_tables:

@@ -7,6 +7,26 @@ def get_connection():
     return oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
 
 
+def get_accessible_tables() -> set:
+    """
+    Query Oracle USER_TABLES to get the exact set of tables the connected
+    user owns.  Used at index-build time to exclude DDL-only tables that
+    don't exist in the live database.
+    Returns a set of UPPERCASE table names.
+    """
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT TABLE_NAME FROM USER_TABLES")
+        tables = {row[0].upper() for row in cursor.fetchall()}
+        cursor.close()
+        conn.close()
+        return tables
+    except Exception as e:
+        print(f"  [warn] Could not fetch USER_TABLES: {e}")
+        return set()
+
+
 def execute_query(sql):
     """
     Execute a SELECT query against Oracle DB.
@@ -17,7 +37,13 @@ def execute_query(sql):
     except oracledb.DatabaseError as e:
         return [], [], f"Connection failed: {e}"
 
+    cursor = None
     try:
+        # Set NLS on a separate cursor so the main cursor starts clean
+        nls_cur = conn.cursor()
+        nls_cur.execute("ALTER SESSION SET NLS_DATE_LANGUAGE = 'AMERICAN'")
+        nls_cur.close()
+
         cursor = conn.cursor()
         # Oracle driver does not accept a trailing semicolon
         cursor.execute(sql.rstrip().rstrip(";"))
@@ -25,10 +51,12 @@ def execute_query(sql):
         rows = cursor.fetchmany(DB_MAX_ROWS)
         return columns, rows, None
     except oracledb.DatabaseError as e:
-
         return [], [], f"Query execution failed: {e}"
+    except Exception as e:
+        return [], [], f"Unexpected error: {e}"
     finally:
-        cursor.close()
+        if cursor is not None:
+            cursor.close()
         conn.close()
 
 

@@ -1,7 +1,22 @@
+import logging
+import sys
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.routes import health, query, voice
+
+# Attach a handler directly so logs always appear in the uvicorn terminal
+# regardless of whether uvicorn already configured the root logger.
+_handler = logging.StreamHandler(sys.stdout)
+_handler.setFormatter(logging.Formatter("%(levelname)s  [%(name)s]  %(message)s"))
+for _name in ("query", "voice"):
+    _lg = logging.getLogger(_name)
+    _lg.setLevel(logging.INFO)
+    if not _lg.handlers:
+        _lg.addHandler(_handler)
+    _lg.propagate = False
+
 
 app = FastAPI(
     title="SQL Query Generator API",

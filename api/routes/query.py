@@ -1,4 +1,5 @@
 import re
+import logging
 
 from fastapi import APIRouter, HTTPException
 
@@ -7,6 +8,8 @@ from api.utils import serialize_rows
 from src.executor import execute_query
 from src.retriever import get_relevant_schema
 from src.sql_generator import generate_sql, validate_sql
+
+log = logging.getLogger("query")
 
 router = APIRouter(tags=["query"])
 
@@ -71,6 +74,8 @@ def run_text_query(body: QueryRequest):
 
     # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values)
     tables, columns, matched_labels = get_relevant_schema(q)
+    log.info("TABLES  : %s", [t["table"] for t in tables])
+    log.info("COLUMNS : %s", [f"{c['table']}.{c['column']}" for c in columns])
 
     if not tables:
         return QueryResult(
@@ -92,14 +97,20 @@ def run_text_query(body: QueryRequest):
         raise HTTPException(status_code=502, detail=str(exc))
 
     sql = result.get("sql", "")
+    log.info("SQL     :\n%s", sql)
 
     # Step 3 — validation
     is_valid, reason = validate_sql(sql, tables, columns)
+    log.info("VALID   : %s  reason=%s", is_valid, reason)
 
     # Step 4 — execution (only if valid)
     col_names, rows, db_error = [], [], None
     if is_valid:
         col_names, rows, db_error = execute_query(sql)
+        log.info("DB COLS : %s", col_names)
+        log.info("DB ROWS : %d row(s) returned", len(rows))
+        if db_error:
+            log.error("DB ERR  : %s", db_error)
 
     return QueryResult(
         query=q,
