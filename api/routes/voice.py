@@ -56,7 +56,16 @@ async def run_voice_query(audio: UploadFile = File(...), dialect: str = "Oracle"
             os.remove(tmp_path)
 
     # Run the same pipeline as text query
-    tables, columns, matched_labels = get_relevant_schema(transcript)
+    tables, columns, matched_labels, qa_example = get_relevant_schema(transcript)
+
+    fallback_note = None
+    fallbacks = [t for t in tables if t.get("fallback_from")]
+    if fallbacks:
+        pairs = ", ".join(f"{t['fallback_from']} → {t['table']}" for t in fallbacks)
+        fallback_note = (
+            "Some sections aren't loaded as Annual data yet, so the Quarterly "
+            f"equivalent was used instead: {pairs}."
+        )
 
     if not tables:
         return VoiceQueryResult(
@@ -72,7 +81,7 @@ async def run_voice_query(audio: UploadFile = File(...), dialect: str = "Oracle"
         )
 
     try:
-        result = generate_sql(transcript, tables, columns, dialect=dialect, matched_labels=matched_labels)
+        result = generate_sql(transcript, tables, columns, dialect=dialect, matched_labels=matched_labels, qa_example=qa_example)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
 
@@ -94,4 +103,5 @@ async def run_voice_query(audio: UploadFile = File(...), dialect: str = "Oracle"
         columns=col_names,
         rows=serialize_rows(rows),
         db_error=db_error,
+        fallback_note=fallback_note,
     )

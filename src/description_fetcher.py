@@ -7,6 +7,7 @@ LLM prompt so it can write accurate WHERE clauses.
 
 import json
 import os
+import src.config as config
 
 # Column names that act as row labels / identifiers in this schema
 LABEL_COLUMNS = {
@@ -22,8 +23,33 @@ LABEL_COLUMNS = {
     "country_brw_cuntr_party",
 }
 
+# This regulatory schema reuses the same handful of "row is a named category"
+# concepts across hundreds of tables, but with per-table naming variants
+# (e.g. "memorandum_item", "category_investment_dom_opr") that an exact-match
+# set silently misses — the table then gets ZERO row-label coverage even
+# though it has an obvious label column. Substring keywords catch those
+# variants; kept as a fallback (checked only if the exact set misses) so this
+# stays a superset, not a behavior change for anything already matched.
+_LABEL_KEYWORDS = ("description", "item", "category", "movement", "industry_name", "period_delinquency", "country")
+
+
+def _is_label_column(col_name: str) -> bool:
+    return col_name in LABEL_COLUMNS or any(kw in col_name for kw in _LABEL_KEYWORDS)
+
+
 MAX_SAMPLES = 50          # max distinct values to fetch per table
-OUTPUT_PATH = "output/description_samples.json"
+
+
+def _output_path():
+    return f"{config.EMBEDDING_DIR}/description_samples.json"
+
+
+def _row_label_index_path():
+    return f"{config.EMBEDDING_DIR}/row_label_index.faiss"
+
+
+def _row_label_meta_path():
+    return f"{config.EMBEDDING_DIR}/row_label_meta.pkl"
 
 
 def _get_connection():
@@ -34,13 +60,18 @@ def _get_connection():
     return oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
 
 
-def fetch_and_save(schema_json_path="output/schema.json"):
+def fetch_and_save(schema_json_path=None):
     """
     Read schema.json, identify tables with label columns, query Oracle for
-    distinct values, and write output/description_samples.json.
+    distinct values, and write description_samples.json under
+    config.EMBEDDING_DIR (read at call time, so switching EMBEDDING_DIR —
+    e.g. via env var — before calling this actually takes effect).
 
     Returns dict: { table_name: { col_name: [val1, val2, ...] } }
     """
+    if schema_json_path is None:
+        schema_json_path = f"{config.EMBEDDING_DIR}/schema.json"
+
     with open(schema_json_path) as f:
         schema = json.load(f)
 
@@ -55,9 +86,10 @@ def fetch_and_save(schema_json_path="output/schema.json"):
     try:
         cursor = conn.cursor()
         for entry in schema:
-            table = entry["table"].upper()
-            col_names = [c["name"].lower() for c in entry["columns"]]
-            label_cols_in_table = [c for c in col_names if c in LABEL_COLUMNS]
+            table_name = entry.get("table") or entry.get("table_name")
+            table = table_name.upper()
+            col_names = [(c.get("name") or c.get("column_name")).lower() for c in entry["columns"]]
+            label_cols_in_table = [c for c in col_names if _is_label_column(c)]
 
             if not label_cols_in_table:
                 continue
@@ -75,26 +107,31 @@ def fetch_and_save(schema_json_path="output/schema.json"):
                     if values:
                         table_samples[col] = sorted(values)
                 except Exception:
-                    pass  # table may be empty or inaccessible
+                    pass  # table may be empty, inaccessible, or not yet in the DB
 
             if table_samples:
-                samples[entry["table"]] = table_samples
-                print(f"  ✓ {table}: sampled {sum(len(v) for v in table_samples.values())} values")
+                samples[table_name] = table_samples
+                print(f"  [ok] {table}: sampled {sum(len(v) for v in table_samples.values())} values")
+            else:
+                print(f"  [--] {table}: no live label samples (table absent or empty)")
 
     finally:
         cursor.close()
         conn.close()
 
-    os.makedirs("output", exist_ok=True)
-    with open(OUTPUT_PATH, "w") as f:
+    out_path = _output_path()
+    os.makedirs(config.EMBEDDING_DIR, exist_ok=True)
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(samples, f, indent=2)
 
-    print(f"\n  Saved → {OUTPUT_PATH}")
+    print(f"\n  Saved -> {out_path}")
     return samples
 
 
-def load_samples(path=OUTPUT_PATH):
+def load_samples(path=None):
     """Load previously fetched description samples. Returns {} if file missing."""
+    if path is None:
+        path = _output_path()
     try:
         with open(path) as f:
             return json.load(f)
@@ -106,9 +143,6 @@ def load_samples(path=OUTPUT_PATH):
 # Row-label vector index helpers
 # ──────────────────────────────────────────────────────────────────────────────
 
-ROW_LABEL_INDEX_PATH = "output/row_label_index.faiss"
-ROW_LABEL_META_PATH  = "output/row_label_meta.pkl"
-
 
 def build_and_save_label_index(samples: dict | None = None):
     """
@@ -118,7 +152,8 @@ def build_and_save_label_index(samples: dict | None = None):
     Parameters
     ----------
     samples : dict, optional
-        Pre-loaded samples dict.  If None, loads from OUTPUT_PATH.
+        Pre-loaded samples dict.  If None, loads from the current
+        config.EMBEDDING_DIR's description_samples.json.
 
     Returns the (index, records) tuple.
     """
@@ -131,13 +166,14 @@ def build_and_save_label_index(samples: dict | None = None):
         print("  [label_index] No samples found — skipping row-label index build.")
         return None, []
 
-    print(f"  [label_index] Building row-label FAISS index …")
+    print(f"  [label_index] Building row-label FAISS index ...")
     index, records = build_row_label_index(samples)
 
     if index is not None:
-        os.makedirs("output", exist_ok=True)
-        save_index(index, records, ROW_LABEL_INDEX_PATH, ROW_LABEL_META_PATH)
-        print(f"  [label_index] ✓ Indexed {len(records)} label values → {ROW_LABEL_INDEX_PATH}")
+        index_path, meta_path = _row_label_index_path(), _row_label_meta_path()
+        os.makedirs(config.EMBEDDING_DIR, exist_ok=True)
+        save_index(index, records, index_path, meta_path)
+        print(f"  [label_index] Indexed {len(records)} label values -> {index_path}")
     else:
         print("  [label_index] No records to index.")
 
@@ -169,11 +205,12 @@ def search_labels_with_scores(query: str, top_k: int = 30) -> list:
     import numpy as np
     from src.vectorizer import embed_query
 
-    if not os.path.exists(ROW_LABEL_INDEX_PATH):
+    index_path, meta_path = _row_label_index_path(), _row_label_meta_path()
+    if not os.path.exists(index_path):
         return []
 
-    index = _faiss.read_index(ROW_LABEL_INDEX_PATH)
-    with open(ROW_LABEL_META_PATH, "rb") as f:
+    index = _faiss.read_index(index_path)
+    with open(meta_path, "rb") as f:
         meta = pickle.load(f)
 
     if not meta:

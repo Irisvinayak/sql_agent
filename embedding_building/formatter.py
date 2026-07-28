@@ -1,5 +1,5 @@
 import json
-from src.generators import generate_table_description, generate_column_description
+from embedding_building.generators import generate_table_description, generate_column_description
 
 
 def load_descriptions(json_path="data/.json-formatted"):
@@ -7,10 +7,16 @@ def load_descriptions(json_path="data/.json-formatted"):
     Load column descriptions from the JSON-formatted file.
 
     The file is expected to have the structure:
-        { "results": [ { "items": [ { "table_name", "db_name", "excel_name",
-                                      "return_name", ... }, ... ] } ] }
+        { "results": [ { "items": [ { "table_name", "column_name",
+                                      "column_Description", "return_name",
+                                      ... }, ... ] } ] }
+    (this is an Oracle/JSON export of the original Excel sheet — the actual
+    field names are "column_name"/"column_Description", NOT "db_name"/
+    "excel_name" despite what earlier code here assumed; that mismatch meant
+    this function silently returned {} on every real run, so no Excel-sourced
+    description was ever actually merged into schema.json.)
 
-    Returns a dict keyed by (TABLE_NAME_UPPER, DB_NAME_UPPER) with values:
+    Returns a dict keyed by (TABLE_NAME_UPPER, COLUMN_NAME_UPPER) with values:
         { "excel_name": str, "return_name": str }
     """
     with open(json_path, encoding="utf-8") as fh:
@@ -22,10 +28,10 @@ def load_descriptions(json_path="data/.json-formatted"):
 
     for item in items:
         table_key = str(item.get("table_name", "")).upper()
-        col_key = str(item.get("db_name", "")).upper()
+        col_key = str(item.get("column_name", "")).upper()
         if table_key and col_key:
             mapping[(table_key, col_key)] = {
-                "excel_name": item.get("excel_name", ""),
+                "excel_name": item.get("column_Description", ""),
                 "return_name": item.get("return_name", ""),
             }
 

@@ -5,7 +5,7 @@ via ALL_COLUMNS (avoids DBMS_METADATA LOB issues), reconstructs
 single-line CREATE TABLE statements, and writes them to data/schema.sql.
 
 Usage:
-    python scripts/extract_schema.py
+    python embedding_building/extract_schema.py
 """
 
 import sys

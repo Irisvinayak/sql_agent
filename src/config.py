@@ -1,4 +1,20 @@
+import os
+
 EMBED_MODEL = "BAAI/bge-large-en"
+
+# Which folder retrieval reads its FAISS indexes / schema.json from.
+# Defaults to the CIMS_RAQ(Quarterly) scoped build — that's what's actually
+# under active development/testing (qa_pairs.json, direct-match tiers, the
+# validation fixes). Production (embedding_building/output, no qa_index)
+# used to be the default and repeatedly caused silent regressions whenever a
+# server restart lost the EMBEDDING_DIR env var — every fix this session
+# stopped applying with no error, just worse answers. Override with the
+# EMBEDDING_DIR env var to point elsewhere, e.g.:
+#   EMBEDDING_DIR=embedding_building/output python -m api.main
+# Every module that needs this MUST read `config.EMBEDDING_DIR` at call time
+# (not `from src.config import EMBEDDING_DIR`, which freezes a stale copy at
+# import time and silently ignores any later reassignment or env override).
+EMBEDDING_DIR = os.environ.get("EMBEDDING_DIR", "embedding_building/cims_raq_quarterly")
 
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
@@ -12,6 +28,9 @@ OLLAMA_URL = "http://3.109.51.228/OllamaProxy/api/generate"
 # Set the active Ollama-served model here. Change only this value to swap models
 # without modifying src/sql_generator.py.
 OLLAMA_MODEL = "hf.co/defog/sqlcoder-7b-2:Q5_K_M"
+# Context window sent to Ollama; the retry path resends schema + bad SQL + reason,
+# so this needs headroom beyond the model's low default (often 2048) or retries return empty.
+OLLAMA_NUM_CTX = 8192
 
 MODEL_PROFILES = {
     "gpt-oss:120b-cloud": {

@@ -1,13 +1,21 @@
 import json
-from src.parser import parse_sql_schema
-from src.formatter import build_schema_json, build_vector_records, load_descriptions
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+OUTPUT_DIR = os.path.join(ROOT, "embedding_building", "output")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+from embedding_building.parser import parse_sql_schema
+from embedding_building.formatter import build_schema_json, build_vector_records, load_descriptions
 from src.vectorizer import embed_documents, build_faiss_index, save_index
 from src.description_fetcher import fetch_and_save, build_and_save_label_index
 from src.executor import get_accessible_tables
 
 # Load DDL
 print("[1/6] Parsing schema SQL...")
-with open("data/schema.sql") as f:
+with open(os.path.join(ROOT, "data", "schema.sql")) as f:
     sql_text = f.read()
 
 # Parse
@@ -28,16 +36,17 @@ else:
 
 # Load column descriptions from the JSON-formatted mapping file
 print("[2/6] Loading column descriptions from mapping file...")
-descriptions = load_descriptions("data/.json-formatted")
+descriptions = load_descriptions(os.path.join(ROOT, "data", ".json-formatted"))
 print(f"      → {len(descriptions)} column mappings loaded")
 
 # Format JSON (enriched with excel_name, db_name, return_name from descriptions)
 print("[3/6] Building enriched schema.json...")
 schema_json = build_schema_json(tables, descriptions=descriptions)
 
-with open("output/schema.json", "w") as f:
+schema_json_path = os.path.join(OUTPUT_DIR, "schema.json")
+with open(schema_json_path, "w") as f:
     json.dump(schema_json, f, indent=2)
-print(f"      → output/schema.json written ({len(schema_json)} tables)")
+print(f"      → {schema_json_path} written ({len(schema_json)} tables)")
 
 # Vector records
 table_records, column_records = build_vector_records(schema_json)
@@ -55,14 +64,14 @@ table_index = build_faiss_index(table_vecs)
 column_index = build_faiss_index(column_vecs)
 
 # Save
-save_index(table_index, table_records, "output/table_index.faiss", "output/table_meta.pkl")
-save_index(column_index, column_records, "output/column_index.faiss", "output/column_meta.pkl")
+save_index(table_index, table_records, os.path.join(OUTPUT_DIR, "table_index.faiss"), os.path.join(OUTPUT_DIR, "table_meta.pkl"))
+save_index(column_index, column_records, os.path.join(OUTPUT_DIR, "column_index.faiss"), os.path.join(OUTPUT_DIR, "column_meta.pkl"))
 
 print("✅ L1 Vector DB (tables + columns) built successfully")
 
 # ── L2 — Fetch distinct row-label values from Oracle ─────────────────────────
 print("\n[5/6] Fetching row-label samples from Oracle DB...")
-samples = fetch_and_save("output/schema.json")
+samples = fetch_and_save(schema_json_path)
 
 # ── L3 — Embed row-label values into a third FAISS index ─────────────────────
 print("\n[6/6] Building row-label embedding index...")

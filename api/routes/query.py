@@ -1,4 +1,5 @@
 import re
+import time
 import logging
 
 from fastapi import APIRouter, HTTPException
@@ -6,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from api.schemas import QueryRequest, QueryResult
 from api.utils import serialize_rows
 from src.executor import execute_query
-from src.retriever import get_relevant_schema
+from src.retriever import get_relevant_schema, find_exact_qa_match
 from src.sql_generator import generate_sql, validate_sql
 
 log = logging.getLogger("query")
@@ -52,6 +53,15 @@ def _empty_result(query: str, hint: str) -> QueryResult:
 @router.post("/query", response_model=QueryResult)
 def run_text_query(body: QueryRequest):
     q = body.query.strip()
+    log.info("QUERY   : %r", q)  # the raw text was never logged before this — impossible to debug a "why didn't this match" report without it
+    _t0 = time.perf_counter()
+    timings_ms: dict = {}
+
+    def _mark(stage: str):
+        nonlocal _t0
+        now = time.perf_counter()
+        timings_ms[stage] = round((now - _t0) * 1000, 1)
+        _t0 = now
 
     # Guard 1 — minimum query length
     if len(q) < MIN_QUERY_LENGTH:
@@ -72,10 +82,64 @@ def run_text_query(body: QueryRequest):
             "or a date range (Jan–Jun 2025)."
         )
 
-    # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values)
-    tables, columns, matched_labels = get_relevant_schema(q)
+    # Step 0 — BEFORE any table/column shortlisting: check qa_pairs.json for a
+    # near-identical stored question (>=99% literal text match to what the
+    # user typed). If found, there's nothing to retrieve or generate — the
+    # answer was already hand-verified when that qa_pairs.json entry was
+    # written, so just reuse it directly. Faster, fully deterministic, zero
+    # hallucination risk.
+    exact = find_exact_qa_match(q)
+    _mark("exact_match_lookup")
+    if exact:
+        log.info("EXACT QA MATCH (text_similarity=%.3f): %s", exact["text_similarity"], exact["question"])
+        sql = exact["sql"]
+        tables = [{"table": exact["table"]}]
+        is_valid, reason = validate_sql(sql, tables, [])
+        _mark("validation")
+        log.info("VALID   : %s  reason=%s", is_valid, reason)
+
+        col_names, rows, db_error = [], [], None
+        if is_valid:
+            col_names, rows, db_error = execute_query(sql)
+            log.info("DB COLS : %s", col_names)
+            log.info("DB ROWS : %d row(s) returned", len(rows))
+            if db_error:
+                log.error("DB ERR  : %s", db_error)
+        _mark("db_execution")
+        log.info("TIMINGS : %s  (total=%.1fms)", timings_ms, sum(timings_ms.values()))
+
+        return QueryResult(
+            query=q,
+            matched_tables=[exact["table"]],
+            matched_columns=[],
+            sql=sql,
+            is_valid=is_valid,
+            validation_reason=reason if not is_valid else None,
+            columns=col_names,
+            rows=serialize_rows(rows),
+            db_error=db_error,
+            source="direct_match",
+            match_score=exact["text_similarity"],
+            timings_ms=timings_ms,
+        )
+
+    # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values  L3: qa example
+    # — a 95%+ literal-text match here is already guaranteed to be the first
+    # table in the list, and passed through as a strong few-shot hint below)
+    tables, columns, matched_labels, qa_example = get_relevant_schema(q)
+    _mark("retrieval")
     log.info("TABLES  : %s", [t["table"] for t in tables])
     log.info("COLUMNS : %s", [f"{c['table']}.{c['column']}" for c in columns])
+
+    fallback_note = None
+    fallbacks = [t for t in tables if t.get("fallback_from")]
+    if fallbacks:
+        pairs = ", ".join(f"{t['fallback_from']} → {t['table']}" for t in fallbacks)
+        fallback_note = (
+            "Some sections aren't loaded as Annual data yet, so the Quarterly "
+            f"equivalent was used instead: {pairs}."
+        )
+        log.info("FALLBACK: %s", fallback_note)
 
     if not tables:
         return QueryResult(
@@ -90,17 +154,24 @@ def run_text_query(body: QueryRequest):
             accuracy_hint=_accuracy_hint,
         )
 
-    # Step 2 — SQL generation
+    # Step 2 — SQL generation. Any qa_pairs.json match at 95%+ literal text
+    # similarity was already forced to the front of `tables` above and will
+    # be passed to the model as a strong few-shot example below — this is the
+    # "still call the LLM, but ground it hard" tier.
     try:
-        result = generate_sql(q, tables, columns, dialect=body.dialect, matched_labels=matched_labels)
+        result = generate_sql(q, tables, columns, dialect=body.dialect, matched_labels=matched_labels, qa_example=qa_example)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
+    _mark("llm_generation")
 
     sql = result.get("sql", "")
     log.info("SQL     :\n%s", sql)
+    source = "llm_generated"
+    match_score = max(qa_example["text_similarity"], qa_example["token_similarity"]) if qa_example else None
 
     # Step 3 — validation
     is_valid, reason = validate_sql(sql, tables, columns)
+    _mark("validation")
     log.info("VALID   : %s  reason=%s", is_valid, reason)
 
     # Step 4 — execution (only if valid)
@@ -111,6 +182,8 @@ def run_text_query(body: QueryRequest):
         log.info("DB ROWS : %d row(s) returned", len(rows))
         if db_error:
             log.error("DB ERR  : %s", db_error)
+    _mark("db_execution")
+    log.info("TIMINGS : %s  (total=%.1fms)", timings_ms, sum(timings_ms.values()))
 
     return QueryResult(
         query=q,
@@ -123,4 +196,8 @@ def run_text_query(body: QueryRequest):
         rows=serialize_rows(rows),
         db_error=db_error,
         accuracy_hint=_accuracy_hint,
+        fallback_note=fallback_note,
+        source=source,
+        match_score=match_score,
+        timings_ms=timings_ms,
     )

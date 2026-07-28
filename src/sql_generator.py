@@ -1,5 +1,6 @@
 import re
 import json
+import time
 import calendar
 import requests
 from datetime import date, timedelta
@@ -239,25 +240,46 @@ _SQL_KEYWORDS = {
 }
 
 
-def _load_all_columns(table_names, schema_path="output/schema.json"):
-    """Return all columns for the given table names loaded from schema.json."""
+def _columns_from_schema(schema_path, normalized_table_names):
     try:
         with open(schema_path) as f:
             schema = json.load(f)
     except FileNotFoundError:
         return []
-    normalized_table_names = {name.lower() for name in table_names}
     result = []
     for entry in schema:
         table_name = entry.get("table") or entry.get("table_name")
         if not table_name or table_name.lower() not in normalized_table_names:
             continue
-
         for col in entry.get("columns") or []:
             column_name = col.get("name") or col.get("column_name")
             if not column_name:
                 continue
             result.append({"table": table_name, "column": column_name})
+    return result
+
+
+def _load_all_columns(table_names, schema_path=None):
+    """
+    Return all columns for the given table names loaded from schema.json.
+
+    Falls back to the production embedding_building/output/schema.json for any
+    table not found in the primary schema — this covers tables that were
+    substituted for a Quarterly fallback (see retriever._apply_quarterly_fallback)
+    and therefore only exist in the production schema, not the derived test one.
+    """
+    if schema_path is None:
+        schema_path = f"{config.EMBEDDING_DIR}/schema.json"
+
+    normalized_table_names = {name.lower() for name in table_names}
+    result = _columns_from_schema(schema_path, normalized_table_names)
+
+    found_tables = {c["table"].lower() for c in result}
+    missing = normalized_table_names - found_tables
+    prod_path = "embedding_building/output/schema.json"
+    if missing and schema_path != prod_path:
+        result.extend(_columns_from_schema(prod_path, missing))
+
     return result
 
 
@@ -279,11 +301,46 @@ def _validation_failure_category(reason: str) -> str:
         return "banned keyword"
     if "hallucinated tables" in reason:
         return "hallucinated table"
+    if "column/table mismatch" in reason:
+        return "alias/table mismatch"
     if "hallucinated columns" in reason:
         return "hallucinated column"
     if "does not reference any matched table" in reason:
         return "schema grounding"
+    if reason.strip() == "empty sql":
+        return "empty sql"
     return "unknown validation"
+
+
+HALLUCINATION_LOG_PATH = "eval/results/hallucination_log.jsonl"
+
+
+def _log_hallucination(user_query, tables, model_name, first_attempt_sql, first_attempt_reason,
+                        retry_sql, retry_reason, category):
+    """
+    Append every generation that's STILL invalid after the retry to a JSONL
+    log, so hallucination patterns (which category, which tables, whether the
+    retry made it better/worse/no-different) can be analyzed in aggregate
+    instead of diagnosed one pasted error at a time.
+    """
+    import os
+    try:
+        os.makedirs(os.path.dirname(HALLUCINATION_LOG_PATH), exist_ok=True)
+        record = {
+            "question": user_query,
+            "matched_tables": [t.get("table") for t in tables],
+            "model": model_name,
+            "final_category": category,
+            "first_attempt_sql": first_attempt_sql,
+            "first_attempt_reason": first_attempt_reason,
+            "retry_sql": retry_sql,
+            "retry_reason": retry_reason,
+            "retry_changed_sql": first_attempt_sql != retry_sql,
+        }
+        with open(HALLUCINATION_LOG_PATH, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record) + "\n")
+    except OSError as e:
+        print(f"[WARNING] Could not write hallucination log: {e}")
 
 
 def _build_full_rules_block(dialect_hint: str) -> str:
@@ -487,9 +544,17 @@ def _build_minimal_prompt(
     vertical_tables=None,
     dom_ove_tables=None,
     multipart_tables=None,
+    qa_example=None,
 ) -> str:
     time_section = f"\n{time_context_block}" if time_context_block else ""
     example_blocks = []
+
+    if qa_example:
+        example_blocks.append(
+            f"Example — closely matching prior question (table: {qa_example['table']}):\n"
+            f"Q: {qa_example['question']}\n"
+            f"SQL: {qa_example['sql']}"
+        )
 
     if vertical_tables:
         example_blocks.append(
@@ -532,6 +597,11 @@ Allowed tables: {valid_tables}{time_section}{examples_section}
 - Do NOT aggregate vertical tables with SUM() across row labels unless the user explicitly asks for an aggregation that requires it.
 - When the user requests a total or overall value, use the exact total row label provided in the schema context.
 - Never invent row labels or column names that are not shown in the schema context.
+- Never use bind variables or placeholders (:val, ?, %s, :rdate, :bank_code, etc.) — embed every value as a literal. The query must run standalone with no parameters supplied.
+- If the user's question does NOT mention a date/period, filter with RDATE = (SELECT MAX(RDATE) FROM <same_table>) to get the latest available reporting period. Never omit the RDATE filter and never guess a hardcoded date.
+- Copy every table and column name EXACTLY as spelled in the schema above, character for character. Do not alter, abbreviate, or "correct" the spelling of any identifier.
+- A column such as RISK_CATEGORY, CATEGORY, ITEM, or DESCRIPTION is a plain text VALUE stored directly on the table shown above — it is NOT a separate lookup/dimension table. Never JOIN to a table that is not listed under "Allowed tables".
+- "Allowed tables" is listed in relevance order — the FIRST table is the best match to the question. Several tables may be listed because they are topically similar, not because the question needs all of them. If the first table's own columns already answer the question, use ONLY that table. Only JOIN a second table when the question explicitly needs data that genuinely does not exist on the first table.
 
 ### Answer
 Return ONLY a raw SQL SELECT query. No explanation, no markdown, no code fences, no semicolon.
@@ -555,7 +625,7 @@ def _find_total_row(values: list) -> str | None:
     return None
 
 
-def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, model_name=None):
+def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, model_name=None, qa_example=None):
     if today_date is None:
         today_date = date.today().isoformat()
 
@@ -666,23 +736,35 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
             vertical_tables=vertical_tables,
             dom_ove_tables=dom_ove_tables,
             multipart_tables=multipart_tables,
+            qa_example=qa_example,
         )
 
     template = _build_full_rules_block(dialect_hint) if supports_full_ruleset else _build_compressed_rules_block(dialect_hint)
+
+    qa_example_block = ""
+    if qa_example:
+        qa_example_block = f"""
+════════════════════════════════════════════════
+CLOSEST MATCHING PRIOR EXAMPLE (table: {qa_example['table']}) — follow this pattern
+════════════════════════════════════════════════
+Q: {qa_example['question']}
+SQL: {qa_example['sql']}
+"""
+
     return f"""{template}
 ════════════════════════════════════════════════
 SCHEMA CONTEXT
 ════════════════════════════════════════════════
 {schema_context}
-
+{qa_example_block}
 ════════════════════════════════════════════════
 Allowed tables: {valid_tables}
 {time_context_block}User question: {user_query}
 ════════════════════════════════════════════════
 SQL:"""
 
-def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None):
-    prompt = build_prompt(user_query, tables, columns, dialect=dialect, today_date=today_date, matched_labels=matched_labels)
+def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, qa_example=None):
+    prompt = build_prompt(user_query, tables, columns, dialect=dialect, today_date=today_date, matched_labels=matched_labels, qa_example=qa_example)
     model_name = config.OLLAMA_MODEL
     model_profile = _get_model_profile(model_name)
 
@@ -692,20 +774,22 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
     if model_profile.get("prompt_style") == "minimal" and needs_multi_part_output:
         effective_num_predict = max(effective_num_predict or 0, config.MINIMAL_MULTIPART_NUM_PREDICT)
 
-    def _call_ollama(prompt_text: str):
+    def _call_ollama(prompt_text: str, temperature_override=None, call_label="call"):
         payload = {
             "model": model_name,
             "prompt": prompt_text,
             "stream": True,   # stream tokens as they arrive
         }
-        options = {}
-        if model_profile.get("temperature") is not None:
+        options = {"num_ctx": config.OLLAMA_NUM_CTX}
+        if temperature_override is not None:
+            options["temperature"] = temperature_override
+        elif model_profile.get("temperature") is not None:
             options["temperature"] = model_profile["temperature"]
         if effective_num_predict is not None:
             options["num_predict"] = effective_num_predict
-        if options:
-            payload["options"] = options
+        payload["options"] = options
 
+        _call_started = time.perf_counter()
         try:
             response = requests.post(config.OLLAMA_URL, json=payload, timeout=300, stream=True)
             response.raise_for_status()
@@ -719,6 +803,7 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             )
         except requests.exceptions.HTTPError as e:
             raise RuntimeError(f"Ollama API error: {e}")
+        _connect_ms = round((time.perf_counter() - _call_started) * 1000, 1)
 
         print("  ", end="", flush=True)
         raw = ""
@@ -732,10 +817,16 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             if chunk.get("done"):
                 break
         print()
+        total_ms = round((time.perf_counter() - _call_started) * 1000, 1)
+        # Prompt length correlates with time-to-first-token on a remote proxy —
+        # log it alongside timing so a slow call can be attributed to network/
+        # model latency vs. an oversized prompt, instead of staying a mystery.
+        print(f"[TIMING] ollama {call_label}: connect={_connect_ms}ms total={total_ms}ms "
+              f"prompt_chars={len(prompt_text)} response_chars={len(raw)}")
         return raw
 
     print(f"[DEBUG] Ollama model={model_name} prompt_style={model_profile.get('prompt_style')} supports_full_ruleset={model_profile.get('supports_full_ruleset')}" )
-    raw = _call_ollama(prompt)
+    raw = _call_ollama(prompt, call_label="first_attempt")
 
     # Strip markdown fences if present
     raw = re.sub(r'^```(?:sql)?\s*', '', raw.strip(), flags=re.IGNORECASE)
@@ -745,16 +836,53 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
 
     is_valid, reason = validate_sql(raw, tables, columns)
     warnings = []
+    first_attempt_sql, first_attempt_reason = raw, reason
 
     if not is_valid:
+        # Keep the retry prompt short: resending the full original prompt here
+        # doubles its size (schema context + rules + bad SQL + reason) and can
+        # overflow the model's context window, causing it to return nothing.
+        valid_tables_str = ", ".join(t["table"].upper() for t in tables)
+        valid_cols_str = ", ".join(f"{c['table'].upper()}.{c['column'].upper()}" for c in columns)
+
+        extra_hint = ""
+        category = _validation_failure_category(reason)
+        if category == "hallucinated table":
+            extra_hint = (
+                "\nYou invented a table that is not in the allowed list — most likely by either "
+                "misspelling an allowed table name, or by treating a plain text column (like a "
+                "category/description/label column) as if it were its own lookup table. "
+                "Re-read the allowed table names character by character and copy them exactly; "
+                "do not JOIN to anything outside that list."
+            )
+        elif category == "hallucinated column":
+            extra_hint = (
+                "\nYou used a column name that does not exist on the table/alias you attached it to. "
+                "Double-check which specific table each alias refers to before using alias.column."
+            )
+
         retry_prompt = (
-            "The previous SQL was invalid. Return ONLY the corrected SQL.\n\n"
-            f"Original prompt:\n{prompt}\n\n"
+            "The previous SQL was invalid. Return ONLY the corrected raw SQL SELECT query "
+            "(no explanation, no markdown, no semicolon).\n\n"
+            f"User question: {user_query}\n\n"
+            f"Allowed tables (this is the COMPLETE list — do not use, JOIN to, or invent ANY table "
+            f"not in this list, including lookup/dimension tables for category or label columns):\n"
+            f"{valid_tables_str}\n\n"
+            f"Allowed columns (these are the ONLY columns that exist — do not invent a column name "
+            f"that merely sounds plausible, such as an ID, code, or country field not listed here):\n"
+            f"{valid_cols_str}\n\n"
             f"Invalid SQL:\n{raw}\n\n"
-            f"Validation reason:\n{reason}\n\n"
+            f"Validation reason:\n{reason}{extra_hint}\n\n"
             "Corrected SQL:"
         )
-        raw = _call_ollama(retry_prompt)
+        # Model temperature is 0.0 for deterministic generation, so resending the
+        # exact same prompt reproduces the identical wrong answer — but pushing
+        # temperature too high (tried 0.4) let a weak 7B model wander into pure
+        # fabrication (inventing entire fictional tables/columns unrelated to
+        # this schema) instead of correcting itself. Keep the nudge small.
+        base_temp = model_profile.get("temperature")
+        retry_temp = 0.15 if base_temp is not None and base_temp <= 0.05 else base_temp
+        raw = _call_ollama(retry_prompt, temperature_override=retry_temp, call_label="retry")
         raw = re.sub(r'^```(?:sql)?\s*', '', raw.strip(), flags=re.IGNORECASE)
         raw = re.sub(r'```\s*$', '', raw).strip()
         raw = raw.rstrip().rstrip(";")
@@ -768,6 +896,16 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
         )
         warnings.append(warning)
         print(f"[WARNING] {warning}")
+        _log_hallucination(
+            user_query=user_query,
+            tables=tables,
+            model_name=model_name,
+            first_attempt_sql=first_attempt_sql,
+            first_attempt_reason=first_attempt_reason,
+            retry_sql=raw,
+            retry_reason=reason,
+            category=category,
+        )
 
     return {
         "question_understanding": "",
@@ -826,6 +964,48 @@ def validate_sql(sql, tables, columns):
     if not referenced_tables & valid_table_names:
         return False, f"Query does not reference any matched table: {sorted(valid_table_names)}"
 
+    # 5.5 — alias-aware column check: a column name can be valid on SOME matched
+    # table but still be wrong on the specific table/alias it's qualified with
+    # (e.g. "b.gross_amt_os_dom" where b = SEC9_SENSEC_PARTB but that column only
+    # exists on SEC9_SENSEC_PARTA). Catch that here instead of letting Oracle
+    # reject it with ORA-00904 at execution time.
+    columns_by_table = {}
+    for c in all_columns:
+        columns_by_table.setdefault(c["table"].lower(), set()).add(c["column"].lower())
+
+    _NON_ALIAS_TOKENS = _SQL_KEYWORDS | {"on", "using"}
+    alias_to_table = {}
+    # Match ONLY the table name here — do not also try to capture a trailing
+    # alias in the same match. Capturing it inline (the old approach) makes
+    # that match's span SWALLOW the next token; in "FROM a JOIN b", the "JOIN"
+    # keyword gets consumed as a's (rejected) alias, and finditer then never
+    # sees "JOIN b" as a separate trigger at all — b never enters
+    # alias_to_table, so every b.column reference resolves to table=None and
+    # silently skips validation instead of being checked. Peeking ahead for
+    # an alias without consuming it (below) keeps each "from|join <table>"
+    # match to just the table name, so back-to-back joins are never merged.
+    for m in re.finditer(r'\b(?:from|join)\s+([a-z_][a-z0-9_]*)', q_for_tables):
+        tbl = m.group(1)
+        if tbl not in valid_table_names:
+            continue
+        alias_to_table[tbl] = tbl
+        alias_match = re.match(r'\s+(?:as\s+)?([a-z_][a-z0-9_]*)', q_for_tables[m.end():])
+        if alias_match:
+            alias = alias_match.group(1)
+            if alias not in _NON_ALIAS_TOKENS:
+                alias_to_table[alias] = tbl
+
+    mismatched = []
+    for alias, col in re.findall(r'\b([a-z_][a-z0-9_]*)\.([a-z_][a-z0-9_]*)\b', q_for_tables):
+        table = alias_to_table.get(alias)
+        if table is None or col in _SQL_KEYWORDS:
+            continue
+        if col not in columns_by_table.get(table, set()):
+            mismatched.append(f"{alias}.{col} (table {table.upper()} has no such column)")
+
+    if mismatched:
+        return False, f"Column/table mismatch: {sorted(set(mismatched))}"
+
     # 6 — check outermost SELECT-list columns only
     select_body = re.split(r'\bfrom\b', q_for_tables, maxsplit=1)[0]
     select_body = select_body.replace("select", "", 1).strip()
@@ -839,10 +1019,25 @@ def validate_sql(sql, tables, columns):
 
     col_tokens = re.findall(r'(?:[a-z_][a-z0-9_]*\.)?([a-z_][a-z0-9_]*)', select_body)
 
+    # An UNQUALIFIED column (no table.column prefix) in a genuinely single-table
+    # query (no JOIN) must belong to THAT specific table — not just to some
+    # table among all matched candidates. Falling back to valid_col_names
+    # (the union across every candidate table) let a column that only exists
+    # on a completely different matched table (e.g. STD_FUN_ADV from
+    # SEC8_INFRA_BRKUP) silently pass validation on a SEC3_PART_B-only query,
+    # only to fail with ORA-00904 at the database. Qualified references
+    # (alias.column) are already checked precisely by the step 5.5 logic
+    # above; this closes the same gap for the unqualified, single-table case.
+    if len(real_table_refs) == 1:
+        only_table = next(iter(real_table_refs))
+        effective_col_names = columns_by_table.get(only_table, valid_col_names)
+    else:
+        effective_col_names = valid_col_names
+
     hallucinated_cols = {
         t for t in col_tokens
         if (
-            t not in valid_col_names
+            t not in effective_col_names
             and t not in _SQL_KEYWORDS
             and t not in subquery_aliases     # ← skip aliases defined in subqueries
             and t != "*"

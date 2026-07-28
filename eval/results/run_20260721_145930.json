@@ -1,0 +1,75 @@
+{
+  "summary": {
+    "total_questions": 3,
+    "table_retrieval_accuracy": 1.0,
+    "avg_column_recall": 1.0,
+    "sql_validity_rate": 0.6666666666666666,
+    "execution_success_rate": null,
+    "execution_match_accuracy": null
+  },
+  "results": [
+    {
+      "question": "Show the general information section of the annual RAQ return",
+      "gold_table": "CIMS_RAQ_M_GEN_INFO",
+      "gold_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+      "matched_tables": [
+        "CIMS_RAQ_M_GEN_INFO",
+        "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+        "CIMS_RAQ_Q_SEC2_PART_A"
+      ],
+      "table_hit": true,
+      "table_rank": 1,
+      "column_recall": 1.0,
+      "pred_sql": "SELECT g.description, g.value FROM CIMS_RAQ_M_GEN_INFO g WHERE g.rdate = (SELECT MAX(g.rdate) FROM CIMS_RAQ_M_GEN_INFO) AND g.code IN ('Bank Code', 'Date of Report', 'Reporting Frquency', 'For the Period Ended')",
+      "sql_valid": true,
+      "validation_reason": "Valid",
+      "warnings": [],
+      "exec_success": null,
+      "exec_match": null,
+      "exec_error": null
+    },
+    {
+      "question": "What bank code is reported in the CIMS RAQ annual return general info?",
+      "gold_table": "CIMS_RAQ_M_GEN_INFO",
+      "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+      "matched_tables": [
+        "CIMS_RAQ_M_GEN_INFO",
+        "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+        "CIMS_RAQ_M_SIGN_INFO"
+      ],
+      "table_hit": true,
+      "table_rank": 1,
+      "column_recall": 1.0,
+      "pred_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+      "sql_valid": true,
+      "validation_reason": "Valid",
+      "warnings": [],
+      "exec_success": null,
+      "exec_match": null,
+      "exec_error": null
+    },
+    {
+      "question": "Get the reporting period and frequency from the annual return header",
+      "gold_table": "CIMS_RAQ_M_GEN_INFO",
+      "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Reporting Period','Frequency') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+      "matched_tables": [
+        "CIMS_RAQ_M_GEN_INFO",
+        "CIMS_RAQ_Q_SEC6_PART_B",
+        "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+        "CIMS_RAQ_Q_SEC4_PART_C"
+      ],
+      "table_hit": true,
+      "table_rank": 1,
+      "column_recall": 1.0,
+      "pred_sql": "SELECT g.VALUE AS reporting_period, p.VALUE AS frequency FROM CIMS_RAQ_M_GEN_INFO g JOIN CIMS_RAQ_Q_SEC4_PART_C p ON g.CODE = p.CODE WHERE g.DESCRIPTION = 'Reporting Period' AND p.DESCRIPTION = 'Frequency'",
+      "sql_valid": false,
+      "validation_reason": "Column/table mismatch: ['p.value (table CIMS_RAQ_Q_SEC4_PART_C has no such column)']",
+      "warnings": [
+        "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['p.value (table CIMS_RAQ_Q_SEC4_PART_C has no such column)']"
+      ],
+      "exec_success": null,
+      "exec_match": null,
+      "exec_error": null
+    }
+  ]
+}

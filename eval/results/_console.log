@@ -1,0 +1,40 @@
+[1/144] CIMS_RAQ_M_GEN_INFO :: Show the general information section of the annual RAQ return
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT * FROM CIMS_RAQ_M_GEN_INFO;
+[2/144] CIMS_RAQ_M_GEN_INFO :: What bank code is reported in the CIMS RAQ annual return general info?
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+   SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)
+[3/144] CIMS_RAQ_M_GEN_INFO :: Get the reporting period and frequency from the annual return header
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT g.VALUE AS reporting_period, g.RDATE AS frequency FROM CIMS_RAQ_M_GEN_INFO g WHERE g.CODE = 'REPORTING_PERIOD'
+[4/144] CIMS_RAQ_M_GEN_INFO :: List all general info key-value pairs for a given bank and reporting d
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT * FROM CIMS_RAQ_M_GEN_INFO g WHERE g.BANK = 'A' AND g.RDATE = '2019-07-31'
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.bank (table CIMS_RAQ_M_GEN_INFO has no such column)']
+[5/144] CIMS_RAQ_M_GEN_INFO :: What is the return name and return code for CIMS RAQ Annual?
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT g.code AS return_code, g.description AS return_name FROM CIMS_RAQ_M_GEN_INFO g WHERE g.rdate = (SELECT MAX(g.rdate) FROM CIMS_RAQ_M_GEN_INFO);
+[6/144] CIMS_RAQ_M_GEN_INFO :: Fetch the bank category and audit/validation status of the annual retu
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT g.bank_category, g.audit_status FROM CIMS_RAQ_M_GEN_INFO g JOIN CIMS_RAQ_M_SEC9_SENSEC_PARTB s ON g.code = s.sec9_partb WHERE g.code = 'AUDIT_STATUS'
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.audit_status (table CIMS_RAQ_M_GEN_INFO has no such column)', 'g.bank_category (table CIMS_RAQ_M_GEN_INFO has no such column)', 's.sec9_partb (table CIMS_RAQ_M_SEC9_SENSEC_PARTB has no such column)']
+[7/144] CIMS_RAQ_M_SIGN_INFO :: Who is the authorised signatory for the annual RAQ return?
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+   SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)
+[8/144] CIMS_RAQ_M_SIGN_INFO :: Show the designation and email id of the signatory
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+   SELECT s.DESCRIPTION AS signatory_info, s.VALUE AS value FROM CIMS_RAQ_M_SIGN_INFO s WHERE s.RDATE = (SELECT MAX(s2.RDATE) FROM CIMS_RAQ_M_SIGN_INFO s2) AND s.DESCRIPTION IN ('Designation', 'E-mail ID');
+[9/144] CIMS_RAQ_M_SIGN_INFO :: Get mobile and landline number of the authorised signatory for a bank
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT s.mobile, s.landline FROM CIMS_RAQ_M_SIGN_INFO s JOIN CIMS_RAQ_M_GEN_INFO g ON s.code = g.code WHERE g.code = '1000000000';
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['s.landline (table CIMS_RAQ_M_SIGN_INFO has no such column)', 's.mobile (table CIMS_RAQ_M_SIGN_INFO has no such column)']
+[10/144] CIMS_RAQ_M_SIGN_INFO :: What place and date was the annual return signed at?
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=minimal supports_full_ruleset=False
+  
+   SELECT s.PLACE, to_char(s.RDATE, 'YYYY-MM-DD') AS RDATE FROM CIMS_RAQ_M_SIGN_INFO s;

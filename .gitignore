@@ -5,9 +5,9 @@ __pycache__/
 *.egg-info/
 .Python
 
-# Vector indexes (binary, rebuilt via python main.py)
-output/*.faiss
-output/*.pkl
+# Vector indexes (binary, rebuilt via python embedding_building/main.py)
+embedding_building/output/*.faiss
+embedding_building/output/*.pkl
 
 # Frontend
 frontend/node_modules/

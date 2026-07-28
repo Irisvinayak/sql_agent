@@ -1,0 +1,215 @@
+[
+  {
+    "question": "Show the general information section of the annual RAQ return",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+      "CIMS_RAQ_Q_SEC2_PART_A"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What bank code is reported in the CIMS RAQ annual return general info?",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get the reporting period and frequency from the annual return header",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Reporting Period','Frequency') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT g.VALUE AS reporting_period, g.RDATE AS frequency FROM CIMS_RAQ_M_GEN_INFO g WHERE g.CODE = 'REPORTING_PERIOD'",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List all general info key-value pairs for a given bank and reporting date",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_Q_SEC6_PART_B"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO g WHERE g.BANK = 'A' AND g.RDATE = '2019-07-31'",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['g.bank (table CIMS_RAQ_M_GEN_INFO has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.bank (table CIMS_RAQ_M_GEN_INFO has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the return name and return code for CIMS RAQ Annual?",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Return Name','Return Code') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_M_SIGN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT g.code AS return_code, g.description AS return_name FROM CIMS_RAQ_M_GEN_INFO g WHERE g.rdate = (SELECT MAX(g.rdate) FROM CIMS_RAQ_M_GEN_INFO)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Fetch the bank category and audit/validation status of the annual return",
+    "gold_table": "CIMS_RAQ_M_GEN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Bank Category','Audit Status','Validation Status') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT g.bank_category, g.audit_status FROM CIMS_RAQ_M_GEN_INFO g JOIN CIMS_RAQ_M_SEC9_SENSEC_PARTB s ON g.code = s.sec9_partb WHERE g.code = 'AUDIT_STATUS'",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['g.audit_status (table CIMS_RAQ_M_GEN_INFO has no such column)', 'g.bank_category (table CIMS_RAQ_M_GEN_INFO has no such column)', 's.sec9_partb (table CIMS_RAQ_M_SEC9_SENSEC_PARTB has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.audit_status (table CIMS_RAQ_M_GEN_INFO has no such column)', 'g.bank_category (table CIMS_RAQ_M_GEN_INFO has no such column)', 's.sec9_partb (table CIMS_RAQ_M_SEC9_SENSEC_PARTB has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Who is the authorised signatory for the annual RAQ return?",
+    "gold_table": "CIMS_RAQ_M_SIGN_INFO",
+    "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_SIGN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+      "CIMS_RAQ_M_GEN_INFO"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show the designation and email id of the signatory",
+    "gold_table": "CIMS_RAQ_M_SIGN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Designation','E-mail ID') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_SIGN_INFO",
+      "CIMS_RAQ_Q_SEC5_TOP_CR",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB_bckup"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT s.DESCRIPTION AS signatory_info, s.VALUE AS value FROM CIMS_RAQ_M_SIGN_INFO s WHERE s.RDATE = (SELECT MAX(s2.RDATE) FROM CIMS_RAQ_M_SIGN_INFO s2) AND s.DESCRIPTION IN ('Designation', 'E-mail ID')",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get mobile and landline number of the authorised signatory for a bank",
+    "gold_table": "CIMS_RAQ_M_SIGN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Mobile No','Landline No') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_SIGN_INFO",
+      "CIMS_RAQ_M_GEN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT s.mobile, s.landline FROM CIMS_RAQ_M_SIGN_INFO s JOIN CIMS_RAQ_M_GEN_INFO g ON s.code = g.code WHERE g.code = '1000000000'",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['s.landline (table CIMS_RAQ_M_SIGN_INFO has no such column)', 's.mobile (table CIMS_RAQ_M_SIGN_INFO has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['s.landline (table CIMS_RAQ_M_SIGN_INFO has no such column)', 's.mobile (table CIMS_RAQ_M_SIGN_INFO has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What place and date was the annual return signed at?",
+    "gold_table": "CIMS_RAQ_M_SIGN_INFO",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Place','Date') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "matched_tables": [
+      "CIMS_RAQ_M_SIGN_INFO",
+      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
+      "CIMS_RAQ_M_GEN_INFO"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 0.3333333333333333,
+    "pred_sql": "SELECT s.PLACE, to_char(s.RDATE, 'YYYY-MM-DD') AS RDATE FROM CIMS_RAQ_M_SIGN_INFO s",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['s.place (table CIMS_RAQ_M_SIGN_INFO has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['s.place (table CIMS_RAQ_M_SIGN_INFO has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  }
+]
