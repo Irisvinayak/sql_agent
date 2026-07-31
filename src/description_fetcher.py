@@ -180,22 +180,39 @@ def build_and_save_label_index(samples: dict | None = None):
     return index, records
 
 
-def search_labels(query: str, table_names: set, top_k: int = 8) -> list:
+def search_labels(query_vec, table_names: set, top_k: int = 8) -> list:
     """
-    Retrieve the top-k row-label values most semantically similar to *query*,
-    restricted to the given *table_names*.
+    Retrieve the top-k row-label values most semantically similar to the
+    given PRE-COMPUTED query embedding, restricted to *table_names*.
+
+    query_vec: embedding from src.vectorizer.embed_query (or
+    src.retriever.compute_query_embedding) — callers should reuse the same
+    vector already computed for the table/column search rather than
+    re-embedding the same query text here.
 
     Returns list of dicts: [{table, column, value}, ...]
     Falls back to an empty list if the index does not exist.
     """
-    return [lbl for _, lbl in search_labels_with_scores(query, top_k=top_k * 3)
+    return [lbl for _, lbl in search_labels_with_scores(query_vec, top_k=top_k * 3)
             if lbl["table"] in table_names][:top_k]
 
 
-def search_labels_with_scores(query: str, top_k: int = 30) -> list:
+# Cache of the loaded row-label FAISS index + metadata, keyed by
+# (index_path, meta_path) — mirrors src.retriever._index_cache so this index
+# is also loaded once instead of re-read from disk on every call.
+_label_index_cache: dict = {}
+
+
+def clear_label_index_cache():
+    """Drop the cached row-label index — call after rebuilding embeddings."""
+    _label_index_cache.clear()
+
+
+def search_labels_with_scores(query_vec, top_k: int = 30) -> list:
     """
     Retrieve the top-k row-label values with their similarity scores,
-    across ALL tables (no table filter).
+    across ALL tables (no table filter), using a PRE-COMPUTED query
+    embedding (see search_labels docstring).
 
     Returns list of (score, dict) where dict has keys: table, column, value.
     Falls back to an empty list if the index does not exist.
@@ -203,20 +220,23 @@ def search_labels_with_scores(query: str, top_k: int = 30) -> list:
     import faiss as _faiss
     import pickle
     import numpy as np
-    from src.vectorizer import embed_query
 
     index_path, meta_path = _row_label_index_path(), _row_label_meta_path()
-    if not os.path.exists(index_path):
+    cache_key = (index_path, meta_path)
+    if cache_key not in _label_index_cache:
+        if not os.path.exists(index_path):
+            _label_index_cache[cache_key] = (None, [])
+        else:
+            index = _faiss.read_index(index_path)
+            with open(meta_path, "rb") as f:
+                meta = pickle.load(f)
+            _label_index_cache[cache_key] = (index, meta)
+    index, meta = _label_index_cache[cache_key]
+
+    if index is None or not meta:
         return []
 
-    index = _faiss.read_index(index_path)
-    with open(meta_path, "rb") as f:
-        meta = pickle.load(f)
-
-    if not meta:
-        return []
-
-    q_vec = np.array([embed_query(query)], dtype="float32")
+    q_vec = np.asarray(query_vec, dtype="float32").reshape(1, -1)
     effective_k = min(top_k, len(meta))
     distances, indices = index.search(q_vec, effective_k)
 

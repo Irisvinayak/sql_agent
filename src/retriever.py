@@ -111,7 +111,50 @@ def best_qa_similarity(a: str, b: str) -> float:
     return max(text_similarity(a, b), token_similarity(a, b))
 
 
-def find_exact_qa_match(query: str):
+def _rerank_qa_hits(query: str, qa_hits: list) -> list:
+    """
+    Embedding score alone does not reliably rank near-tied QA candidates:
+    two hits 0.001-0.03 apart in cosine score (routine for this schema, since
+    table/question descriptions are worded similarly) can differ hugely in
+    whether they're actually about the same topic — e.g. "total export
+    credit exposure" vs "total domestic loan exposure" both score ~0.81
+    against "show total loan from cims raq". Among the hits that clear
+    QA_EXAMPLE_MIN_SCORE, re-rank by best_qa_similarity (literal/token text
+    overlap), which discriminates far better here, so a genuinely
+    better-worded match wins instead of embedding noise picking the winner.
+
+    Only affects which SINGLE hit is treated as "the" best match (for the
+    strong-match/forced-table tier, the score bonus, and the few-shot
+    example) — the RRF fusion signal over all qa_hits is untouched.
+    """
+    if not qa_hits:
+        return qa_hits
+    strong_enough = [pair for pair in qa_hits if pair[0] >= QA_EXAMPLE_MIN_SCORE]
+    if len(strong_enough) <= 1:
+        return qa_hits
+    reranked = sorted(
+        strong_enough,
+        key=lambda pair: best_qa_similarity(query, pair[1]["question"]),
+        reverse=True,
+    )
+    rest = [h for h in qa_hits if h not in strong_enough]
+    return reranked + rest
+
+
+def compute_query_embedding(query: str):
+    """
+    Embed the jargon-expanded query ONCE. Both find_exact_qa_match and
+    get_relevant_schema need the same vector (they embed the same expanded
+    text) — call this once per request and pass the result to both via their
+    query_vec= parameter, instead of letting each function (and each of the
+    4 signals inside get_relevant_schema) re-run model.encode() on its own.
+    Measured cost of a single embed_query() call is ~100ms on CPU; before
+    this, a single request could pay for it up to 6 times.
+    """
+    return embed_query(_expand_query(query))
+
+
+def find_exact_qa_match(query: str, query_vec=None):
     """
     Cheap, standalone check run BEFORE any table/column shortlisting: look up
     only the qa_index (question -> gold SQL) for a near-identical stored
@@ -119,9 +162,14 @@ def find_exact_qa_match(query: str):
     in qa_pairs.json, there's nothing to retrieve or generate — just reuse
     the verified answer.
 
+    query_vec: optional pre-computed embedding (see compute_query_embedding).
+    If omitted, computed internally so existing callers keep working unchanged.
+
     Returns {question, sql, table, text_similarity} or None.
     """
-    hits = search_qa(_expand_query(query), top_k=1)
+    if query_vec is None:
+        query_vec = compute_query_embedding(query)
+    hits = search_qa(query_vec, top_k=1)
     if not hits:
         return None
     _score, qa = hits[0]
@@ -178,8 +226,8 @@ def _apply_quarterly_fallback(tables):
 # ── Banking / CIMS domain abbreviation expansion ──────────────────────────────
 _QUERY_EXPANSIONS = [
     (r'\bnpa\b',    'NPA non performing assets'),
-    (r'\bgnpa\b',   'gross NPA non performing assets'),
-    (r'\bnnpa\b',   'net NPA non performing assets'),
+    (r'\bgnpa\b',   'gross NPA non performing assets GNPA'),
+    (r'\bnnpa\b',   'net NPA non performing assets NNPA'),
     (r'\bsma\b',    'special mention accounts SMA'),
     (r'\bcar\b',    'capital adequacy ratio CAR'),
     (r'\bpcr\b',    'provision coverage ratio PCR'),
@@ -227,18 +275,43 @@ def _dynamic_top_k(query: str) -> int:
     return TOP_K_TABLES
 
 
-def search(index_path, meta_path, query, k, min_score=0.0):
-    """Search a FAISS index, returning only hits above min_score."""
-    index = faiss.read_index(index_path)
+# Cache of loaded FAISS indexes + metadata, keyed by (index_path, meta_path)
+# so a scope switch (different EMBEDDING_DIR) naturally gets its own cache
+# entry instead of serving a stale index. Previously every search() call
+# re-read and unpickled these files from disk — cheap for today's small
+# indexes but still wasted, repeated work on every single request.
+_index_cache: dict = {}
 
-    with open(meta_path, "rb") as f:
-        meta = pickle.load(f)
 
-    if not meta:
+def clear_index_cache():
+    """Drop cached FAISS indexes — call after rebuilding embeddings so the
+    running process picks up the new files instead of serving stale ones."""
+    _index_cache.clear()
+
+
+def _get_index(index_path, meta_path):
+    key = (index_path, meta_path)
+    if key not in _index_cache:
+        if not os.path.exists(index_path):
+            _index_cache[key] = (None, [])
+        else:
+            index = faiss.read_index(index_path)
+            with open(meta_path, "rb") as f:
+                meta = pickle.load(f)
+            _index_cache[key] = (index, meta)
+    return _index_cache[key]
+
+
+def search(index_path, meta_path, query_vec, k, min_score=0.0):
+    """Search a FAISS index using a PRE-COMPUTED query embedding, returning
+    only hits above min_score. Index/metadata are loaded once and cached
+    (see _get_index) rather than re-read from disk on every call."""
+    index, meta = _get_index(index_path, meta_path)
+    if index is None or not meta:
         return []
 
     effective_k = min(k, len(meta))
-    q_vec = np.array([embed_query(query)]).astype("float32")
+    q_vec = np.asarray(query_vec, dtype="float32").reshape(1, -1)
     distances, indices = index.search(q_vec, effective_k)
 
     results = []
@@ -253,41 +326,55 @@ def _rrf(rank: int, k: int = 60) -> float:
     return 1.0 / (k + rank + 1)
 
 
-def search_qa(query: str, top_k: int = 15):
+def search_qa(query_vec, top_k: int = 15):
     """
     Search the table_qa.json-derived question index (test/qa_index.faiss),
-    built by test/build_test_index.py. Returns [] if it hasn't been built.
+    built by test/build_test_index.py, using a pre-computed query embedding.
+    Returns [] if the index hasn't been built.
     """
     qa_index_path = f"{config.EMBEDDING_DIR}/qa_index.faiss"
     qa_meta_path = f"{config.EMBEDDING_DIR}/qa_meta.pkl"
-    if not os.path.exists(qa_index_path):
-        return []
-    return search(qa_index_path, qa_meta_path, query, top_k, min_score=MIN_TABLE_SCORE)
+    return search(qa_index_path, qa_meta_path, query_vec, top_k, min_score=MIN_TABLE_SCORE)
 
 
-def get_relevant_schema(query: str):
+def get_relevant_schema(query: str, query_vec=None):
+    """
+    query_vec: optional pre-computed embedding of the jargon-expanded query
+    (see compute_query_embedding). Pass this in when the caller already
+    computed it (e.g. alongside find_exact_qa_match for the same request) to
+    avoid embedding the same text twice. If omitted, computed internally —
+    all 4 signals below (and the later row-label lookup) reuse this ONE
+    vector instead of each calling embed_query() independently.
+    """
     expanded = _expand_query(query)
+    if query_vec is None:
+        query_vec = embed_query(expanded)
     top_k = _dynamic_top_k(query)
     embedding_dir = config.EMBEDDING_DIR
 
     # ── Signal A: direct table semantic search ────────────────────────────────
     table_hits = search(
         f"{embedding_dir}/table_index.faiss", f"{embedding_dir}/table_meta.pkl",
-        expanded, top_k * 3, min_score=MIN_TABLE_SCORE,
+        query_vec, top_k * 3, min_score=MIN_TABLE_SCORE,
     )
 
     # ── Signal B: column search → which tables do best columns belong to? ─────
     col_hits = search(
         f"{embedding_dir}/column_index.faiss", f"{embedding_dir}/column_meta.pkl",
-        expanded, TOP_K_COLUMNS * 6, min_score=MIN_COLUMN_SCORE,
+        query_vec, TOP_K_COLUMNS * 6, min_score=MIN_COLUMN_SCORE,
     )
 
     # ── Signal C: row-label search → which tables do best labels belong to? ───
     from src.description_fetcher import search_labels_with_scores
-    label_hits = search_labels_with_scores(expanded, top_k=TOP_K_LABELS * 3)
+    label_hits = search_labels_with_scores(query_vec, top_k=TOP_K_LABELS * 3)
 
     # ── Signal D: question→SQL example search (test/qa_index.faiss, optional) ─
-    qa_hits = search_qa(expanded, top_k=top_k * 3)
+    qa_hits = search_qa(query_vec, top_k=top_k * 3)
+    # Best single QA match, re-ranked by text/token overlap rather than raw
+    # embedding rank — see _rerank_qa_hits docstring. Used below wherever ONE
+    # winning hit is picked (bonus, strong-match, few-shot example); RRF
+    # fusion over all qa_hits a few lines down is untouched.
+    qa_hits_ranked = _rerank_qa_hits(query, qa_hits)
 
     # ── RRF: fuse all 3 signals into a single table ranking ───────────────────
     # Different sources can disagree on table-name casing (schema.json-derived
@@ -359,8 +446,8 @@ def get_relevant_schema(query: str):
     # by how far above the "trustworthy example" bar it scores, so a
     # confident question match can override a crowd of similarly-scored but
     # actually-unrelated tables instead of being diluted into one more vote.
-    if qa_hits:
-        top_qa_score, top_qa = qa_hits[0]
+    if qa_hits_ranked:
+        top_qa_score, top_qa = qa_hits_ranked[0]
         if top_qa_score >= QA_EXAMPLE_MIN_SCORE:
             bonus_tbl = _norm(top_qa["table"])
             bonus = (top_qa_score - QA_EXAMPLE_MIN_SCORE) * 5.0
@@ -403,8 +490,8 @@ def get_relevant_schema(query: str):
     # certain. This is the "95%+ -> ground the LLM hard with this near-exact
     # example" tier. Token similarity catches real paraphrases (reordered
     # clauses, plurals, synonyms) that character-diff alone would miss.
-    if qa_hits:
-        _top_score, _top_qa = qa_hits[0]
+    if qa_hits_ranked:
+        _top_score, _top_qa = qa_hits_ranked[0]
         if best_qa_similarity(query, _top_qa["question"]) >= STRONG_MATCH_MIN_RATIO:
             strong_table = _top_qa["table"]
             tables = [t for t in tables if t["table"].upper() != strong_table.upper()]
@@ -427,14 +514,16 @@ def get_relevant_schema(query: str):
     columns = unique_cols[:TOP_K_COLUMNS * 2]
 
     # ── Row labels: restrict to selected tables ───────────────────────────────
+    # Reuses query_vec (same embedding as label_hits above) instead of
+    # re-embedding — this used to be a 6th independent embed_query() call.
     from src.description_fetcher import search_labels
-    matched_labels = search_labels(query, table_names, top_k=TOP_K_LABELS)
+    matched_labels = search_labels(query_vec, table_names, top_k=TOP_K_LABELS)
 
     # ── Best qa_index match: surfaced separately for few-shot prompt injection ─
-    # qa_hits is already sorted best-first (FAISS IndexFlatIP + normalised vecs).
+    # Use the re-ranked winner (text/token overlap), not raw embedding rank.
     qa_example = None
-    if qa_hits and qa_hits[0][0] >= QA_EXAMPLE_MIN_SCORE:
-        score, qa = qa_hits[0]
+    if qa_hits_ranked and qa_hits_ranked[0][0] >= QA_EXAMPLE_MIN_SCORE:
+        score, qa = qa_hits_ranked[0]
         qa_example = {
             "question": qa["question"], "sql": qa["sql"], "table": qa["table"],
             "score": score,

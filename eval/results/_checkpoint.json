@@ -4,14 +4,14 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
-      "CIMS_RAQ_Q_SEC2_PART_A"
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec2_part_a_npa"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC2_PART_A",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -25,13 +25,14 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+      "cims_raq_q_sec7_exp_cr",
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec9_sensec_partb"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec7_exp_cr.code FROM cims_raq_q_sec7_exp_cr JOIN cims_raq_q_sec8_sec_credit ON cims_raq_q_sec7_exp_cr.code = cims_raq_q_sec8_sec_credit.code",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -45,15 +46,19 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Reporting Period','Frequency') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO"
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec1_last_date_port",
+      "cims_raq_q_sec2_part_a"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT g.VALUE AS reporting_period, g.RDATE AS frequency FROM CIMS_RAQ_M_GEN_INFO g WHERE g.CODE = 'REPORTING_PERIOD'",
-    "sql_valid": true,
-    "validation_reason": "Valid",
-    "warnings": [],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT h.REPORTING_PERIOD, h.REPORTING_FREQUENCY FROM CIMS_RAQ_Q_SEC4_PART_A h",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['h.reporting_frequency (table CIMS_RAQ_Q_SEC4_PART_A has no such column)', 'h.reporting_period (table CIMS_RAQ_Q_SEC4_PART_A has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['h.reporting_frequency (table CIMS_RAQ_Q_SEC4_PART_A has no such column)', 'h.reporting_period (table CIMS_RAQ_Q_SEC4_PART_A has no such column)']"
+    ],
     "exec_success": null,
     "exec_match": null,
     "exec_error": null,
@@ -64,17 +69,18 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_Q_SEC6_PART_B"
+      "cims_raq_q_sec1_last_date_port",
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec2_last_date_port"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO g WHERE g.BANK = 'A' AND g.RDATE = '2019-07-31'",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC1_LAST_DATE_PORT c WHERE c.RDATE = '2023-04-05' AND c.CODE = 'BANK'",
     "sql_valid": false,
-    "validation_reason": "Column/table mismatch: ['g.bank (table CIMS_RAQ_M_GEN_INFO has no such column)']",
+    "validation_reason": "Bare date literal '2023-04-05' must be wrapped as TO_DATE('2023-04-05', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.bank (table CIMS_RAQ_M_GEN_INFO has no such column)']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Bare date literal '2023-04-05' must be wrapped as TO_DATE('2023-04-05', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -86,14 +92,14 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Return Name','Return Code') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_M_SIGN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec6_part_a"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT g.code AS return_code, g.description AS return_name FROM CIMS_RAQ_M_GEN_INFO g WHERE g.rdate = (SELECT MAX(g.rdate) FROM CIMS_RAQ_M_GEN_INFO)",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec2_part_a.code AS return_code, cims_raq_q_sec2_part_a.rdate AS return_name FROM cims_raq_q_sec2_part_a",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -107,18 +113,17 @@
     "gold_table": "CIMS_RAQ_M_GEN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Bank Category','Audit Status','Validation Status') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec2_part_a"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT g.bank_category, g.audit_status FROM CIMS_RAQ_M_GEN_INFO g JOIN CIMS_RAQ_M_SEC9_SENSEC_PARTB s ON g.code = s.sec9_partb WHERE g.code = 'AUDIT_STATUS'",
-    "sql_valid": false,
-    "validation_reason": "Column/table mismatch: ['g.audit_status (table CIMS_RAQ_M_GEN_INFO has no such column)', 'g.bank_category (table CIMS_RAQ_M_GEN_INFO has no such column)', 's.sec9_partb (table CIMS_RAQ_M_SEC9_SENSEC_PARTB has no such column)']",
-    "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['g.audit_status (table CIMS_RAQ_M_GEN_INFO has no such column)', 'g.bank_category (table CIMS_RAQ_M_GEN_INFO has no such column)', 's.sec9_partb (table CIMS_RAQ_M_SEC9_SENSEC_PARTB has no such column)']"
-    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec6_part_a.category_investment_dom_opr, cims_raq_q_sec2_part_a.risk_category FROM cims_raq_q_sec6_part_a JOIN cims_raq_q_sec2_part_a ON cims_raq_q_sec6_part_a.rdate = cims_raq_q_sec2_part_a.rdate",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
     "exec_success": null,
     "exec_match": null,
     "exec_error": null,
@@ -129,17 +134,19 @@
     "gold_table": "CIMS_RAQ_M_SIGN_INFO",
     "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_SIGN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
-      "CIMS_RAQ_M_GEN_INFO"
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec4_part_a"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
-    "sql_valid": true,
-    "validation_reason": "Valid",
-    "warnings": [],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec2_part_a.code AS policy_number, cims_raq_q_sec4_part_a.code AS authorised_signatory FROM cims_raq_q_sec2_part_a JOIN cims_raq_q_sec4_part_a ON cims_raq_q_sec2_part_a.code = cims_raq_q_sec4_part_a.code WHERE cims_raq_q_sec2_part_a.rdate BETWEEN '2019-01-01' AND '2020-12-31'",
+    "sql_valid": false,
+    "validation_reason": "Bare date literal '2019-01-01' must be wrapped as TO_DATE('2019-01-01', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Bare date literal '2019-01-01' must be wrapped as TO_DATE('2019-01-01', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution"
+    ],
     "exec_success": null,
     "exec_match": null,
     "exec_error": null,
@@ -150,17 +157,19 @@
     "gold_table": "CIMS_RAQ_M_SIGN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Designation','E-mail ID') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_SIGN_INFO",
-      "CIMS_RAQ_Q_SEC5_TOP_CR",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB_bckup"
+      "cims_raq_q_sec7_exp_cr",
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec2_part_a_memo"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT s.DESCRIPTION AS signatory_info, s.VALUE AS value FROM CIMS_RAQ_M_SIGN_INFO s WHERE s.RDATE = (SELECT MAX(s2.RDATE) FROM CIMS_RAQ_M_SIGN_INFO s2) AND s.DESCRIPTION IN ('Designation', 'E-mail ID')",
-    "sql_valid": true,
-    "validation_reason": "Valid",
-    "warnings": [],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT s.signatory_name, s.email FROM CIMS_RAQ_Q_SEC7_EXP_CR cr JOIN CIMS_RAQ_Q_SEC8_SEC_CREDIT sc ON cr.code = sc.item JOIN CIMS_RAQ_Q_SEC2_PART_A_MEMO pm ON cr.code = pm.memorandum_item JOIN SIGNATORY s ON cr.code = s.signatory_code WHERE pm.memorandum_item = '(a) for less than 18 months'",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated tables (not in schema): ['signatory']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['signatory']"
+    ],
     "exec_success": null,
     "exec_match": null,
     "exec_error": null,
@@ -171,18 +180,18 @@
     "gold_table": "CIMS_RAQ_M_SIGN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Mobile No','Landline No') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_SIGN_INFO",
-      "CIMS_RAQ_M_GEN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB"
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec4_part_a"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 1.0,
-    "pred_sql": "SELECT s.mobile, s.landline FROM CIMS_RAQ_M_SIGN_INFO s JOIN CIMS_RAQ_M_GEN_INFO g ON s.code = g.code WHERE g.code = '1000000000'",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec8_sec_credit.mobile_number, cims_raq_q_sec8_sec_credit.landline_number FROM cims_raq_q_sec8_sec_credit JOIN cims_raq_q_sec1_part_a_dom ON cims_raq_q_sec8_sec_credit.bank = cims_raq_q_sec1_part_a_dom.loan_advance_bank WHERE cims_raq_q_sec1_part_a_dom.code = 'A'",
     "sql_valid": false,
-    "validation_reason": "Column/table mismatch: ['s.landline (table CIMS_RAQ_M_SIGN_INFO has no such column)', 's.mobile (table CIMS_RAQ_M_SIGN_INFO has no such column)']",
+    "validation_reason": "Column/table mismatch: ['cims_raq_q_sec8_sec_credit.bank (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'cims_raq_q_sec8_sec_credit.landline_number (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'cims_raq_q_sec8_sec_credit.mobile_number (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['s.landline (table CIMS_RAQ_M_SIGN_INFO has no such column)', 's.mobile (table CIMS_RAQ_M_SIGN_INFO has no such column)']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['cims_raq_q_sec8_sec_credit.bank (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'cims_raq_q_sec8_sec_credit.landline_number (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'cims_raq_q_sec8_sec_credit.mobile_number (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)']"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -194,18 +203,300 @@
     "gold_table": "CIMS_RAQ_M_SIGN_INFO",
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Place','Date') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
-      "CIMS_RAQ_M_SIGN_INFO",
-      "CIMS_RAQ_M_SEC9_SENSEC_PARTB",
-      "CIMS_RAQ_M_GEN_INFO"
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec2_part_a_memo"
     ],
-    "table_hit": true,
-    "table_rank": 1,
-    "column_recall": 0.3333333333333333,
-    "pred_sql": "SELECT s.PLACE, to_char(s.RDATE, 'YYYY-MM-DD') AS RDATE FROM CIMS_RAQ_M_SIGN_INFO s",
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT cims_raq_q_sec2_part_a_memo.rdate, cims_raq_q_sec2_part_a_memo.code FROM cims_raq_q_sec2_part_a_memo JOIN cims_raq_q_sec4_part_a ON cims_raq_q_sec2_part_a_memo.code = cims_raq_q_sec4_part_a.code WHERE cims_raq_q_sec2_part_a_memo.rdate IS NOT NULL ORDER BY cims_raq_q_sec2_part_a_memo.rdate NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List all signatory information fields for the annual return",
+    "gold_table": "CIMS_RAQ_M_SIGN_INFO",
+    "gold_sql": "SELECT * FROM CIMS_RAQ_M_SIGN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
+    "matched_tables": [
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec2_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC6_PART_A",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show domestic loans and advances by delinquency period for the annual return",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TOTAL_LOAN_ASSETS FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec1_part_c_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cims_raq_q_sec4_part_a.period_delinquency, SUM(cims_raq_q_sec1_part_a_dom.loan_advance_bank) AS total_loans FROM cims_raq_q_sec4_part_a JOIN cims_raq_q_sec1_part_a_dom ON cims_raq_q_sec4_part_a.period_delinquency = cims_raq_q_sec1_part_a_dom.period_delinquency WHERE cims_raq_q_sec1_part_a_dom.code IN ('A', 'C') GROUP BY cims_raq_q_sec4_part_a.period_delinquency ORDER BY cims_raq_q_sec4_part_a.period_delinquency NULLS LAST",
     "sql_valid": false,
-    "validation_reason": "Column/table mismatch: ['s.place (table CIMS_RAQ_M_SIGN_INFO has no such column)']",
+    "validation_reason": "Column/table mismatch: ['cims_raq_q_sec4_part_a.period_delinquency (table CIMS_RAQ_Q_SEC4_PART_A has no such column)']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Column/table mismatch: ['s.place (table CIMS_RAQ_M_SIGN_INFO has no such column)']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['cims_raq_q_sec4_part_a.period_delinquency (table CIMS_RAQ_Q_SEC4_PART_A has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the total loan assets figure for domestic operations under Section 1 Part A?",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT SUM(TOTAL_LOAN_ASSETS) FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec6_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(TOTAL_LOAN_ASSETS) AS total_loan_assets, SUM(INTER_BANK_ASSETS) AS inter_bank_assets FROM CIMS_RAQ_Q_SEC1_PART_B_DOM WHERE PERIOD_DELINQUENCY = 'C. TOTAL (A+B)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_PART_B_DOM)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get term loans and cash credit/overdraft amounts by delinquency bucket, domestic portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TERM_LOAN, CASH_CR_OVERDRAFT_DEMAND_LOAN FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec1_part_b_dom"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT c.PERIOD_DELINQUENCY, SUM(c.TERM_LOAN) AS total_term_loans FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.RDATE BETWEEN '2019-01-01' AND '2019-12-31' GROUP BY c.PERIOD_DELINQUENCY ORDER BY c.PERIOD_DELINQUENCY NULLS LAST",
+    "sql_valid": false,
+    "validation_reason": "Bare date literal '2019-01-01' must be wrapped as TO_DATE('2019-01-01', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: unknown validation. Reason: Bare date literal '2019-01-01' must be wrapped as TO_DATE('2019-01-01', 'YYYY-MM-DD') \u2014 an unwrapped string literal compared to a DATE column causes ORA-01861 at execution"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List bills purchased and discounted for domestic loans and advances portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, BILLS_PURCHASE_DISCOUNT FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "CIMS_RAQ_Q_SEC1_LAST_DATE_PORT",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec1_part_b_dom"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC1_PART_A_DOM d WHERE d.BILLS_PURCHASE_DISCOUNT IS NOT NULL",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "How much loans and advances to banks are overdue in the domestic portfolio analysis section?",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, LOAN_ADVANCE_BANK FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE PERIOD_DELINQUENCY != 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec1_part_c_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(CASE WHEN c.RDATE < CURRENT_DATE THEN 1 ELSE 0 END) AS overdue_loans FROM CIMS_RAQ_Q_SEC4_PART_A a JOIN CIMS_RAQ_Q_SEC1_PART_A_DOM b ON a.ID = b.ID JOIN CIMS_RAQ_Q_SEC1_PART_C_O c ON a.ID = c.ID",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['a.id (table CIMS_RAQ_Q_SEC4_PART_A has no such column)', 'b.id (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)', 'c.id (table CIMS_RAQ_Q_SEC1_PART_C_O has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['a.id (table CIMS_RAQ_Q_SEC4_PART_A has no such column)', 'b.id (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)', 'c.id (table CIMS_RAQ_Q_SEC1_PART_C_O has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show Other Interest Bearing Assets (OIBA) by delinquency period for domestic operations",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TOTAL_OIBA FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "CIMS_RAQ_Q_SEC4_PART_B",
+      "cims_raq_q_sec1_part_d_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cims_raq_q_sec1_part_b_dom.period_delinquency, SUM(cims_raq_q_sec1_part_b_dom.total_oiba) AS total_oiba FROM cims_raq_q_sec1_part_b_dom GROUP BY cims_raq_q_sec1_part_b_dom.period_delinquency ORDER BY cims_raq_q_sec1_part_b_dom.period_delinquency NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the commercial paper exposure under OIBA domestic in the annual return?",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, COMMERCIAL_PAPER FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec9_sensec_partb"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(CIMS_RAQ_Q_SEC1_PART_B_DOM.COMMERCIAL_PAPER) AS total_commercial_paper FROM CIMS_RAQ_Q_SEC1_PART_B_DOM JOIN CIMS_RAQ_Q_SEC9_SENSEC_PARTB ON CIMS_RAQ_Q_SEC1_PART_B_DOM.RDATE = CIMS_RAQ_Q_SEC9_SENSEC_PARTB.RDATE WHERE CIMS_RAQ_Q_SEC1_PART_B_DOM.TOTAL_OIBA > 0 AND CIMS_RAQ_Q_SEC9_SENSEC_PARTB.TOT_EXPO_DOM > 0",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get inter-bank assets and lease receivables from Section 1 Part B",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
+    "gold_sql": "SELECT INTER_BANK_ASSETS, LEASE_EASE_RECEIVABLE FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec4_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(cims_raq_q_sec1_part_b_dom.inter_bank_assets) AS total_inter_bank_assets, SUM(cims_raq_q_sec1_part_b_dom.lease_ease_receivable) AS total_lease_ease_receivable FROM cims_raq_q_sec1_part_b_dom",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Total OIBA for the current period, domestic operations",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
+    "gold_sql": "SELECT TOTAL_OIBA FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE PERIOD_DELINQUENCY = 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
+    "matched_tables": [
+      "CIMS_RAQ_Q_SEC2_PART_B",
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec1_part_b_dom"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(cims_raq_q_sec1_part_b_dom.total_oiba) AS total_oiba FROM cims_raq_q_sec1_part_b_dom",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List notes and bonds of corporates held as OIBA, domestic portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, NOTE_BONDS_CORPORATE FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec6_part_a",
+      "cims_raq_q_sec1_part_d_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cims_raq_q_sec1_part_b_dom.note_bonds_corporate, cims_raq_q_sec1_part_d_o.note_bonds_corporate FROM cims_raq_q_sec1_part_b_dom JOIN cims_raq_q_sec1_part_d_o ON cims_raq_q_sec1_part_b_dom.total_oiba = cims_raq_q_sec1_part_d_o.total_oiba WHERE cims_raq_q_sec1_part_b_dom.total_oiba > 0 AND cims_raq_q_sec1_part_d_o.total_oiba > 0",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What government paper is excluded from OIBA current row in the annual return?",
+    "gold_table": "CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER)",
+    "matched_tables": [
+      "cims_raq_q_sec1_exc_govt_paper",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec4_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cims_raq_q_sec1_exc_govt_paper.value FROM cims_raq_q_sec1_exc_govt_paper",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show Treasury Bills and GOI Securities excluded from Section 1 OIBA",
+    "gold_table": "CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER",
+    "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER WHERE DESCRIPTION IN ('Treasury Bills','GOI Securities') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER)",
+    "matched_tables": [
+      "cims_raq_q_sec1_exc_govt_paper",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o",
+      "cims_raq_q_sec6_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT * FROM (SELECT DISTINCT s.SYMBOL FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER s) UNION ALL SELECT * FROM (SELECT DISTINCT s.SYMBOL FROM CIMS_RAQ_Q_SEC6_PART_A s WHERE s.CATEGORY = 'Treasury Bills') UNION ALL SELECT * FROM (SELECT DISTINCT s.SYMBOL FROM CIMS_RAQ_Q_SEC1_PART_B_DOM s WHERE s.NOTE_BONDS_CORPORATE > 0 AND s.OTHERS > 0) UNION ALL SELECT * FROM (SELECT DISTINCT s.SYMBOL FROM CIMS_RAQ_Q_SEC1_PART_D_O s WHERE s.INTER_BANK_ASSETS > 0 AND s.OTHERS > 0)",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['s.category (table CIMS_RAQ_Q_SEC1_PART_D_O has no such column)', 's.symbol (table CIMS_RAQ_Q_SEC1_PART_D_O has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['s.category (table CIMS_RAQ_Q_SEC1_PART_D_O has no such column)', 's.symbol (table CIMS_RAQ_Q_SEC1_PART_D_O has no such column)']"
     ],
     "exec_success": null,
     "exec_match": null,

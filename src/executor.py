@@ -1,10 +1,43 @@
 import oracledb
 from src.config import DB_HOST, DB_PORT, DB_SERVICE, DB_USER, DB_PASSWORD, DB_MAX_ROWS
 
+# Previously every get_connection() call opened a brand-new TCP+auth session
+# with Oracle and every execute_query() paid for a second round-trip just to
+# set NLS_DATE_LANGUAGE. A pool keeps a small number of warm connections
+# open and reuses them — session setup happens once per physical connection
+# (via session_callback below), not once per request.
+_pool = None
+
+
+def _init_session(connection, requested_tag):
+    """Runs once per NEW physical connection the pool creates (not on every
+    acquire of an already-warm one) — moves the per-request NLS ALTER
+    SESSION cost out of the request path entirely."""
+    cursor = connection.cursor()
+    cursor.execute("ALTER SESSION SET NLS_DATE_LANGUAGE = 'AMERICAN'")
+    cursor.close()
+
+
+def _get_pool():
+    global _pool
+    if _pool is None:
+        dsn = oracledb.makedsn(DB_HOST, DB_PORT, service_name=DB_SERVICE)
+        _pool = oracledb.create_pool(
+            user=DB_USER, password=DB_PASSWORD, dsn=dsn,
+            min=2, max=10, increment=1,
+            session_callback=_init_session,
+        )
+    return _pool
+
 
 def get_connection():
-    dsn = oracledb.makedsn(DB_HOST, DB_PORT, service_name=DB_SERVICE)
-    return oracledb.connect(user=DB_USER, password=DB_PASSWORD, dsn=dsn)
+    """
+    Acquire a connection from the shared pool. Callers should still call
+    .close() on it as before — for a pooled connection this releases it back
+    to the pool rather than tearing down the socket, so existing call sites
+    (execute_query, get_accessible_tables) need no other changes.
+    """
+    return _get_pool().acquire()
 
 
 def get_accessible_tables() -> set:
@@ -39,11 +72,9 @@ def execute_query(sql):
 
     cursor = None
     try:
-        # Set NLS on a separate cursor so the main cursor starts clean
-        nls_cur = conn.cursor()
-        nls_cur.execute("ALTER SESSION SET NLS_DATE_LANGUAGE = 'AMERICAN'")
-        nls_cur.close()
-
+        # NLS_DATE_LANGUAGE is now set once per physical connection by the
+        # pool's session_callback (_init_session) instead of on every
+        # request — no longer needs a second cursor/round-trip here.
         cursor = conn.cursor()
         # Oracle driver does not accept a trailing semicolon
         cursor.execute(sql.rstrip().rstrip(";"))

@@ -2,12 +2,29 @@ import re
 import json
 import time
 import calendar
+import logging
 import requests
 from datetime import date, timedelta
 import src.config as config
 
+log = logging.getLogger("sql_generator")
+
 BANNED_KEYWORDS = ["delete", "update", "drop", "insert", "truncate", "alter", "create", "exec"]
 MAX_LABELS_MINIMAL = 8
+
+# ── Ollama circuit breaker ──────────────────────────────────────────────────
+# Without this, an unreachable/down proxy made every single request hang for
+# up to the full 300s read-timeout before failing (connect failures were not
+# capped separately from the read timeout). Two fixes:
+#   1. A short connect-timeout so a dead/unreachable host fails in seconds,
+#      not minutes, while still allowing up to 300s for a slow-but-alive
+#      model to actually finish generating.
+#   2. A short in-process "recently confirmed down" cache so repeated
+#      requests during an ongoing outage fail in ~0ms instead of each
+#      re-attempting and re-waiting for the connect timeout.
+_OLLAMA_CONNECT_TIMEOUT_S = 3
+_OLLAMA_OUTAGE_COOLDOWN_S = 30
+_ollama_outage_until = 0.0  # monotonic timestamp; 0 = not currently marked down
 
 
 def _resolve_relative_time(query: str, today: date) -> str | None:
@@ -625,6 +642,62 @@ def _find_total_row(values: list) -> str | None:
     return None
 
 
+def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
+    """
+    Deterministic last-resort fix for the ONE failure mode observed to
+    survive even a targeted retry: validate_sql's "is a vertical table" rule
+    already tells the model the exact WHERE clause to add (it's in the retry
+    prompt verbatim), but a small/quantized model can still ignore it twice
+    in a row. Rather than gamble on a third LLM call repeating the same
+    instruction, mechanically rewrite the query — but ONLY for this one
+    narrow, unambiguous pattern: a single aggregate, over a single table,
+    with a single confidently-known total-row label. Returns corrected SQL,
+    or None if anything is ambiguous (never guesses a rewrite).
+    """
+    m = re.match(r'^Table (\S+) is a vertical table \(each row is a named metric via (\S+),', reason)
+    if not m:
+        return None
+    table_name, label_col = m.group(1), m.group(2)
+
+    # Only safe to rewrite a genuinely single-table query — a JOIN means the
+    # aggregate could legitimately need to span rows from another table.
+    table_refs = set(re.findall(r'\b(?:from|join)\s+([a-zA-Z_][a-zA-Z0-9_]*)', sql, re.IGNORECASE))
+    if len(table_refs) != 1:
+        return None
+
+    from src.description_fetcher import load_samples as _load_label_samples
+    label_samples = {k.lower(): v for k, v in _load_label_samples().items()}
+    values = label_samples.get(table_name.lower(), {}).get(label_col.lower())
+    if not values:
+        return None
+    total_row = _find_total_row(values)
+    if not total_row:
+        return None
+
+    # Must be exactly ONE aggregate call over exactly ONE non-RDATE/CODE
+    # column — more than one, or an aggregate wrapping an expression rather
+    # than a plain column, is left alone rather than risk mangling it.
+    agg_matches = list(re.finditer(
+        r'\b(sum|avg|count|min|max)\s*\(\s*((?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*)\s*\)',
+        sql, re.IGNORECASE,
+    ))
+    metric_aggs = [mm for mm in agg_matches if mm.group(2).split('.')[-1].lower() not in ("rdate", "code")]
+    if len(metric_aggs) != 1:
+        return None
+    agg = metric_aggs[0]
+
+    corrected = sql[:agg.start()] + agg.group(2) + sql[agg.end():]
+
+    escaped_total = total_row.replace("'", "''")
+    where_clause = f"{label_col} = '{escaped_total}'"
+    if re.search(r'\bwhere\b', corrected, re.IGNORECASE):
+        corrected = re.sub(r'\bwhere\b', f"WHERE {where_clause} AND", corrected, count=1, flags=re.IGNORECASE)
+    else:
+        corrected = corrected.rstrip() + f" WHERE {where_clause}"
+
+    return corrected
+
+
 def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, model_name=None, qa_example=None):
     if today_date is None:
         today_date = date.today().isoformat()
@@ -664,19 +737,35 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
             label_map[table_name][column_name].append(lbl["value"])
 
     # ── Supplement with ALL known samples for matched tables ──────────────────
-    # Semantic search only returns top-K matches; for tables with few rows (≤50),
-    # we want the LLM to see every known value so it never has to guess/hallucinate.
-    # This only applies to the richer rules-style prompt so minimal prompts stay concise.
-    if prompt_style == "rules":
-        from src.description_fetcher import load_samples as _load_samples
-        all_samples = _load_samples()
-        for tbl in table_names:
-            if tbl in all_samples:
-                for col, vals in all_samples[tbl].items():
-                    existing = set(label_map[tbl][col])
-                    for v in vals:
-                        if v not in existing:
-                            label_map[tbl][col].append(v)
+    # Semantic search only returns top-K matches keyed on embedding similarity
+    # to the free-form question — for a vague query like "show total loan"
+    # that never mentions a specific row-label wording, it can return ZERO
+    # matches even though the table is genuinely vertical, which silently
+    # drops the "STORAGE FORMAT: VERTICAL" / total-row warning from the
+    # prompt and lets the model fall back to a naive SUM() across all rows
+    # (double-counting the pre-aggregated total row). So this fallback must
+    # run for EVERY prompt style, not just "rules" — whether a table needs a
+    # row-label filter is a schema-shape fact, not something that should
+    # depend on how verbose the prompt is allowed to be.
+    from src.description_fetcher import load_samples as _load_samples
+    all_samples = _load_samples()
+    for tbl in table_names:
+        if tbl in all_samples:
+            for col, vals in all_samples[tbl].items():
+                existing = set(label_map[tbl][col])
+                for v in vals:
+                    if v not in existing:
+                        label_map[tbl][col].append(v)
+                if prompt_style == "minimal" and len(label_map[tbl][col]) > MAX_LABELS_MINIMAL:
+                    # Keep the prompt concise for small-context models, but never
+                    # let truncation drop the pre-aggregated TOTAL row — without
+                    # it, RULE V2 ("use WHERE <label> = '<TOTAL ROW>'") has
+                    # nothing to point at and the model has no way to satisfy it.
+                    total_row = _find_total_row(label_map[tbl][col])
+                    kept = [v for v in label_map[tbl][col] if v != total_row][:MAX_LABELS_MINIMAL - 1]
+                    if total_row:
+                        kept.append(total_row)
+                    label_map[tbl][col] = kept
 
     vertical_tables = set()
     dom_ove_tables = set()
@@ -789,19 +878,42 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             options["num_predict"] = effective_num_predict
         payload["options"] = options
 
+        global _ollama_outage_until
         _call_started = time.perf_counter()
-        try:
-            response = requests.post(config.OLLAMA_URL, json=payload, timeout=300, stream=True)
-            response.raise_for_status()
-        except requests.exceptions.ConnectionError:
-            raise RuntimeError(
-                "Cannot connect to Ollama. Make sure it is running: `ollama serve`"
+
+        _now = time.monotonic()
+        if _now < _ollama_outage_until:
+            remaining = round(_ollama_outage_until - _now, 1)
+            log.warning(
+                "Ollama circuit breaker OPEN — skipping call, retrying in %ss (url=%s)",
+                remaining, config.OLLAMA_URL,
             )
-        except requests.exceptions.ReadTimeout:
             raise RuntimeError(
-                "Ollama timed out (300s). Try a smaller/faster model in config.py."
+                f"Ollama proxy at {config.OLLAMA_URL} was unreachable {round(_OLLAMA_OUTAGE_COOLDOWN_S - remaining, 1)}s ago "
+                f"— skipping retry for {remaining}s to avoid hanging every request during an outage."
+            )
+
+        try:
+            response = requests.post(
+                config.OLLAMA_URL, json=payload,
+                timeout=(_OLLAMA_CONNECT_TIMEOUT_S, 300),  # (connect, read) — fail fast if unreachable
+                stream=True,
+            )
+            response.raise_for_status()
+            _ollama_outage_until = 0.0  # connection succeeded — clear any stale outage marker
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ConnectionError) as e:
+            _ollama_outage_until = time.monotonic() + _OLLAMA_OUTAGE_COOLDOWN_S
+            log.error("Ollama unreachable at %s (connect failure): %s", config.OLLAMA_URL, e)
+            raise RuntimeError(
+                f"Cannot connect to Ollama at {config.OLLAMA_URL}. Make sure it is running/reachable."
+            )
+        except requests.exceptions.ReadTimeout as e:
+            log.error("Ollama timed out at %s after connecting: %s", config.OLLAMA_URL, e)
+            raise RuntimeError(
+                "Ollama timed out (300s) after connecting successfully. Try a smaller/faster model in config.py."
             )
         except requests.exceptions.HTTPError as e:
+            log.error("Ollama HTTP error at %s: %s", config.OLLAMA_URL, e)
             raise RuntimeError(f"Ollama API error: {e}")
         _connect_ms = round((time.perf_counter() - _call_started) * 1000, 1)
 
@@ -889,6 +1001,26 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
         is_valid, reason = validate_sql(raw, tables, columns)
 
     if not is_valid:
+        # Last-resort deterministic fix for the ONE failure mode observed to
+        # survive even a targeted retry (see the "is a vertical table" rule
+        # in validate_sql): the retry prompt already contains the exact
+        # WHERE clause needed, verbatim, and a weak/quantized model can
+        # still ignore it. Rather than spend a third LLM call gambling on
+        # the same instruction landing, mechanically rewrite the query for
+        # this one narrow, unambiguous pattern instead of asking again.
+        corrected = _try_autocorrect_vertical_aggregation(raw, reason)
+        if corrected is not None:
+            corrected_valid, corrected_reason = validate_sql(corrected, tables, columns)
+            if corrected_valid:
+                print(f"[AUTOCORRECT] Model ignored the vertical-table retry instruction twice; "
+                      f"rewrote deterministically:\n  before: {raw}\n  after:  {corrected}")
+                warnings.append(
+                    "Auto-corrected: the model did not add the required row-label filter after "
+                    "a targeted retry, so it was rewritten deterministically instead of guessed."
+                )
+                raw, is_valid, reason = corrected, corrected_valid, corrected_reason
+
+    if not is_valid:
         category = _validation_failure_category(reason)
         warning = (
             f"Model '{model_name}' generated invalid SQL; probable failure category: {category}. "
@@ -935,6 +1067,22 @@ def validate_sql(sql, tables, columns):
     for word in BANNED_KEYWORDS:
         if re.search(rf'\b{word}\b', q):
             return False, f"Dangerous keyword detected: '{word}'"
+
+    # 2.5 — bare 'YYYY-MM-DD' string literals compared against a DATE column
+    # (e.g. RDATE) pass every other check here but fail at Oracle execution
+    # time with ORA-01861 "literal does not match format string", because
+    # Oracle implicitly converts the string using NLS_DATE_FORMAT, not the
+    # literal's own shape. Must be wrapped in TO_DATE(..., 'YYYY-MM-DD').
+    # Checked on the ORIGINAL sql (quotes intact), before the quote-stripped
+    # `q` normalisation above discards the evidence.
+    for m in re.finditer(r"'\d{4}-\d{2}-\d{2}'", sql):
+        preceding = sql[:m.start()].rstrip().lower()
+        if not preceding.endswith("to_date("):
+            return False, (
+                f"Bare date literal {m.group(0)} must be wrapped as "
+                f"TO_DATE({m.group(0)}, 'YYYY-MM-DD') — an unwrapped string "
+                f"literal compared to a DATE column causes ORA-01861 at execution"
+            )
 
     valid_table_names = {t["table"].lower() for t in tables}
 
@@ -1048,5 +1196,48 @@ def validate_sql(sql, tables, columns):
 
     if hallucinated_cols:
         return False, f"Hallucinated columns (not in schema): {sorted(hallucinated_cols)}"
+
+    # 7 — vertical-table aggregation without a row-label filter. Each row in
+    # a vertical table (e.g. PERIOD_DELINQUENCY on CIMS_RAQ_Q_SEC1_PART_A_DOM)
+    # is a named metric, including a pre-aggregated "grand total" row —
+    # SUM()/AVG()/COUNT() over the whole column double-counts that total row
+    # against its own components. The prompt already tells the model this
+    # (STORAGE FORMAT: VERTICAL + a matching few-shot example), but a small
+    # model does not reliably follow it even when shown the exact correct
+    # answer in the same prompt — so enforce it here deterministically and
+    # feed a targeted correction into the existing retry path instead.
+    # Only trigger on an aggregate wrapping an actual metric column — MAX(RDATE)/
+    # MIN(RDATE) (the standard "latest reporting period" subquery, used
+    # throughout this schema) is not the double-counting pattern this rule
+    # targets and must not be flagged.
+    _agg_call_cols = re.findall(
+        r'\b(?:sum|avg|count|min|max)\s*\(\s*(?:[a-z_][a-z0-9_]*\.)?([a-z_][a-z0-9_]*)\s*\)', q,
+    )
+    _metric_aggregates = [c for c in _agg_call_cols if c not in ("rdate", "code")]
+    if _metric_aggregates:
+        from src.description_fetcher import load_samples as _load_label_samples
+        # Different EMBEDDING_DIR scopes have been observed with different
+        # table-name key casing in description_samples.json (some uppercase,
+        # some lowercase) — normalise to lowercase for a reliable lookup
+        # regardless of which scope is active.
+        label_samples = {k.lower(): v for k, v in _load_label_samples().items()}
+        where_match = re.search(r'\bwhere\b(.*)$', q, re.DOTALL)
+        where_clause = where_match.group(1) if where_match else ""
+        for tbl in real_table_refs & valid_table_names:
+            col_labels = label_samples.get(tbl.lower())
+            if not col_labels:
+                continue
+            for label_col, values in col_labels.items():
+                if label_col not in where_clause:
+                    total_row = _find_total_row(values)
+                    hint = f" e.g. WHERE {label_col.upper()} = '{total_row}'" if total_row else ""
+                    return False, (
+                        f"Table {tbl.upper()} is a vertical table (each row is a named metric "
+                        f"via {label_col.upper()}, including a pre-aggregated total row) — "
+                        f"aggregating with SUM/AVG/COUNT/MIN/MAX without filtering "
+                        f"{label_col.upper()} to a specific row label double-counts the total "
+                        f"row against its own components. Add a WHERE {label_col.upper()} = "
+                        f"'<exact row label>' clause.{hint}"
+                    )
 
     return True, "Valid"

@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from api.schemas import QueryRequest, QueryResult
 from api.utils import serialize_rows
 from src.executor import execute_query
-from src.retriever import get_relevant_schema, find_exact_qa_match
+from src.retriever import get_relevant_schema, find_exact_qa_match, compute_query_embedding
 from src.sql_generator import generate_sql, validate_sql
 
 log = logging.getLogger("query")
@@ -88,7 +88,14 @@ def run_text_query(body: QueryRequest):
     # answer was already hand-verified when that qa_pairs.json entry was
     # written, so just reuse it directly. Faster, fully deterministic, zero
     # hallucination risk.
-    exact = find_exact_qa_match(q)
+    # Embed the query ONCE and reuse it for both the exact-match lookup and
+    # full retrieval below — previously each of these (and the 4 signals
+    # inside get_relevant_schema) called embed_query() independently,
+    # meaning a single request could pay for ~6 redundant model.encode()
+    # calls (~100ms each on CPU) for the exact same text.
+    query_vec = compute_query_embedding(q)
+
+    exact = find_exact_qa_match(q, query_vec=query_vec)
     _mark("exact_match_lookup")
     if exact:
         log.info("EXACT QA MATCH (text_similarity=%.3f): %s", exact["text_similarity"], exact["question"])
@@ -126,7 +133,7 @@ def run_text_query(body: QueryRequest):
     # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values  L3: qa example
     # — a 95%+ literal-text match here is already guaranteed to be the first
     # table in the list, and passed through as a strong few-shot hint below)
-    tables, columns, matched_labels, qa_example = get_relevant_schema(q)
+    tables, columns, matched_labels, qa_example = get_relevant_schema(q, query_vec=query_vec)
     _mark("retrieval")
     log.info("TABLES  : %s", [t["table"] for t in tables])
     log.info("COLUMNS : %s", [f"{c['table']}.{c['column']}" for c in columns])
