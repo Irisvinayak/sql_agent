@@ -45,7 +45,6 @@ def build_faiss_index(vectors):
 
     dim = vectors.shape[1]
 
-    import faiss
     index = faiss.IndexFlatIP(dim)
     index.add(vectors)
 

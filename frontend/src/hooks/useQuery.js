@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { runTextQuery, runVoiceQuery } from '../services/api'
+import { runTextQuery } from '../services/api'
 
 export function useQuery() {
   const [status, setStatus] = useState('idle')
@@ -20,25 +20,11 @@ export function useQuery() {
     }
   }
 
-  const submitVoice = async (blob, filename, dialect = 'Oracle') => {
-    setStatus('loading')
-    setError(null)
-    setResult(null)
-    try {
-      const data = await runVoiceQuery(blob, filename, dialect)
-      setResult(data)
-      setStatus('success')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error')
-      setStatus('error')
-    }
-  }
-
   const reset = () => {
     setStatus('idle')
     setResult(null)
     setError(null)
   }
 
-  return { status, result, error, submitText, submitVoice, reset }
+  return { status, result, error, submitText, reset }
 }

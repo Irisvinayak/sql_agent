@@ -23,16 +23,6 @@ export async function runTextQuery(query, dialect = 'Oracle') {
   return handleResponse(res)
 }
 
-export async function runVoiceQuery(audioBlob, filename, dialect = 'Oracle') {
-  const form = new FormData()
-  form.append('audio', audioBlob, filename)
-  const res = await fetch(`${BASE}/voice?dialect=${encodeURIComponent(dialect)}`, {
-    method: 'POST',
-    body: form,
-  })
-  return handleResponse(res)
-}
-
 export async function checkHealth() {
   try {
     const res = await fetch(`${BASE}/health`)

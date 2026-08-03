@@ -15,7 +15,6 @@ def test_db():
     and whether the CIMS tables are accessible.
     Call this first when queries return no data.
     """
-    import oracledb
     from src.executor import get_connection
 
     try:

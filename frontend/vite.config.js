@@ -7,7 +7,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        // Must match the backend port in api/main.py (default 8001 — Docker
+        // publishes an unrelated service on 8000 on this machine).
+        target: 'http://localhost:8001',
         changeOrigin: true,
       },
     },

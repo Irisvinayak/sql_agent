@@ -38,12 +38,17 @@ def load_descriptions(json_path="data/.json-formatted"):
     return mapping
 
 
-def build_schema_json(tables, descriptions=None):
+def build_schema_json(tables, descriptions=None, constraints=None):
     """
     Build the enriched schema JSON list.
 
     Each column entry contains:
         name          – original DB column name (lowercase)
+        type          – declared SQL type, e.g. "number(20,2)" (kept so the
+                        prompt can render a real CREATE TABLE; this used to be
+                        parsed and then dropped)
+        nullable      – False when the DDL says NOT NULL
+        is_primary_key– True when part of the primary key
         excel_name    – human-readable label from the descriptions file
         description   – excel_name if available, else auto-generated
         return_name   – regulatory/return name from the descriptions file
@@ -53,15 +58,27 @@ def build_schema_json(tables, descriptions=None):
         return_name   – comma-separated unique return names across its columns
         description   – rich auto-generated description using name expansion
                         and column labels
+        primary_key   – list of PK column names (empty when undeclared)
+        foreign_keys  – [{columns, ref_table, ref_columns}, ...]
         columns       – list of enriched column objects
         text          – comprehensive plain-text used for vector embedding
+        summary_text  – short text for the coarse table-retrieval index
+
+    `constraints` is the mapping returned by parser.parse_constraints() or
+    extract_constraints.fetch_constraints(); when omitted, PK/FK come out empty
+    and the DDL block simply renders without them.
     """
     if descriptions is None:
         descriptions = {}
+    if constraints is None:
+        constraints = {}
 
     result = []
 
     for table, cols in tables.items():
+        table_constraints = constraints.get(table.lower(), {})
+        pk_cols = [c.lower() for c in table_constraints.get("primary_key", [])]
+        foreign_keys = table_constraints.get("foreign_keys", [])
         col_objs = []
         col_names = []
         col_excel_names = []   # human-readable labels from the mapping
@@ -85,6 +102,9 @@ def build_schema_json(tables, descriptions=None):
 
             col_objs.append({
                 "name": col["name"],
+                "type": col.get("type", ""),
+                "nullable": col.get("nullable", True),
+                "is_primary_key": bool(col.get("is_primary_key")) or col["name"].lower() in pk_cols,
                 "description": friendly_desc,
                 "return_name": return_name,
             })
@@ -118,28 +138,53 @@ def build_schema_json(tables, descriptions=None):
             if extra:
                 text_parts.append(" | ".join(extra))
 
+        # Short text for the coarse table-retrieval index. The big `text` blob
+        # above concatenates every column name AND every column description,
+        # which dilutes the signal and can exceed the embedding model's 512-token
+        # limit on wide tables (silently truncating the tail). The summary keeps
+        # only what identifies the table.
+        summary_parts = [table]
+        if return_name_str:
+            summary_parts.append(return_name_str)
+        summary_parts.append(table_desc)
+        summary_parts.append("Columns: " + ", ".join(col_names))
+
         result.append({
             "table": table,
             "return_name": return_name_str,
             "description": table_desc,
             "is_backup": is_backup,
             "col_count": len(col_objs),
+            "primary_key": [c["name"] for c in col_objs if c["is_primary_key"]],
+            "foreign_keys": foreign_keys,
             "columns": col_objs,
             "text": " | ".join(text_parts),
+            "summary_text": " | ".join(p for p in summary_parts if p),
         })
 
     return result
 
 
-# Placeholder descriptions that add no signal — filter these out of embed text
-_GENERIC_DESCS = {"value of", "date of event", "unique identifier",
-                  "monetary value", "account balance", "status of record",
-                  "reference to user", "category type"}
+def build_table_summary_records(schema_json):
+    """
+    Records for the coarse table-retrieval index: name + description + column
+    name list only, no column descriptions.
 
-
-def _is_generic(desc: str) -> bool:
-    d = desc.lower().strip()
-    return any(d.startswith(g) for g in _GENERIC_DESCS) or len(d) < 4
+    This is the recall stage — it answers "which handful of tables could this
+    question be about", and it stays small enough to embed without truncation.
+    Full column detail is pulled from schema.json afterwards, for the shortlist
+    only, so nothing is lost by keeping this index lean.
+    """
+    return [
+        {
+            "text": t.get("summary_text") or " | ".join(
+                p for p in (t["table"], t.get("return_name"), t.get("description")) if p
+            ),
+            "table": t["table"],
+        }
+        for t in schema_json
+        if not t.get("is_backup")
+    ]
 
 
 def build_vector_records(schema_json):

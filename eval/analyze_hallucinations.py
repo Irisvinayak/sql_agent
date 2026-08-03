@@ -9,7 +9,7 @@ Usage:
 """
 import json
 import os
-from collections import Counter, defaultdict
+from collections import Counter
 
 LOG_PATH = os.path.join(os.path.dirname(__file__), "results", "hallucination_log.jsonl")
 

@@ -119,14 +119,6 @@
       "Total (1 to 4)"
     ]
   },
-  "cims_raq_q_sec2_part_a_memo": {
-    "memorandum_item": [
-      "# Include amount of loans & advances to Government or carrying Government guarantee which are non-performing",
-      "(a) for less than 18 months",
-      "(b) for 18 months and over",
-      "Amount of interest not recognised on the above Government & Government guaranteed loans (Break-up)"
-    ]
-  },
   "cims_raq_q_sec2_part_a_npa": {
     "risk_category": [
       "Net NPAs",
@@ -202,34 +194,6 @@
       "E. Decrease due to change in Asset Classification (excl. up-gradation)",
       "F. Increase in the same NPA Category",
       "G. NPAs at the end of the Period"
-    ]
-  },
-  "cims_raq_q_sec6_part_a": {
-    "category_investment_dom_opr": [
-      "(i) GOI Recapitalisation bonds",
-      "(i) PSU bonds (excluding Banks/FIs)",
-      "(i) Quoted",
-      "(ii) Mutual funds(debt oriented)",
-      "(ii) PSU bonds(excluding Banks/FIs)",
-      "(ii) Unquoted",
-      "(iii) Bank Certificate of Deposits",
-      "(iii) Mutual funds(debt oriented)",
-      "(iv) All others excluding equities",
-      "(iv) Bank Certificate of Deposits",
-      "(v) All others excluding equities",
-      "- GOI Securities(Dated)",
-      "- GOI Treasury bills",
-      "- Other approved Securities",
-      "- State Govt. Securities(Dated)",
-      "A. SLR Investments - Total",
-      "B. Debt Securities - Total(Ba + Bb)",
-      "B.a Debt Securities - Quoted - Total",
-      "B.b Debt Securities - Unquoted - Total",
-      "C. Equities - Total",
-      "Investments (Global Operations)",
-      "Investments (Overseas Operation)",
-      "Out of C Equities - Total - investments in equity - oriented mutual funds",
-      "TOTAL Investments (A+B+C) - Domestic Operations"
     ]
   },
   "cims_raq_q_sec8_ind_brkup": {

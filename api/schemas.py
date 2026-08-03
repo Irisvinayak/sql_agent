@@ -20,11 +20,6 @@ class QueryResult(BaseModel):
     needs_more_info: bool = False
     more_info_hint: Optional[str] = None
     accuracy_hint: Optional[str] = None
-    fallback_note: Optional[str] = None
     source: str = "llm_generated"  # "direct_match" when served from a near-exact qa_pairs.json example, no LLM call made
     match_score: Optional[float] = None  # literal text-similarity ratio (0-1) vs the matched qa_pairs.json question, when source == "direct_match"
     timings_ms: Optional[Dict[str, float]] = None  # per-stage wall-clock time in milliseconds, so latency is measured, not guessed at
-
-
-class VoiceQueryResult(QueryResult):
-    transcript: str

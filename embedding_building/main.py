@@ -7,7 +7,7 @@ sys.path.insert(0, ROOT)
 OUTPUT_DIR = os.path.join(ROOT, "embedding_building", "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-from embedding_building.parser import parse_sql_schema
+from embedding_building.parser import parse_schema_and_constraints
 from embedding_building.formatter import build_schema_json, build_vector_records, load_descriptions
 from src.vectorizer import embed_documents, build_faiss_index, save_index
 from src.description_fetcher import fetch_and_save, build_and_save_label_index
@@ -18,9 +18,20 @@ print("[1/6] Parsing schema SQL...")
 with open(os.path.join(ROOT, "data", "schema.sql")) as f:
     sql_text = f.read()
 
-# Parse
-tables = parse_sql_schema(sql_text)
-print(f"      → {len(tables)} tables parsed from DDL")
+# Parse. Constraints come from the DDL when it declares any; Oracle is the
+# authoritative source, so extract_constraints.py output is preferred below.
+tables, constraints = parse_schema_and_constraints(sql_text)
+print(f"      -> {len(tables)} tables parsed from DDL")
+
+constraints_path = os.path.join(ROOT, "data", "constraints.json")
+if os.path.exists(constraints_path):
+    with open(constraints_path, encoding="utf-8") as f:
+        constraints = json.load(f)
+    print(f"      -> key metadata for {len(constraints)} tables from {constraints_path}")
+elif constraints:
+    print(f"      -> key metadata for {len(constraints)} tables from the DDL")
+else:
+    print("      -> no PK/FK declared; run embedding_building/extract_constraints.py")
 
 # Cross-check against the live Oracle database — only embed tables that
 # actually exist so the LLM never generates SQL for ghost tables.
@@ -41,7 +52,7 @@ print(f"      → {len(descriptions)} column mappings loaded")
 
 # Format JSON (enriched with excel_name, db_name, return_name from descriptions)
 print("[3/6] Building enriched schema.json...")
-schema_json = build_schema_json(tables, descriptions=descriptions)
+schema_json = build_schema_json(tables, descriptions=descriptions, constraints=constraints)
 
 schema_json_path = os.path.join(OUTPUT_DIR, "schema.json")
 with open(schema_json_path, "w") as f:

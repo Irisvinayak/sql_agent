@@ -6,8 +6,11 @@ from fastapi import APIRouter, HTTPException
 
 from api.schemas import QueryRequest, QueryResult
 from api.utils import serialize_rows
+from src import config
 from src.executor import execute_query
 from src.retriever import get_relevant_schema, find_exact_qa_match, compute_query_embedding
+from src.selector import select_tables
+from src.semantic_layer import load_join_graph
 from src.sql_generator import generate_sql, validate_sql
 
 log = logging.getLogger("query")
@@ -133,20 +136,15 @@ def run_text_query(body: QueryRequest):
     # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values  L3: qa example
     # — a 95%+ literal-text match here is already guaranteed to be the first
     # table in the list, and passed through as a strong few-shot hint below)
-    tables, columns, matched_labels, qa_example = get_relevant_schema(q, query_vec=query_vec)
+    # Retrieval runs wide (SHORTLIST_K) for recall; the selector below narrows it
+    # to the one table that goes in the prompt. Handing the whole shortlist to the
+    # SQL model is what produced the fabricated-join failures.
+    tables, columns, matched_labels, qa_example = get_relevant_schema(
+        q, query_vec=query_vec, shortlist_k=config.SHORTLIST_K,
+    )
     _mark("retrieval")
-    log.info("TABLES  : %s", [t["table"] for t in tables])
+    log.info("SHORTLIST: %s", [t["table"] for t in tables])
     log.info("COLUMNS : %s", [f"{c['table']}.{c['column']}" for c in columns])
-
-    fallback_note = None
-    fallbacks = [t for t in tables if t.get("fallback_from")]
-    if fallbacks:
-        pairs = ", ".join(f"{t['fallback_from']} → {t['table']}" for t in fallbacks)
-        fallback_note = (
-            "Some sections aren't loaded as Annual data yet, so the Quarterly "
-            f"equivalent was used instead: {pairs}."
-        )
-        log.info("FALLBACK: %s", fallback_note)
 
     if not tables:
         return QueryResult(
@@ -161,12 +159,30 @@ def run_text_query(body: QueryRequest):
             accuracy_hint=_accuracy_hint,
         )
 
+    # Step 1b — selection: shortlist → the table(s) that actually reach the SQL
+    # model. Never raises; falls back to the top-1 retrieved table.
+    tables, selection = select_tables(
+        q, tables, matched_labels=matched_labels, join_graph=load_join_graph(),
+    )
+    _mark("selection")
+    log.info("SELECTED: %s%s", [t["table"] for t in tables],
+             "" if selection else "  (short-circuit, no LLM call)")
+
+    # Row labels and columns were gathered for the whole shortlist — drop the
+    # ones belonging to tables the selector rejected, so nothing from a
+    # discarded table leaks into the prompt.
+    selected_names = {t["table"] for t in tables}
+    columns = [c for c in columns if c["table"] in selected_names]
+    matched_labels = [l for l in matched_labels if l["table"] in selected_names]
+
     # Step 2 — SQL generation. Any qa_pairs.json match at 95%+ literal text
     # similarity was already forced to the front of `tables` above and will
     # be passed to the model as a strong few-shot example below — this is the
     # "still call the LLM, but ground it hard" tier.
     try:
-        result = generate_sql(q, tables, columns, dialect=body.dialect, matched_labels=matched_labels, qa_example=qa_example)
+        result = generate_sql(q, tables, columns, dialect=body.dialect,
+                              matched_labels=matched_labels, qa_example=qa_example,
+                              selection=selection)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc))
     _mark("llm_generation")
@@ -203,7 +219,6 @@ def run_text_query(body: QueryRequest):
         rows=serialize_rows(rows),
         db_error=db_error,
         accuracy_hint=_accuracy_hint,
-        fallback_note=fallback_note,
         source=source,
         match_score=match_score,
         timings_ms=timings_ms,

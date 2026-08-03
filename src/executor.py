@@ -60,6 +60,62 @@ def get_accessible_tables() -> set:
         return set()
 
 
+def dry_run_sql(sql):
+    """
+    Ask Oracle to parse and plan the query without running it.
+
+    Returns (ok: bool, error: str|None). ok=True means Oracle accepted the
+    statement: every table and column exists, the types are comparable, and the
+    syntax is valid for this dialect.
+
+    This is the check the regex validator structurally cannot do. Real logged
+    failures it catches that validate_sql() cannot: ORA-00904 for a plausible
+    but nonexistent column, ORA-01861 for a string compared to a DATE, and
+    comparing the NUMBER column CODE against a quoted literal.
+
+    EXPLAIN PLAN is used rather than executing with a row limit because it costs
+    no data access at all — Oracle parses, resolves names and produces a plan.
+    The plan rows are written to PLAN_TABLE, so the transaction is rolled back
+    afterwards; nothing is left behind and nothing is committed.
+
+    A connection failure returns ok=True: the dry run is an accuracy gate, not
+    an availability gate, and must never block generation when the DB is down.
+    """
+    statement = sql.rstrip().rstrip(";")
+    if not statement:
+        return False, "Empty SQL"
+
+    try:
+        conn = get_connection()
+    except oracledb.DatabaseError as e:
+        # Cannot verify — do not fail the query on infrastructure grounds.
+        return True, f"dry-run skipped (connection failed: {e})"
+
+    cursor = None
+    try:
+        cursor = conn.cursor()
+        cursor.execute(f"EXPLAIN PLAN SET STATEMENT_ID = 'sqlgen_dryrun' FOR {statement}")
+        return True, None
+    except oracledb.DatabaseError as e:
+        (error_obj,) = e.args
+        message = getattr(error_obj, "message", str(e)).strip()
+        if "ORA-01039" in message or "PLAN_TABLE" in message.upper():
+            # No PLAN_TABLE or no privilege to write it: that is an environment
+            # problem, not bad SQL, so it must not be reported as invalid.
+            return True, f"dry-run skipped ({message})"
+        return False, message
+    except Exception as e:
+        return True, f"dry-run skipped (unexpected error: {e})"
+    finally:
+        if cursor is not None:
+            cursor.close()
+        try:
+            conn.rollback()      # discard the PLAN_TABLE rows
+        except Exception:
+            pass
+        conn.close()
+
+
 def execute_query(sql):
     """
     Execute a SELECT query against Oracle DB.
@@ -91,28 +147,3 @@ def execute_query(sql):
         conn.close()
 
 
-def print_results(columns, rows):
-    if not rows:
-        print("  (no rows returned)")
-        return
-
-    # Calculate column widths
-    widths = [len(c) for c in columns]
-    for row in rows:
-        for i, val in enumerate(row):
-            widths[i] = max(widths[i], len(str(val) if val is not None else "NULL"))
-
-    sep   = "+-" + "-+-".join("-" * w for w in widths) + "-+"
-    header = "| " + " | ".join(c.ljust(widths[i]) for i, c in enumerate(columns)) + " |"
-
-    print(sep)
-    print(header)
-    print(sep)
-    for row in rows:
-        line = "| " + " | ".join(
-            (str(v) if v is not None else "NULL").ljust(widths[i])
-            for i, v in enumerate(row)
-        ) + " |"
-        print(line)
-    print(sep)
-    print(f"  {len(rows)} row(s) returned (limit: {DB_MAX_ROWS})")

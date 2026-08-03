@@ -5,6 +5,7 @@ import faiss
 import pickle
 import numpy as np
 from src.vectorizer import embed_query
+from src.section_alias import detect_section_reference
 import src.config as config
 from src.config import TOP_K_TABLES, TOP_K_COLUMNS
 
@@ -179,50 +180,6 @@ def find_exact_qa_match(query: str, query_vec=None):
     return None
 
 
-_fallback_map_cache: dict = {}  # keyed by EMBEDDING_DIR, so a scope switch mid-session doesn't reuse a stale map
-
-
-def _load_fallback_map():
-    """
-    Some Annual-return tables in test/schema.json (derived from the XBRL
-    taxonomy) don't actually exist in Oracle yet — only their Quarterly
-    counterpart does. This maps annual table name -> existing quarterly
-    table name, built by test/build_test_index.py's sibling fallback script.
-    Returns {} if the file doesn't exist (e.g. production mode).
-    """
-    embedding_dir = config.EMBEDDING_DIR
-    if embedding_dir not in _fallback_map_cache:
-        import json
-        path = f"{embedding_dir}/annual_to_quarterly_fallback.json"
-        try:
-            with open(path, encoding="utf-8") as f:
-                _fallback_map_cache[embedding_dir] = json.load(f)
-        except FileNotFoundError:
-            _fallback_map_cache[embedding_dir] = {}
-    return _fallback_map_cache[embedding_dir]
-
-
-def _apply_quarterly_fallback(tables):
-    """
-    Replace any table not present in the live DB with its Quarterly
-    equivalent (if known), tagging the substitution so callers can surface
-    a note to the user. Column loading falls back to the production schema
-    for these substituted names (see sql_generator._load_all_columns).
-    """
-    fallback_map = _load_fallback_map()
-    if not fallback_map:
-        return tables
-
-    resolved = []
-    for t in tables:
-        original = t["table"]
-        quarterly = fallback_map.get(original)
-        if quarterly:
-            resolved.append({**t, "table": quarterly, "fallback_from": original})
-        else:
-            resolved.append(t)
-    return resolved
-
 # ── Banking / CIMS domain abbreviation expansion ──────────────────────────────
 _QUERY_EXPANSIONS = [
     (r'\bnpa\b',    'NPA non performing assets'),
@@ -280,13 +237,10 @@ def _dynamic_top_k(query: str) -> int:
 # entry instead of serving a stale index. Previously every search() call
 # re-read and unpickled these files from disk — cheap for today's small
 # indexes but still wasted, repeated work on every single request.
+# Cached for the life of the process: rebuilding the indexes requires a restart
+# to pick them up (uvicorn's reloader watches api/ and src/, not
+# embedding_building/, so a rebuild alone will not trigger one).
 _index_cache: dict = {}
-
-
-def clear_index_cache():
-    """Drop cached FAISS indexes — call after rebuilding embeddings so the
-    running process picks up the new files instead of serving stale ones."""
-    _index_cache.clear()
 
 
 def _get_index(index_path, meta_path):
@@ -337,7 +291,7 @@ def search_qa(query_vec, top_k: int = 15):
     return search(qa_index_path, qa_meta_path, query_vec, top_k, min_score=MIN_TABLE_SCORE)
 
 
-def get_relevant_schema(query: str, query_vec=None):
+def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = None):
     """
     query_vec: optional pre-computed embedding of the jargon-expanded query
     (see compute_query_embedding). Pass this in when the caller already
@@ -345,11 +299,23 @@ def get_relevant_schema(query: str, query_vec=None):
     avoid embedding the same text twice. If omitted, computed internally —
     all 4 signals below (and the later row-label lookup) reuse this ONE
     vector instead of each calling embed_query() independently.
+
+    shortlist_k: when given, return this many candidate tables instead of the
+    dynamic top_k. This is the recall stage for src/selector.py, which then
+    picks ONE table to actually put in front of the SQL model. Handing three
+    similarly-scored tables straight to a 7B model made it JOIN all three and
+    invent the foreign key to do it (see eval/results/hallucination_log.jsonl),
+    so breadth belongs here and precision belongs in the selector.
+
+    Each returned table dict carries "score" (fused RRF score) and, on at most
+    one of them, "strong_match": True — a near-duplicate prior question, which
+    is reason enough to skip the selector entirely.
     """
     expanded = _expand_query(query)
     if query_vec is None:
         query_vec = embed_query(expanded)
     top_k = _dynamic_top_k(query)
+    effective_k = shortlist_k if shortlist_k else top_k
     embedding_dir = config.EMBEDDING_DIR
 
     # ── Signal A: direct table semantic search ────────────────────────────────
@@ -463,25 +429,17 @@ def get_relevant_schema(query: str, query_vec=None):
     if ranked_all:
         top_score = scores[ranked_all[0]]
         RELATIVE_FLOOR = 0.15  # keep tables scoring at least this fraction of the top hit
-        ranked = [t for t in ranked_all if scores[t] >= top_score * RELATIVE_FLOOR][:top_k]
+        ranked = [t for t in ranked_all if scores[t] >= top_score * RELATIVE_FLOOR][:effective_k]
     else:
         ranked = []
-    tables = [all_table_meta[tbl] for tbl in ranked]
+    # Copy the meta dicts rather than annotating them in place — they come from
+    # the module-level pickle cache and are reused across requests.
+    tables = [{**all_table_meta[tbl], "score": scores[tbl]} for tbl in ranked]
 
-    # ── Substitute any Annual table missing from the live DB with its
-    #    existing Quarterly equivalent (see test/annual_to_quarterly_fallback.json) ──
-    # Two different Annual tables can map to the same Quarterly table (e.g.
-    # SEC11_COUNTRY_RISK and SEC11_COUNTRY_RISK_TL both -> Q_SEC11), so dedupe
-    # by the resolved table name afterward — otherwise a scarce top_k slot
-    # gets wasted on a duplicate instead of a genuinely different table.
-    tables = _apply_quarterly_fallback(tables)
-    seen_tables: set = set()
-    deduped_tables = []
-    for t in tables:
-        if t["table"] not in seen_tables:
-            seen_tables.add(t["table"])
-            deduped_tables.append(t)
-    tables = deduped_tables
+    # (A dedupe pass used to live here because the Annual->Quarterly fallback
+    # could map two Annual tables onto one Quarterly table. That feature is gone,
+    # and `ranked` holds uppercase-normalised keys that are unique by
+    # construction, so no two entries can resolve to the same table name.)
 
     # If the top qa_pairs.json hit is a STRONG match (95%+ on literal text OR
     # token-set/paraphrase similarity) to the user's raw query, GUARANTEE its
@@ -495,9 +453,35 @@ def get_relevant_schema(query: str, query_vec=None):
         if best_qa_similarity(query, _top_qa["question"]) >= STRONG_MATCH_MIN_RATIO:
             strong_table = _top_qa["table"]
             tables = [t for t in tables if t["table"].upper() != strong_table.upper()]
-            tables.insert(0, {"table": strong_table})
-            if top_k:
-                tables = tables[:top_k]
+            # "strong_match" tells the selector it can skip its LLM call: a 95%+
+            # paraphrase of a prior question already identifies the table.
+            tables.insert(0, {"table": strong_table, "strong_match": True})
+            if effective_k:
+                tables = tables[:effective_k]
+
+    # An EXPLICIT section reference in the question ("Section 10", "Section 12
+    # Misc T4") is a harder signal than any embedding score — the user named the
+    # table. Applied last so it outranks even the QA strong-match tier above.
+    # Without this, embedding retrieval picks whichever table's COLUMNS resemble
+    # the wording (interest-rate columns pull toward SEC10 regardless of which
+    # section was actually named), which was 5 of 11 wrong answers in testing.
+    section_ref = detect_section_reference(query)
+    if section_ref:
+        if section_ref["resolved"]:
+            pinned = section_ref["resolved"]
+            tables = [t for t in tables if t["table"].upper() != pinned.upper()]
+            tables.insert(0, {"table": pinned, "section_match": True})
+        else:
+            # Ambiguous within the section (e.g. "Section 12" spans 4 tables):
+            # restrict to that section's tables so retrieval keeps its ranking
+            # WITHIN the right scope, rather than forcing a blind pick.
+            allowed = {c.upper() for c in section_ref["candidates"]}
+            scoped = [t for t in tables if t["table"].upper() in allowed]
+            missing = [c for c in section_ref["candidates"]
+                       if c.upper() not in {t["table"].upper() for t in scoped}]
+            tables = scoped + [{"table": c} for c in missing]
+        if effective_k:
+            tables = tables[:effective_k]
 
     table_names = {t["table"] for t in tables}
 

@@ -76,6 +76,9 @@ def fetch_and_save(schema_json_path=None):
         schema = json.load(f)
 
     samples = {}
+    # {table: [label_column, ...]} for columns whose stored values have leading
+    # or trailing whitespace, so generated filters must use TRIM().
+    needs_trim = {}
 
     try:
         conn = _get_connection()
@@ -103,9 +106,20 @@ def fetch_and_save(schema_json_path=None):
                         {"max_rows": MAX_SAMPLES},
                     )
                     rows = cursor.fetchall()
-                    values = [str(r[0]).strip() for r in rows if r[0]]
+                    # Keep the value EXACTLY as stored. Stripping it here was a
+                    # silent wrong-answer bug: several values carry leading
+                    # whitespace ('     C2. Slipped to NPAs'), so a filter built
+                    # from the stripped sample — WHERE COL = 'C2. Slipped to
+                    # NPAs' — matches zero rows and returns an empty result with
+                    # no error at all. Values whose stored form differs from
+                    # their trimmed form are recorded in _needs_trim so the
+                    # prompt can emit TRIM(COL) = '...' instead.
+                    raw_values = [str(r[0]) for r in rows if r[0]]
+                    values = [v for v in raw_values if v.strip()]
                     if values:
                         table_samples[col] = sorted(values)
+                        if any(v != v.strip() for v in values):
+                            needs_trim.setdefault(table_name, []).append(col)
                 except Exception:
                     pass  # table may be empty, inaccessible, or not yet in the DB
 
@@ -125,7 +139,32 @@ def fetch_and_save(schema_json_path=None):
         json.dump(samples, f, indent=2)
 
     print(f"\n  Saved -> {out_path}")
+
+    if needs_trim:
+        trim_path = os.path.join(config.EMBEDDING_DIR, "needs_trim.json")
+        with open(trim_path, "w", encoding="utf-8") as f:
+            json.dump(needs_trim, f, indent=2)
+        print(f"  Saved -> {trim_path}  "
+              f"({sum(len(v) for v in needs_trim.values())} column(s) need TRIM())")
+
     return samples
+
+
+def load_needs_trim(path=None):
+    """
+    {table: [label_column, ...]} for label columns whose stored values are
+    whitespace-padded, written by fetch_and_save.
+
+    Consumed by the prompt builder so it can tell the model to write
+    TRIM(COL) = 'value' for those columns. Returns {} when absent.
+    """
+    if path is None:
+        path = os.path.join(config.EMBEDDING_DIR, "needs_trim.json")
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
 
 
 def load_samples(path=None):
@@ -200,12 +239,8 @@ def search_labels(query_vec, table_names: set, top_k: int = 8) -> list:
 # Cache of the loaded row-label FAISS index + metadata, keyed by
 # (index_path, meta_path) — mirrors src.retriever._index_cache so this index
 # is also loaded once instead of re-read from disk on every call.
+# Cached for the life of the process — a rebuild needs a restart to take effect.
 _label_index_cache: dict = {}
-
-
-def clear_label_index_cache():
-    """Drop the cached row-label index — call after rebuilding embeddings."""
-    _label_index_cache.clear()
 
 
 def search_labels_with_scores(query_vec, top_k: int = 30) -> list:

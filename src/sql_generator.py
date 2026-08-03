@@ -6,11 +6,24 @@ import logging
 import requests
 from datetime import date, timedelta
 import src.config as config
+# Safe at module level: description_fetcher imports only json/os/config up front
+# (oracledb and faiss are function-local there) and never imports this module.
+from src.description_fetcher import load_samples
 
 log = logging.getLogger("sql_generator")
 
 BANNED_KEYWORDS = ["delete", "update", "drop", "insert", "truncate", "alter", "create", "exec"]
 MAX_LABELS_MINIMAL = 8
+# Correction rounds after the first attempt. Each round is a fresh LLM call
+# followed by a fresh validation AND a fresh Oracle dry run. Was 1; WrenAI uses
+# 3 (max_sql_correction_retries), and a single round is not enough when the
+# first error is a column name and the second is a type mismatch.
+MAX_CORRECTION_RETRIES = 3
+# Row-label values rendered per column in a CREATE TABLE comment. Higher than
+# the minimal-prompt cap because the DDL block is far more compact than the old
+# prose schema listing, and an exact label literal is the one thing the model
+# cannot invent correctly.
+MAX_LABELS_DDL = 14
 
 # ── Ollama circuit breaker ──────────────────────────────────────────────────
 # Without this, an unreachable/down proxy made every single request hang for
@@ -280,10 +293,10 @@ def _load_all_columns(table_names, schema_path=None):
     """
     Return all columns for the given table names loaded from schema.json.
 
-    Falls back to the production embedding_building/output/schema.json for any
-    table not found in the primary schema — this covers tables that were
-    substituted for a Quarterly fallback (see retriever._apply_quarterly_fallback)
-    and therefore only exist in the production schema, not the derived test one.
+    Falls back to the legacy embedding_building/output/schema.json for any table
+    missing from the active schema. That file is in the older
+    table_name/column_name format, which the loaders tolerate; note the path is
+    relative, so the fallback only resolves when cwd is the repo root.
     """
     if schema_path is None:
         schema_path = f"{config.EMBEDDING_DIR}/schema.json"
@@ -300,11 +313,99 @@ def _load_all_columns(table_names, schema_path=None):
     return result
 
 
+def _table_entries_from_schema(schema_path, normalized_table_names):
+    """Full schema.json entries (not just column names) for the given tables."""
+    try:
+        with open(schema_path) as f:
+            schema = json.load(f)
+    except FileNotFoundError:
+        return {}
+    out = {}
+    for entry in schema:
+        table_name = entry.get("table") or entry.get("table_name")
+        if table_name and table_name.lower() in normalized_table_names:
+            out[table_name.lower()] = entry
+    return out
+
+
+def _load_table_entries(table_names, schema_path=None):
+    """
+    Load full table entries — columns with type/nullable/is_primary_key, plus
+    table-level primary_key/foreign_keys/description — for DDL rendering.
+
+    Mirrors _load_all_columns' legacy-schema fallback for tables missing from
+    the active schema.json.
+    """
+    if schema_path is None:
+        schema_path = f"{config.EMBEDDING_DIR}/schema.json"
+
+    normalized = {name.lower() for name in table_names}
+    entries = _table_entries_from_schema(schema_path, normalized)
+
+    missing = normalized - set(entries)
+    prod_path = "embedding_building/output/schema.json"
+    if missing and schema_path != prod_path:
+        entries.update(_table_entries_from_schema(prod_path, missing))
+
+    return entries
+
+
+_ddl_type_cache = None
+
+
+def _load_ddl_types(ddl_path="data/schema.sql"):
+    """
+    {table_lower: {column_lower: "NUMBER(20,2)"}} parsed from the checked-in DDL.
+
+    schema.json files built before types were preserved have no `type` field, so
+    this is the authoritative fallback — it is Oracle-derived (extract_schema.py
+    writes it from ALL_TAB_COLUMNS) rather than guessed. It matters: CODE is
+    NUMBER(20,2) in this schema, so a generated `CODE = 'BANK'` is a type error,
+    and without types in the prompt nothing told the model that.
+    """
+    global _ddl_type_cache
+    if _ddl_type_cache is not None:
+        return _ddl_type_cache
+
+    types = {}
+    try:
+        from embedding_building.parser import parse_sql_schema
+        with open(ddl_path, encoding="utf-8", errors="replace") as fh:
+            for table, cols in parse_sql_schema(fh.read()).items():
+                types[table.lower()] = {
+                    c["name"].lower(): (c.get("type") or "").upper() for c in cols
+                }
+    except (OSError, ImportError) as e:
+        log.warning("Could not load column types from %s: %s", ddl_path, e)
+
+    _ddl_type_cache = types
+    return types
+
+
+# Last-resort type inference, used only when neither schema.json nor the DDL
+# file knows the column. A CREATE TABLE block with no types would be worse than
+# a guessed one: SQLCoder relies on the type to decide between TO_DATE, string
+# literals and arithmetic.
+_TYPE_HINTS = (
+    (("rdate", "_date", "date_", "dt_"), "DATE"),
+    (("code",), "VARCHAR2(50)"),
+    (("amt", "amount", "total", "value", "val", "num", "count", "qty",
+      "os", "exposure", "expo", "provision", "ratio", "per_", "pct"), "NUMBER(20,2)"),
+)
+
+
+def _infer_column_type(column_name: str) -> str:
+    lowered = column_name.lower()
+    for needles, sql_type in _TYPE_HINTS:
+        if any(n in lowered for n in needles):
+            return sql_type
+    return "VARCHAR2(400)"
+
+
 def _get_model_profile(model_name):
     default_profile = {
         "prompt_style": "rules",
         "dialect_hint": "Oracle",
-        "supports_full_ruleset": True,
         "temperature": None,
         "num_predict": None,
     }
@@ -314,6 +415,10 @@ def _get_model_profile(model_name):
 
 def _validation_failure_category(reason: str) -> str:
     reason = reason.lower()
+    if "oracle rejected the query" in reason:
+        return "engine rejected"
+    if "undeclared join" in reason:
+        return "undeclared join"
     if "dangerous keyword" in reason:
         return "banned keyword"
     if "hallucinated tables" in reason:
@@ -523,41 +628,12 @@ RULE R4 — Never use ROWNUM for top-N unless the table has no ORDER BY option; 
 """
 
 
-def _build_compressed_rules_block(dialect_hint: str) -> str:
-    return f"""You are an expert {dialect_hint} SQL generator.
-Use {dialect_hint} syntax, including Oracle-specific constructs such as FETCH FIRST N ROWS ONLY, ADD_MONTHS, EXTRACT(YEAR FROM ...), and TO_DATE(...,'YYYY-MM-DD').
-
-════════════════════════════════════════════════
-ABSOLUTE RULES
-════════════════════════════════════════════════
-- Return ONLY a raw SQL SELECT query: no explanation, no markdown, no code fences, no semicolon.
-- Use ONLY table names and column names listed in the SCHEMA CONTEXT below.
-- Never use bind variables or placeholders (:val, ?, %s); embed literals directly.
-- Never touch backup tables (_bkup, _bk, _bckup, _backup suffixes).
-- If a RESOLVED TIME CONTEXT entry exists for the question, use those exact dates verbatim.
-
-════════════════════════════════════════════════
-KEY GUIDELINES
-════════════════════════════════════════════════
-- The SCHEMA CONTEXT is the only allowed source of tables and columns.
-- VERTICAL tables store named rows. Do not SUM vertical label rows across records.
-- If STORAGE FORMAT: VERTICAL appears, filter by the exact label value or use LIKE only when no exact label exists.
-- For DOM / OVE values, use _DOM or _OVE separately unless the user asks for combined totals.
-- Use JOIN only when required, and always join on CODE and RDATE together.
-- Prefer Oracle top-N syntax: ORDER BY ... FETCH FIRST N ROWS ONLY.
-- Prefer Oracle date syntax: EXTRACT(YEAR FROM RDATE), TO_DATE(...,'YYYY-MM-DD'), ADD_MONTHS.
-- Avoid inventing tables, columns, or business logic beyond the schema and resolved time context.
-"""
-
-
 def _build_minimal_prompt(
     dialect_hint: str,
     user_query: str,
     schema_context: str,
     time_context_block: str,
     valid_tables: str,
-    tables=None,
-    all_columns=None,
     vertical_tables=None,
     dom_ove_tables=None,
     multipart_tables=None,
@@ -625,6 +701,217 @@ Return ONLY a raw SQL SELECT query. No explanation, no markdown, no code fences,
 """
 
 
+def _ddl_comment(text: str, limit: int = 90) -> str:
+    """One-line trailing comment, collapsed and clipped."""
+    if not text:
+        return ""
+    # Normalise typographic dashes/quotes to ASCII: they cost extra tokens and
+    # the generated descriptions in schema.json are full of them.
+    flat = str(text).translate(str.maketrans({
+        "—": "-", "–": "-", "‘": "'", "’": "'",
+        "“": '"', "”": '"', "…": "...",
+    }))
+    flat = re.sub(r"\s+", " ", flat).strip()
+    if len(flat) > limit:
+        flat = flat[:limit - 3].rstrip() + "..."
+    return flat
+
+
+def build_table_ddl(entry, label_values=None, selected_tables=None, selected_columns=None):
+    """
+    Render one schema.json table entry as a real CREATE TABLE block.
+
+    SQLCoder was trained on CREATE TABLE context, so giving it DDL rather than
+    the previous prose "Allowed columns (use ONLY these): A, B, C" listing plays
+    to the model instead of fighting it. Types, NOT NULL and PRIMARY KEY come
+    from the schema; row-label values ride along as column comments so the model
+    can copy an exact literal instead of inventing one.
+
+    A FOREIGN KEY renders only when the referenced table is also in
+    `selected_tables` — a dangling REFERENCES to a table that isn't in context
+    is an open invitation to join to something the model cannot see.
+
+    `selected_columns` (lowercase names), when given, prunes the column list;
+    key columns and the row-label column are always kept so the query remains
+    filterable.
+    """
+    raw_name = entry.get("table") or entry.get("table_name") or ""
+    table_name = raw_name.upper()
+    label_values = label_values or {}
+    label_cols = {c.lower() for c in label_values}
+    keep = {c.lower() for c in (selected_columns or [])} or None
+    ddl_types = _load_ddl_types().get(raw_name.lower(), {})
+
+    lines = []
+    header_desc = _ddl_comment(entry.get("description"), limit=200)
+    if header_desc:
+        lines.append(f"-- {header_desc}")
+    if label_values:
+        keyed_by = ", ".join(sorted(c.upper() for c in label_values))
+        lines.append(
+            f"-- STORAGE FORMAT: VERTICAL - each row is one named metric, keyed by {keyed_by}. "
+            f"Filter by an exact label value below; do NOT SUM across labels."
+        )
+
+    # (definition, comment) pairs — the comma that separates column definitions
+    # has to go BEFORE the trailing comment, or the `--` swallows it and the DDL
+    # stops being parseable.
+    col_defs = []
+    pk_cols = []
+    for col in entry.get("columns") or []:
+        name = (col.get("name") or col.get("column_name") or "")
+        if not name:
+            continue
+        lowered = name.lower()
+        is_key = lowered in ("code", "rdate") or col.get("is_primary_key")
+        if keep is not None and lowered not in keep and not is_key and lowered not in label_cols:
+            continue
+
+        if col.get("is_primary_key"):
+            pk_cols.append(name.upper())
+
+        col_type = ((col.get("type") or "").upper()
+                    or ddl_types.get(lowered, "")
+                    or _infer_column_type(name))
+        definition = f"{name.upper()} {col_type}"
+        if col.get("nullable") is False:
+            definition += " NOT NULL"
+
+        comment_bits = []
+        desc = _ddl_comment(col.get("description"))
+        # A description that just restates the column name adds nothing.
+        if desc and desc.lower() not in (lowered, lowered.replace("_", " ")):
+            comment_bits.append(desc)
+
+        values = label_values.get(lowered) or label_values.get(name) or []
+        if values:
+            # Some stored values carry leading whitespace ('     C2. Slipped to
+            # NPAs'). Matching those with `= 'C2. Slipped to NPAs'` fails
+            # silently — zero rows, no error. So when any value in the column is
+            # padded, show the trimmed literals and require TRIM() on the column,
+            # which is correct for padded and unpadded values alike.
+            padded = any(v != v.strip() for v in values)
+            values = [v.strip() for v in values] if padded else list(values)
+
+            total_row = _find_total_row(values)
+            shown = list(values)
+            if len(shown) > MAX_LABELS_DDL:
+                # Trim, but never drop the pre-aggregated TOTAL row: it is the
+                # one literal the model needs for "total/overall" questions.
+                shown = [v for v in shown if v != total_row][:MAX_LABELS_DDL - 1]
+                if total_row:
+                    shown.append(total_row)
+                shown.append("...")
+            rendered = ", ".join(v if v == "..." else f"'{v}'" for v in shown)
+            comment_bits.append(f"row label, allowed values: {rendered}")
+            if padded:
+                comment_bits.append(
+                    f"stored values are whitespace-padded - you MUST filter with "
+                    f"TRIM({name.upper()}) = '<value>'"
+                )
+            if total_row:
+                filter_expr = f"TRIM({name.upper()})" if padded else name.upper()
+                comment_bits.append(f"TOTAL row: {filter_expr} = '{total_row}'")
+
+        col_defs.append((definition, " | ".join(comment_bits)))
+
+    if pk_cols:
+        col_defs.append((f"PRIMARY KEY ({', '.join(pk_cols)})", ""))
+
+    allowed = {t.lower() for t in (selected_tables or [])}
+    for fk in entry.get("foreign_keys") or []:
+        ref_table = (fk.get("ref_table") or "").lower()
+        if allowed and ref_table not in allowed:
+            continue
+        cols = ", ".join(c.upper() for c in fk.get("columns") or [])
+        ref_cols = ", ".join(c.upper() for c in fk.get("ref_columns") or [])
+        if cols and ref_table:
+            ref = f"{ref_table.upper()}({ref_cols})" if ref_cols else ref_table.upper()
+            col_defs.append((f"FOREIGN KEY ({cols}) REFERENCES {ref}", ""))
+
+    lines.append(f"CREATE TABLE {table_name} (")
+    rendered_defs = []
+    for idx, (definition, comment) in enumerate(col_defs):
+        separator = "," if idx < len(col_defs) - 1 else ""
+        line = f"  {definition}{separator}"
+        if comment:
+            line += f"  -- {comment}"
+        rendered_defs.append(line)
+    lines.append("\n".join(rendered_defs))
+    lines.append(");")
+    lines.append(
+        f"-- latest reporting period: RDATE = (SELECT MAX(RDATE) FROM {table_name})"
+    )
+    return "\n".join(lines)
+
+
+def _build_ddl_prompt(
+    dialect_hint: str,
+    user_query: str,
+    ddl_context: str,
+    time_context_block: str,
+    valid_tables: str,
+    qa_example=None,
+    reasoning_plan=None,
+    join_hint=None,
+) -> str:
+    """
+    Prompt in SQLCoder-7b-2's own training format ("### Task / ### Database
+    Schema / ### Answer" with [QUESTION]…[/QUESTION] delimiters), replacing the
+    prose bullet list that a 7B model demonstrably did not follow.
+
+    Section order follows WrenAI's assembly: schema, then examples, then
+    instructions, then the reasoning plan, then the question last.
+    """
+    sections = [
+        f"### Task\nGenerate an {dialect_hint} SQL SELECT query to answer "
+        f"[QUESTION]{user_query}[/QUESTION]",
+        "### Database Schema\nThe query will run on a database with the following schema:\n"
+        + ddl_context,
+    ]
+
+    if time_context_block:
+        sections.append(time_context_block.strip())
+
+    if qa_example:
+        sections.append(
+            "### Worked example\n"
+            f"-- table: {qa_example['table']}\n"
+            f"-- question: {qa_example['question']}\n"
+            f"{qa_example['sql']}"
+        )
+
+    rules = [
+        f"- Use only the tables and columns declared in the schema above. Allowed tables: {valid_tables}.",
+        "- Copy identifiers character for character. Do not abbreviate, pluralise or 'correct' a name.",
+        "- A text column such as DESCRIPTION, ITEM, CATEGORY or RISK_CATEGORY holds the value directly. "
+        "It is not a lookup table - never join to a table that is not declared above.",
+        "- Never use bind variables or placeholders (:val, ?, %s). Embed every value as a literal.",
+        "- Wrap every date literal as TO_DATE('YYYY-MM-DD', 'YYYY-MM-DD').",
+        "- If the question names no period, filter RDATE = (SELECT MAX(RDATE) FROM <that table>).",
+        "- On a VERTICAL table, filter by an exact row-label literal from its comment; "
+        "for a total, use the TOTAL row label rather than SUM() across labels.",
+    ]
+    if join_hint:
+        rules.append(f"- {join_hint}")
+    else:
+        rules.append(
+            "- Answer from the single table above. Do not join."
+        )
+    sections.append("### Rules\n" + "\n".join(rules))
+
+    if reasoning_plan:
+        sections.append("### Reasoning plan\n" + reasoning_plan.strip())
+
+    sections.append(
+        "### Answer\nGiven the database schema, here is the "
+        f"{dialect_hint} SQL query that answers [QUESTION]{user_query}[/QUESTION]\n"
+        "Return only the raw SQL - no explanation, no markdown, no semicolon.\n[SQL]"
+    )
+
+    return "\n\n".join(sections) + "\n"
+
+
 # Keywords in row-label values that indicate a pre-aggregated total row
 _TOTAL_ROW_KEYWORDS = [
     "total", "grand total", "sub-total", "subtotal",
@@ -665,8 +952,7 @@ def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
     if len(table_refs) != 1:
         return None
 
-    from src.description_fetcher import load_samples as _load_label_samples
-    label_samples = {k.lower(): v for k, v in _load_label_samples().items()}
+    label_samples = {k.lower(): v for k, v in load_samples().items()}
     values = label_samples.get(table_name.lower(), {}).get(label_col.lower())
     if not values:
         return None
@@ -688,8 +974,14 @@ def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
 
     corrected = sql[:agg.start()] + agg.group(2) + sql[agg.end():]
 
-    escaped_total = total_row.replace("'", "''")
-    where_clause = f"{label_col} = '{escaped_total}'"
+    # A padded stored value must be compared through TRIM(), otherwise the
+    # rewritten query returns zero rows instead of the total.
+    if total_row != total_row.strip():
+        escaped_total = total_row.strip().replace("'", "''")
+        where_clause = f"TRIM({label_col}) = '{escaped_total}'"
+    else:
+        escaped_total = total_row.replace("'", "''")
+        where_clause = f"{label_col} = '{escaped_total}'"
     if re.search(r'\bwhere\b', corrected, re.IGNORECASE):
         corrected = re.sub(r'\bwhere\b', f"WHERE {where_clause} AND", corrected, count=1, flags=re.IGNORECASE)
     else:
@@ -698,7 +990,8 @@ def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
     return corrected
 
 
-def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, model_name=None, qa_example=None):
+def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None,
+                 model_name=None, qa_example=None, selection=None, reasoning_plan=None):
     if today_date is None:
         today_date = date.today().isoformat()
 
@@ -707,7 +1000,6 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     profile = _get_model_profile(model_name)
     dialect_hint = profile.get("dialect_hint") or dialect
     prompt_style = profile.get("prompt_style", "rules")
-    supports_full_ruleset = profile.get("supports_full_ruleset", True)
 
     table_names = {t["table"] for t in tables}
     all_columns = _load_all_columns(table_names)
@@ -716,7 +1008,6 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     # matched_labels: [{table, column, value}, ...]  — already ranked by relevance
     # Fall back to full sample dump if index doesn't exist yet (e.g. first run).
     if matched_labels is None:
-        from src.description_fetcher import load_samples
         raw_samples = load_samples()
         matched_labels = []
         for tbl, col_map in raw_samples.items():
@@ -747,8 +1038,7 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     # run for EVERY prompt style, not just "rules" — whether a table needs a
     # row-label filter is a schema-shape fact, not something that should
     # depend on how verbose the prompt is allowed to be.
-    from src.description_fetcher import load_samples as _load_samples
-    all_samples = _load_samples()
+    all_samples = load_samples()
     for tbl in table_names:
         if tbl in all_samples:
             for col, vals in all_samples[tbl].items():
@@ -813,6 +1103,51 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     _time_block = _resolve_relative_time(user_query, today_obj)
     time_context_block = (_time_block + "\n") if _time_block else ""
 
+    if prompt_style == "ddl":
+        entries = _load_table_entries(table_names)
+        selected_cols_by_table = {}
+        join_hint = None
+        if selection:
+            for sel in selection.get("tables") or []:
+                sel_name = str(sel.get("table", "")).lower()
+                cols = [c.get("name", "") for c in (sel.get("columns") or []) if c.get("name")]
+                if sel_name and cols:
+                    selected_cols_by_table[sel_name] = cols
+            join_hint = selection.get("join_hint")
+
+        ddl_blocks = []
+        for t in tables:
+            table_key = t["table"].lower()
+            entry = entries.get(table_key)
+            if entry is None:
+                # No schema.json entry (shouldn't happen once the build is in
+                # sync) — fall back to the plain column list rather than emitting
+                # a CREATE TABLE with no columns at all.
+                cols = [c["column"].upper() for c in all_columns if c["table"].lower() == table_key]
+                ddl_blocks.append(
+                    f"-- schema entry missing; columns only\nCREATE TABLE {t['table'].upper()} (\n"
+                    + ",\n".join(f"  {c} {_infer_column_type(c)}" for c in cols)
+                    + "\n);"
+                )
+                continue
+            ddl_blocks.append(build_table_ddl(
+                entry,
+                label_values=label_map.get(t["table"], {}),
+                selected_tables=table_names,
+                selected_columns=selected_cols_by_table.get(table_key),
+            ))
+
+        return _build_ddl_prompt(
+            dialect_hint,
+            user_query,
+            "\n\n".join(ddl_blocks),
+            time_context_block,
+            valid_tables,
+            qa_example=qa_example,
+            reasoning_plan=reasoning_plan,
+            join_hint=join_hint,
+        )
+
     if prompt_style == "minimal":
         return _build_minimal_prompt(
             dialect_hint,
@@ -820,15 +1155,17 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
             schema_context,
             time_context_block,
             valid_tables,
-            tables=tables,
-            all_columns=all_columns,
             vertical_tables=vertical_tables,
             dom_ove_tables=dom_ove_tables,
             multipart_tables=multipart_tables,
             qa_example=qa_example,
         )
 
-    template = _build_full_rules_block(dialect_hint) if supports_full_ruleset else _build_compressed_rules_block(dialect_hint)
+    # Only the "rules" style reaches here, and every profile that selects it also
+    # sets supports_full_ruleset=True (as does the default profile), so the full
+    # block is the single remaining template. The compressed variant it used to
+    # fall back to was unreachable for every configured model and was removed.
+    template = _build_full_rules_block(dialect_hint)
 
     qa_example_block = ""
     if qa_example:
@@ -852,15 +1189,18 @@ Allowed tables: {valid_tables}
 ════════════════════════════════════════════════
 SQL:"""
 
-def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None, qa_example=None):
-    prompt = build_prompt(user_query, tables, columns, dialect=dialect, today_date=today_date, matched_labels=matched_labels, qa_example=qa_example)
+def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None,
+                 qa_example=None, selection=None, reasoning_plan=None):
+    prompt = build_prompt(user_query, tables, columns, dialect=dialect, today_date=today_date,
+                          matched_labels=matched_labels, qa_example=qa_example,
+                          selection=selection, reasoning_plan=reasoning_plan)
     model_name = config.OLLAMA_MODEL
     model_profile = _get_model_profile(model_name)
 
     table_names = [str((t.get("table") or t.get("table_name") or "")).strip() for t in tables]
     needs_multi_part_output = any(re.search(r'_part_[ab](?:_|$)', name.lower()) for name in table_names if name)
     effective_num_predict = model_profile.get("num_predict")
-    if model_profile.get("prompt_style") == "minimal" and needs_multi_part_output:
+    if model_profile.get("prompt_style") in ("minimal", "ddl") and needs_multi_part_output:
         effective_num_predict = max(effective_num_predict or 0, config.MINIMAL_MULTIPART_NUM_PREDICT)
 
     def _call_ollama(prompt_text: str, temperature_override=None, call_label="call"):
@@ -868,6 +1208,9 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             "model": model_name,
             "prompt": prompt_text,
             "stream": True,   # stream tokens as they arrive
+            # Keep the model resident between requests; without this the first
+            # call after Ollama's 5-minute idle timeout pays a full model load.
+            "keep_alive": config.OLLAMA_KEEP_ALIVE,
         }
         options = {"num_ctx": config.OLLAMA_NUM_CTX}
         if temperature_override is not None:
@@ -937,7 +1280,7 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
               f"prompt_chars={len(prompt_text)} response_chars={len(raw)}")
         return raw
 
-    print(f"[DEBUG] Ollama model={model_name} prompt_style={model_profile.get('prompt_style')} supports_full_ruleset={model_profile.get('supports_full_ruleset')}" )
+    print(f"[DEBUG] Ollama model={model_name} prompt_style={model_profile.get('prompt_style')}")
     raw = _call_ollama(prompt, call_label="first_attempt")
 
     # Strip markdown fences if present
@@ -946,16 +1289,68 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
     # Oracle driver rejects trailing semicolons
     raw = raw.rstrip().rstrip(";")
 
-    is_valid, reason = validate_sql(raw, tables, columns)
+    # Two-layer check, run after every attempt: the regex validator catches what
+    # it can see statically, then Oracle is asked to parse and plan the statement.
+    # The dry run is what catches ORA-00904 for a plausible-but-absent column and
+    # ORA-01861 for a string compared to a DATE — errors no regex can detect. It
+    # returns ok when the DB is unreachable, so an outage degrades to the old
+    # behaviour instead of failing every query.
+    # Imported lazily so sql_generator stays importable (for prompt building and
+    # offline tests) on machines without the Oracle driver configured.
+    from src.executor import dry_run_sql
+
+    def _check(candidate_sql):
+        ok, why = validate_sql(candidate_sql, tables, columns)
+        if not ok:
+            return False, why
+        engine_ok, engine_error = dry_run_sql(candidate_sql)
+        if not engine_ok:
+            return False, f"Oracle rejected the query: {engine_error}"
+        if engine_error:
+            log.info("Dry run unavailable: %s", engine_error)
+        return True, "Valid"
+
+    is_valid, reason = _check(raw)
     warnings = []
     first_attempt_sql, first_attempt_reason = raw, reason
 
-    if not is_valid:
-        # Keep the retry prompt short: resending the full original prompt here
-        # doubles its size (schema context + rules + bad SQL + reason) and can
-        # overflow the model's context window, causing it to return nothing.
-        valid_tables_str = ", ".join(t["table"].upper() for t in tables)
-        valid_cols_str = ", ".join(f"{c['table'].upper()}.{c['column'].upper()}" for c in columns)
+    # The retry prompt lists ALL columns of the selected tables, not just the
+    # retrieved ones. The old version passed `columns` (the retrieval subset)
+    # while the validator checked the full schema, so a retry could be told a
+    # perfectly valid column did not exist.
+    all_table_columns = _load_all_columns([t["table"] for t in tables])
+    valid_tables_str = ", ".join(t["table"].upper() for t in tables)
+    valid_cols_str = ", ".join(
+        f"{c['table'].upper()}.{c['column'].upper()}" for c in all_table_columns
+    )
+
+    base_temp = model_profile.get("temperature")
+    # Temperature is 0.0 for deterministic generation, so resending the same
+    # prompt reproduces the identical wrong answer — but pushing it too high
+    # (tried 0.4) let a weak 7B model wander into pure fabrication instead of
+    # correcting itself. Keep the nudge small and constant across rounds.
+    retry_temp = 0.15 if base_temp is not None and base_temp <= 0.05 else base_temp
+
+    attempt = 0
+    while not is_valid and attempt < MAX_CORRECTION_RETRIES:
+        attempt += 1
+
+        # Deterministic fix first — it is free and it targets the one failure
+        # mode observed to survive a targeted retry (the vertical-table
+        # aggregation rule, whose exact required WHERE clause is already in the
+        # prompt verbatim and still gets ignored by a quantized model).
+        corrected = _try_autocorrect_vertical_aggregation(raw, reason)
+        if corrected is not None:
+            corrected_valid, corrected_reason = _check(corrected)
+            if corrected_valid:
+                print(f"[AUTOCORRECT] Rewrote the vertical-table aggregation deterministically:\n"
+                      f"  before: {raw}\n  after:  {corrected}")
+                warnings.append(
+                    "Auto-corrected: the model did not add the required row-label filter, "
+                    "so it was rewritten deterministically instead of guessed."
+                )
+                raw, is_valid, reason = corrected, corrected_valid, corrected_reason
+                break
 
         extra_hint = ""
         category = _validation_failure_category(reason)
@@ -972,7 +1367,15 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
                 "\nYou used a column name that does not exist on the table/alias you attached it to. "
                 "Double-check which specific table each alias refers to before using alias.column."
             )
+        elif category == "engine rejected":
+            extra_hint = (
+                "\nThe database itself rejected this SQL. Fix exactly what the error says — "
+                "do not restructure the rest of the query."
+            )
 
+        # Keep the retry prompt short: resending the full original prompt
+        # doubles its size and can overflow the context window, which returns
+        # nothing at all.
         retry_prompt = (
             "The previous SQL was invalid. Return ONLY the corrected raw SQL SELECT query "
             "(no explanation, no markdown, no semicolon).\n\n"
@@ -987,38 +1390,22 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             f"Validation reason:\n{reason}{extra_hint}\n\n"
             "Corrected SQL:"
         )
-        # Model temperature is 0.0 for deterministic generation, so resending the
-        # exact same prompt reproduces the identical wrong answer — but pushing
-        # temperature too high (tried 0.4) let a weak 7B model wander into pure
-        # fabrication (inventing entire fictional tables/columns unrelated to
-        # this schema) instead of correcting itself. Keep the nudge small.
-        base_temp = model_profile.get("temperature")
-        retry_temp = 0.15 if base_temp is not None and base_temp <= 0.05 else base_temp
-        raw = _call_ollama(retry_prompt, temperature_override=retry_temp, call_label="retry")
+
+        try:
+            raw = _call_ollama(retry_prompt, temperature_override=retry_temp,
+                               call_label=f"retry_{attempt}")
+        except RuntimeError as e:
+            # Outage or timeout mid-loop: stop retrying and report the last
+            # validation reason rather than a connection error.
+            log.error("Correction retry %d aborted: %s", attempt, e)
+            break
+
         raw = re.sub(r'^```(?:sql)?\s*', '', raw.strip(), flags=re.IGNORECASE)
         raw = re.sub(r'```\s*$', '', raw).strip()
         raw = raw.rstrip().rstrip(";")
-        is_valid, reason = validate_sql(raw, tables, columns)
-
-    if not is_valid:
-        # Last-resort deterministic fix for the ONE failure mode observed to
-        # survive even a targeted retry (see the "is a vertical table" rule
-        # in validate_sql): the retry prompt already contains the exact
-        # WHERE clause needed, verbatim, and a weak/quantized model can
-        # still ignore it. Rather than spend a third LLM call gambling on
-        # the same instruction landing, mechanically rewrite the query for
-        # this one narrow, unambiguous pattern instead of asking again.
-        corrected = _try_autocorrect_vertical_aggregation(raw, reason)
-        if corrected is not None:
-            corrected_valid, corrected_reason = validate_sql(corrected, tables, columns)
-            if corrected_valid:
-                print(f"[AUTOCORRECT] Model ignored the vertical-table retry instruction twice; "
-                      f"rewrote deterministically:\n  before: {raw}\n  after:  {corrected}")
-                warnings.append(
-                    "Auto-corrected: the model did not add the required row-label filter after "
-                    "a targeted retry, so it was rewritten deterministically instead of guessed."
-                )
-                raw, is_valid, reason = corrected, corrected_valid, corrected_reason
+        is_valid, reason = _check(raw)
+        if is_valid:
+            print(f"[CORRECTED] Valid after retry {attempt}")
 
     if not is_valid:
         category = _validation_failure_category(reason)
@@ -1111,6 +1498,27 @@ def validate_sql(sql, tables, columns):
     # 5 — at least one allowed table must appear
     if not referenced_tables & valid_table_names:
         return False, f"Query does not reference any matched table: {sorted(valid_table_names)}"
+
+    # 5.2 — declared-join enforcement. Every multi-table failure in
+    # eval/results/hallucination_log.jsonl was an INVENTED relationship, not a
+    # slightly-wrong one: `..._sec1_part_a_dom_fk`, `.id`. So a join between two
+    # real tables is only allowed if the semantic layer declares that pair; a
+    # prompt instruction is not enough at 7B. An empty join graph means the layer
+    # has not been authored yet, in which case this check permits the pair and the
+    # column checks below still apply.
+    joined_tables = sorted(real_table_refs & valid_table_names)
+    if len(joined_tables) > 1:
+        from src.semantic_layer import load_join_graph
+        join_graph = load_join_graph()
+        if join_graph:
+            for i, left in enumerate(joined_tables):
+                for right in joined_tables[i + 1:]:
+                    if tuple(sorted((left, right))) not in join_graph:
+                        return False, (
+                            f"Undeclared join between {left.upper()} and {right.upper()}. "
+                            f"No relationship between these tables is declared in the semantic "
+                            f"layer, so they must not be joined — answer from a single table."
+                        )
 
     # 5.5 — alias-aware column check: a column name can be valid on SOME matched
     # table but still be wrong on the specific table/alias it's qualified with
@@ -1215,12 +1623,11 @@ def validate_sql(sql, tables, columns):
     )
     _metric_aggregates = [c for c in _agg_call_cols if c not in ("rdate", "code")]
     if _metric_aggregates:
-        from src.description_fetcher import load_samples as _load_label_samples
         # Different EMBEDDING_DIR scopes have been observed with different
         # table-name key casing in description_samples.json (some uppercase,
         # some lowercase) — normalise to lowercase for a reliable lookup
         # regardless of which scope is active.
-        label_samples = {k.lower(): v for k, v in _load_label_samples().items()}
+        label_samples = {k.lower(): v for k, v in load_samples().items()}
         where_match = re.search(r'\bwhere\b(.*)$', q, re.DOTALL)
         where_clause = where_match.group(1) if where_match else ""
         for tbl in real_table_refs & valid_table_names:
