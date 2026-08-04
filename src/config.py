@@ -187,6 +187,100 @@ if OLLAMA_MODEL in MODEL_PROFILES:
 #   $env:SELECTOR_MODEL = "phi3:mini"
 SELECTOR_MODEL = os.environ.get("SELECTOR_MODEL", "qwen2.5-coder:7b")
 
+# ── XBRL business-semantics layer (src/business_semantics.py) ────────────────
+# How much of the XBRL-derived business layer to inject into the SQL prompt.
+# Levels are CUMULATIVE and ordered by value/risk — see the module docstring of
+# src/business_semantics.py for the full rationale:
+#
+#   off         nothing rendered; prompts are byte-identical to pre-integration
+#   units       reporting-unit line only (fixes the silent 100000x error)
+#   metrics     + business label -> column cards
+#   aggregation + stock/flow SUM guidance
+#   dimensions  + usable dimension axes with their live literals
+#   derivation  + a rollup formula expressed in physical columns
+#
+# Roll out ONE level at a time with `python -m eval.run_eval` between each: a 7B
+# model does not respond additively to prompt text, so a level that helps in
+# isolation can still regress when stacked. Requires concept_map.json in
+# EMBEDDING_DIR (built by embedding_building/cims_raq_quarterly/build_concept_map.py);
+# without it every level degrades silently to "off".
+BUSINESS_SEMANTICS_LEVEL = os.environ.get("BUSINESS_SEMANTICS_LEVEL", "off")
+
+# RRF fusion weights for the two XBRL retrieval signals in src/retriever.py.
+# Set either to 0 to disable that signal completely — no search is issued and it
+# contributes nothing to fusion, so the ranking is byte-identical to the
+# pre-integration behaviour. That makes them A/B-testable with an env var alone:
+#   CONCEPT_SIGNAL_WEIGHT=0 MEMBER_SIGNAL_WEIGHT=0 python -m scripts.eval_retrieval
+#
+# For reference, the existing signals are weighted: qa 2.5, table 2.0,
+# column 1.5, row-label 1.0.
+#
+# Both defaults below are MEASURED, not assumed — a weight sweep over the 100
+# quarterly questions in qa_pairs.json with QA_SIGNAL_WEIGHT=0 (leak-free; see
+# below) gave, against a 0.23 top1 / 0.381 MRR baseline:
+#
+#   concept   member    top1     hit@k     MRR
+#     1.0       0       0.34      0.69     0.493
+#     2.0       0       0.39      0.72     0.534   <- default
+#     3.0       0       0.39      0.72     0.538
+#     4.0       0       0.37      0.71     0.521
+#     2.0     0.75      0.37      0.71     0.518
+#     2.0     1.50      0.37      0.66     0.491
+#
+# concept (E) = 2.0: a concept hit names ONE (table, column) via a mapping
+#   verified by a deterministic 4-hop join, so it is as strong as direct table
+#   search. 3.0 scores a hair higher on MRR alone and is within noise on 100
+#   questions, so the lower, more conservative value is kept.
+#
+# member (F) = 0 (DISABLED). The design expected this to help a little; it
+#   measurably hurts at every weight tried. The cause is structural, not a tuning
+#   miss: a member routes to every table whose concepts reference its AXIS, and
+#   the axes here are broad (one member reaches a dozen tables), so each hit
+#   sprays weak votes across the shortlist and dilutes the precise concept vote.
+#   Fixing it would need member->table routing narrowed to tables that actually
+#   store that member as a row label. Left in the code, off by default, so that
+#   experiment is a one-env-var change rather than a rebuild.
+#
+# Re-tune with scripts/eval_retrieval.py: no LLM, no DB, ~17s for 100 questions.
+CONCEPT_SIGNAL_WEIGHT = _env_float("CONCEPT_SIGNAL_WEIGHT", 2.0)
+
+# How many concept hits a SINGLE table may accumulate votes from. See the long
+# comment at the concept-fusion loop in src/retriever.py: an unbounded sum lets a
+# table holding many similarly-worded sibling concepts outvote the table holding
+# the one exact match. 1 = best hit only.
+#
+# Measured over qa_pairs.json (QA_SIGNAL_WEIGHT=0) alongside the offline guard
+# suite in scripts/test_accuracy_guards.py, whose cases encode real logged
+# failures with hand-verified correct answers:
+#
+#   maxhits   top1    hit@k    MRR     guard failures
+#      1      0.29     0.66    0.458        0
+#      2      0.33     0.71    0.503        0          <- default
+#      3      0.38     0.73    0.534        1
+#      4      0.38     0.73    0.533        1
+#    none     0.39     0.72    0.534        1
+#
+# 2 is chosen over 3 deliberately. 3 scores ~5 points higher on aggregate top1
+# but breaks "Show inter-bank assets by period of delinquency", where the concept
+# index's own rank-0 hit ('Inter bank assets' -> SEC1_PART_B_DOM, 0.865) agrees
+# with the guard's expected answer and the sum still hands the win to
+# SEC1_PART_A_DOM on four weaker sibling hits. Trading a known-correct answer for
+# aggregate movement on a 100-question set is the wrong trade; the aggregate gain
+# is within a few questions of noise, the guard failure is a definite wrong answer.
+# Raise to 3 if you re-tune and accept that case.
+CONCEPT_MAX_HITS_PER_TABLE = _env_int("CONCEPT_MAX_HITS_PER_TABLE", 2)
+MEMBER_SIGNAL_WEIGHT = _env_float("MEMBER_SIGNAL_WEIGHT", 0.0)
+
+# Weight of the prior-question (qa_index) signal. Exposed for ONE reason: the
+# only ground truth that matches this scope, qa_pairs.json, is also the source of
+# that index, so evaluating retrieval with it enabled measures memorisation, not
+# retrieval — every question is its own exact match. Setting this to 0 disables
+# the qa search, its score bonus, and its strong-match tier together, which makes
+# a leak-free retrieval measurement possible:
+#   QA_SIGNAL_WEIGHT=0 python -m scripts.eval_retrieval --dataset qa_pairs
+# Leave it at the default in production; it is the strongest signal there is.
+QA_SIGNAL_WEIGHT = _env_float("QA_SIGNAL_WEIGHT", 2.5)
+
 # ── Oracle DB connection ─────────────────────────────────────────────────────
 # DB_HOST / DB_USER / DB_PASSWORD have NO hardcoded fallback — this repo
 # previously committed a live Oracle password and bank-identifying username

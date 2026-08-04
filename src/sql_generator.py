@@ -638,8 +638,16 @@ def _build_minimal_prompt(
     dom_ove_tables=None,
     multipart_tables=None,
     qa_example=None,
+    business_block=None,
+    business_rules=None,
 ) -> str:
     time_section = f"\n{time_context_block}" if time_context_block else ""
+    business_section = (
+        f"\n\n### Business semantics\n{business_block}" if business_block else ""
+    )
+    business_rules_section = (
+        "\n" + "\n".join(business_rules) if business_rules else ""
+    )
     example_blocks = []
 
     if qa_example:
@@ -683,7 +691,7 @@ Use {dialect_hint} syntax, including Oracle-specific constructs such as FETCH FI
 ### Database Schema
 {schema_context}
 
-Allowed tables: {valid_tables}{time_section}{examples_section}
+Allowed tables: {valid_tables}{time_section}{business_section}{examples_section}
 
 ### Important
 - If a table is marked STORAGE FORMAT: VERTICAL, each row is a named metric and you must filter by the exact row label values shown above.
@@ -694,7 +702,7 @@ Allowed tables: {valid_tables}{time_section}{examples_section}
 - If the user's question does NOT mention a date/period, filter with RDATE = (SELECT MAX(RDATE) FROM <same_table>) to get the latest available reporting period. Never omit the RDATE filter and never guess a hardcoded date.
 - Copy every table and column name EXACTLY as spelled in the schema above, character for character. Do not alter, abbreviate, or "correct" the spelling of any identifier.
 - A column such as RISK_CATEGORY, CATEGORY, ITEM, or DESCRIPTION is a plain text VALUE stored directly on the table shown above — it is NOT a separate lookup/dimension table. Never JOIN to a table that is not listed under "Allowed tables".
-- "Allowed tables" is listed in relevance order — the FIRST table is the best match to the question. Several tables may be listed because they are topically similar, not because the question needs all of them. If the first table's own columns already answer the question, use ONLY that table. Only JOIN a second table when the question explicitly needs data that genuinely does not exist on the first table.
+- "Allowed tables" is listed in relevance order — the FIRST table is the best match to the question. Several tables may be listed because they are topically similar, not because the question needs all of them. If the first table's own columns already answer the question, use ONLY that table. Only JOIN a second table when the question explicitly needs data that genuinely does not exist on the first table.{business_rules_section}
 
 ### Answer
 Return ONLY a raw SQL SELECT query. No explanation, no markdown, no code fences, no semicolon.
@@ -854,6 +862,8 @@ def _build_ddl_prompt(
     qa_example=None,
     reasoning_plan=None,
     join_hint=None,
+    business_block=None,
+    business_rules=None,
 ) -> str:
     """
     Prompt in SQLCoder-7b-2's own training format ("### Task / ### Database
@@ -869,6 +879,13 @@ def _build_ddl_prompt(
         "### Database Schema\nThe query will run on a database with the following schema:\n"
         + ddl_context,
     ]
+
+    # After the schema (so the columns are already established) and before the
+    # worked example (which stays closest to the completion point). This block
+    # carries the facts the DDL cannot express: the reporting unit, whether a
+    # figure is a stock or a flow, and which CODE selects which reported row.
+    if business_block:
+        sections.append("### Business semantics\n" + business_block)
 
     if time_context_block:
         sections.append(time_context_block.strip())
@@ -898,6 +915,7 @@ def _build_ddl_prompt(
         rules.append(
             "- Answer from the single table above. Do not join."
         )
+    rules.extend(business_rules or [])
     sections.append("### Rules\n" + "\n".join(rules))
 
     if reasoning_plan:
@@ -1099,6 +1117,22 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     schema_context = "\n\n".join(schema_lines)
     valid_tables = ", ".join(t["table"].upper() for t in tables)
 
+    # ── XBRL business semantics (units, stock/flow, CODE meaning, dimensions) ──
+    # Rendered per table because the reporting unit is a per-table fact. In the
+    # normal case the selector has already narrowed to one table, so this is one
+    # block with no table prefix; the prefix only appears for a declared join.
+    from src.business_semantics import build_block, build_rules
+    business_blocks, business_rules = [], []
+    for t in tables:
+        tname = t["table"].upper()
+        blk = build_block(user_query, tname, label_map.get(t["table"], {}))
+        if blk:
+            business_blocks.append(blk if len(tables) == 1 else f"{tname}:\n{blk}")
+        for r in build_rules(tname):
+            if r not in business_rules:
+                business_rules.append(r)
+    business_block = "\n".join(business_blocks)
+
     today_obj = date.fromisoformat(today_date) if isinstance(today_date, str) else today_date
     _time_block = _resolve_relative_time(user_query, today_obj)
     time_context_block = (_time_block + "\n") if _time_block else ""
@@ -1146,6 +1180,8 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
             qa_example=qa_example,
             reasoning_plan=reasoning_plan,
             join_hint=join_hint,
+            business_block=business_block,
+            business_rules=business_rules,
         )
 
     if prompt_style == "minimal":
@@ -1159,6 +1195,17 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
             dom_ove_tables=dom_ove_tables,
             multipart_tables=multipart_tables,
             qa_example=qa_example,
+            # compact=True on the minimal style: cap at the aggregation level so
+            # a small-context model still gets units + stock/flow without the
+            # dimension and derivation lines.
+            business_block="\n".join(
+                blk for blk in (
+                    build_block(user_query, t["table"].upper(),
+                                label_map.get(t["table"], {}), compact=True)
+                    for t in tables
+                ) if blk
+            ),
+            business_rules=business_rules,
         )
 
     # Only the "rules" style reaches here, and every profile that selects it also
@@ -1177,12 +1224,22 @@ Q: {qa_example['question']}
 SQL: {qa_example['sql']}
 """
 
+    business_semantics_block = ""
+    if business_block:
+        business_semantics_block = f"""
+════════════════════════════════════════════════
+BUSINESS SEMANTICS
+════════════════════════════════════════════════
+{business_block}
+{chr(10).join(business_rules)}
+"""
+
     return f"""{template}
 ════════════════════════════════════════════════
 SCHEMA CONTEXT
 ════════════════════════════════════════════════
 {schema_context}
-{qa_example_block}
+{business_semantics_block}{qa_example_block}
 ════════════════════════════════════════════════
 Allowed tables: {valid_tables}
 {time_context_block}User question: {user_query}
@@ -1425,6 +1482,20 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             retry_reason=reason,
             category=category,
         )
+
+    # Stock/flow sanity check, from the XBRL period_type. Advisory only: a
+    # point-in-time balance summed across periods is wrong often enough to
+    # surface and legitimate rarely enough that failing the query here would
+    # spend correction rounds on SQL that is actually fine. Only runs when the
+    # business layer is enabled, since that is what gates the prompt guidance the
+    # model was given in the first place.
+    if is_valid:
+        from src.business_semantics import enabled as _bs_enabled
+        if _bs_enabled():
+            from src.concept_map import check_stock_aggregation
+            for w in check_stock_aggregation(raw, tables):
+                warnings.append(w)
+                print(f"[WARNING] {w}")
 
     return {
         "question_understanding": "",

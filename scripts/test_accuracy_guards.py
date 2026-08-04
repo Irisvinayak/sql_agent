@@ -359,6 +359,119 @@ check("ambiguous section scopes to that section only",
       f"got {[t['table'] for t in _ambig]}")
 
 
+section("8. XBRL business-semantics layer (src/concept_map, src/business_semantics)")
+# Guards the facts the taxonomy contributes that nothing else in the repo knows,
+# and the two readings of it that would produce confidently wrong SQL — see
+# _mark_row_code_usability in build_concept_map.py.
+
+import src.business_semantics as _bs
+from src.concept_map import (
+    check_stock_aggregation,
+    formula_for,
+    load_concept_map,
+    metrics_for_table,
+    stock_columns,
+    unit_multiplier_for_table,
+)
+
+_cm = load_concept_map()
+check("concept_map.json loads", bool(_cm.get("metrics")),
+      f"{len(_cm.get('metrics') or [])} metrics")
+
+if _cm.get("metrics"):
+    # ── the unit fact ────────────────────────────────────────────────────────
+    check("monetary table reports a lakh multiplier",
+          unit_multiplier_for_table("CIMS_RAQ_Q_SEC8_INFRA_BRKUP") == 100000,
+          f"got {unit_multiplier_for_table('CIMS_RAQ_Q_SEC8_INFRA_BRKUP')}")
+    check("unknown table makes no unit claim",
+          unit_multiplier_for_table("NO_SUCH_TABLE") is None)
+
+    # ── row_code: a band start must NOT be offered as a row selector ─────────
+    # Every concept on the wide infrastructure table carries filter_value 1000,
+    # and CODE 1000 is the row '1. Transport and adjoining Infrastructure'.
+    # Emitting CODE = 1000 for 'Actual recoveries' would pin every answer there.
+    _infra = metrics_for_table("CIMS_RAQ_Q_SEC8_INFRA_BRKUP")
+    check("band-start code is not treated as a row selector",
+          _infra and not any(m["row_code_selects_metric"] for m in _infra),
+          f"{sum(bool(m['row_code_selects_metric']) for m in _infra)}/{len(_infra)} selectable")
+
+    # A vertical key-value table is the opposite case: CODE genuinely names the
+    # metric, so the selector MUST be offered.
+    _gen = [m for m in metrics_for_table("CIMS_RAQ_Q_GEN_INFO") if m["row_code"] is not None]
+    check("key-value code IS treated as a row selector",
+          _gen and all(m["row_code_selects_metric"] for m in _gen),
+          f"{sum(bool(m['row_code_selects_metric']) for m in _gen)}/{len(_gen)}")
+
+    # 'WHERE CODE = BankCode' is either a syntax error or a zero-row match.
+    _nonnum = [m["row_code"] for m in _cm["metrics"]
+               if m["row_code"] is not None and not isinstance(m["row_code"], int)]
+    check("every shipped row_code is numeric", not _nonnum, str(_nonnum[:5]))
+
+    # ── derivations must never collapse to an identity ───────────────────────
+    _bad = []
+    for _t in _cm["table_profiles"]:
+        for _m in metrics_for_table(_t):
+            _f = formula_for(_m, _t)
+            if _f and len(set(_f["columns"])) < len(_f["columns"]):
+                _bad.append((_t, _m["label"]))
+    check("no derivation repeats a column (would be an identity)", not _bad, str(_bad[:3]))
+
+    # ── stock/flow aggregation warning ──────────────────────────────────────
+    _stock_tbl = next((t for t in _cm["table_profiles"] if stock_columns(t)), None)
+    check("at least one stock column is known", _stock_tbl is not None)
+    if _stock_tbl:
+        _stock_col = sorted(stock_columns(_stock_tbl))[0]
+        _targ = [{"table": _stock_tbl}]
+        check("SUM of a stock without an RDATE filter warns",
+              check_stock_aggregation(f"SELECT SUM({_stock_col}) FROM {_stock_tbl}", _targ),
+              f"{_stock_tbl}.{_stock_col}")
+        # Pinned to one period, the same SUM aggregates across dimension rows
+        # within a single date, which is legitimate.
+        check("SUM of a stock pinned to one RDATE does not warn",
+              not check_stock_aggregation(
+                  f"SELECT SUM({_stock_col}) FROM {_stock_tbl} "
+                  f"WHERE RDATE = (SELECT MAX(RDATE) FROM {_stock_tbl})", _targ))
+        check("plain SELECT of a stock does not warn",
+              not check_stock_aggregation(f"SELECT {_stock_col} FROM {_stock_tbl}", _targ))
+
+    # ── the level switch must actually gate output ───────────────────────────
+    _saved = config.BUSINESS_SEMANTICS_LEVEL
+    try:
+        config.BUSINESS_SEMANTICS_LEVEL = "off"
+        check("level=off renders nothing",
+              _bs.build_block("recoveries", "CIMS_RAQ_Q_SEC8_INFRA_BRKUP", {}) == ""
+              and _bs.build_rules("CIMS_RAQ_Q_SEC8_INFRA_BRKUP") == [])
+
+        config.BUSINESS_SEMANTICS_LEVEL = "units"
+        _u = _bs.build_block("recoveries", "CIMS_RAQ_Q_SEC8_INFRA_BRKUP", {})
+        check("level=units states the unit", "LAKH" in _u, _u[:80])
+        check("level=units withholds metric cards", "Business metrics" not in _u)
+
+        config.BUSINESS_SEMANTICS_LEVEL = "derivation"
+        _full = _bs.build_block(
+            "actual recoveries", "CIMS_RAQ_Q_SEC8_INFRA_BRKUP",
+            {"industry_name": ["2. Energy", "2.1 Electricity Generation"]})
+        check("full level adds metric cards", "Business metrics" in _full)
+        check("full level adds dimensions", "Dimensions available" in _full)
+        # Each stored literal must appear once; duplicates are pure prompt waste.
+        _dim = [ln for ln in _full.splitlines() if "INDUSTRY_NAME =" in ln]
+        check("dimension literals are not duplicated",
+              len(_dim) == len(set(_dim)), str(_dim))
+
+        _compact = _bs.build_block(
+            "actual recoveries", "CIMS_RAQ_Q_SEC8_INFRA_BRKUP",
+            {"industry_name": ["2. Energy"]}, compact=True)
+        check("compact caps at aggregation",
+              "Dimensions available" not in _compact and "LAKH" in _compact)
+
+        # A table the taxonomy says nothing about gets no block at all, rather
+        # than an empty-but-present section header in the prompt.
+        check("unmapped table renders no block",
+              _bs.build_block("anything", "NO_SUCH_TABLE", {}) == "")
+    finally:
+        config.BUSINESS_SEMANTICS_LEVEL = _saved
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 print(f"\n{'=' * 60}")
 if _failures:

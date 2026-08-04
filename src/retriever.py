@@ -280,6 +280,48 @@ def _rrf(rank: int, k: int = 60) -> float:
     return 1.0 / (k + rank + 1)
 
 
+# Minimum similarity for the two XBRL-derived signals. Both sit slightly above
+# MIN_TABLE_SCORE: their documents are short, business-worded sentences rather
+# than the long concatenated blobs the table/column indexes hold, so a weak match
+# here is genuinely weak rather than an artefact of document length.
+MIN_CONCEPT_SCORE = 0.30
+MIN_MEMBER_SCORE = 0.35
+
+
+def search_concepts(query_vec, top_k: int = 15):
+    """
+    Search the XBRL business-concept index (concept_index.faiss, built by
+    embedding_building/cims_raq_quarterly/build_concept_embeddings.py) using a
+    pre-computed query embedding. Returns [] if it hasn't been built, which is
+    what keeps this signal fully optional.
+
+    Each hit carries the physical table its concept maps to, so a hit on the
+    regulatory phrasing of a metric routes straight to one table+column.
+    """
+    return search(
+        f"{config.EMBEDDING_DIR}/concept_index.faiss",
+        f"{config.EMBEDDING_DIR}/concept_meta.pkl",
+        query_vec, top_k, min_score=MIN_CONCEPT_SCORE,
+    )
+
+
+def search_members(query_vec, top_k: int = 15):
+    """
+    Search the dimension-member index (member_index.faiss). A member hit says
+    "this DIMENSION is involved" ('doubtful assets two', 'non-funded', 'in
+    rupees'), which narrows the plausible tables without identifying a column —
+    hence the low fusion weight where it is used.
+
+    Each hit carries every table whose mapped concepts reference that member's
+    axis, so one member can vote for several tables.
+    """
+    return search(
+        f"{config.EMBEDDING_DIR}/member_index.faiss",
+        f"{config.EMBEDDING_DIR}/member_meta.pkl",
+        query_vec, top_k, min_score=MIN_MEMBER_SCORE,
+    )
+
+
 def search_qa(query_vec, top_k: int = 15):
     """
     Search the table_qa.json-derived question index (test/qa_index.faiss),
@@ -335,7 +377,22 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     label_hits = search_labels_with_scores(query_vec, top_k=TOP_K_LABELS * 3)
 
     # ── Signal D: question→SQL example search (test/qa_index.faiss, optional) ─
-    qa_hits = search_qa(query_vec, top_k=top_k * 3)
+    # Weight 0 removes this signal entirely — the search, the fusion votes, the
+    # score bonus and the strong-match tier — so retrieval can be measured on
+    # qa_pairs.json without the index leaking its own answers back in.
+    qa_weight = config.QA_SIGNAL_WEIGHT
+    qa_hits = search_qa(query_vec, top_k=top_k * 3) if qa_weight else []
+
+    # ── Signal E: XBRL business-concept search → concept's mapped table ───────
+    # Weight 0 disables the signal entirely (no search, no fusion) so the two
+    # XBRL signals can be A/B'd against the pre-integration ranking without
+    # rebuilding or moving any index file.
+    concept_weight = config.CONCEPT_SIGNAL_WEIGHT
+    member_weight = config.MEMBER_SIGNAL_WEIGHT
+    concept_hits = search_concepts(query_vec, top_k=top_k * 3) if concept_weight else []
+
+    # ── Signal F: XBRL dimension-member search → tables using that axis ───────
+    member_hits = search_members(query_vec, top_k=TOP_K_LABELS) if member_weight else []
     # Best single QA match, re-ranked by text/token overlap rather than raw
     # embedding rank — see _rerank_qa_hits docstring. Used below wherever ONE
     # winning hit is picked (bonus, strong-match, few-shot example); RRF
@@ -387,7 +444,10 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
             all_table_meta[tbl] = {"table": lbl["table"]}
             scores[tbl] = _rrf(rank) * 1.0
 
-    # Signal D weight = 2.5 (question→SQL example match is the strongest signal)
+    # Signal D weight = config.QA_SIGNAL_WEIGHT, default 2.5 (a question→SQL
+    # example match is the strongest signal available). At 0 the loop below is a
+    # no-op because qa_hits is empty, and so are the bonus and strong-match tiers
+    # that read qa_hits_ranked.
     qa_table_seen: dict[str, int] = {}
     for _, qa in qa_hits:
         tbl = _norm(qa["table"])
@@ -396,10 +456,56 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
         rank = qa_table_seen[tbl]
         qa_table_seen[tbl] += 1
         if tbl in scores:
-            scores[tbl] += _rrf(rank) * 2.5
+            scores[tbl] += _rrf(rank) * qa_weight
         else:
             all_table_meta[tbl] = {"table": qa["table"]}
-            scores[tbl] = _rrf(rank) * 2.5
+            scores[tbl] = _rrf(rank) * qa_weight
+
+    # Signal E weight = 2.0 (as strong as direct table search, below the QA
+    # signal). A concept match is PRECISE — it names one column via a mapping
+    # verified by a deterministic 4-hop join — but a business label can still be
+    # ambiguous across sections ("advances outstanding" appears in several), so it
+    # must not outrank a verified prior question.
+    # Scored on each table's BEST concept hit only — deliberately unlike the
+    # column/label/qa signals above, which accumulate a vote per hit.
+    #
+    # Those signals are evidence-gathering: many matching columns genuinely means
+    # a table is more relevant. A concept hit is not evidence, it is an ANSWER —
+    # it names one column via a verified mapping. Summing per-hit votes therefore
+    # rewards the wrong thing: a table holding many similarly-worded sibling
+    # concepts outvotes the table holding the one exact match. Measured case,
+    # "Show inter-bank assets by period of delinquency": the rank-0 hit is
+    # 'Inter bank assets' -> SEC1_PART_B_DOM (0.865, the correct table), but
+    # SEC1_PART_A_DOM held four weaker hits ('Loans', 'Overdraft and cash
+    # credits', ...) and won the sum. Best-hit scoring fixes that without
+    # weakening the signal where it is right.
+    concept_hits_used: dict[str, int] = {}
+    for _, cp in concept_hits:
+        tbl = _norm(cp["table"])
+        used = concept_hits_used.setdefault(tbl, 0)
+        if used >= config.CONCEPT_MAX_HITS_PER_TABLE:
+            continue
+        concept_hits_used[tbl] = used + 1
+        if tbl not in scores:
+            all_table_meta[tbl] = {"table": cp["table"]}
+            scores[tbl] = 0.0
+        scores[tbl] += _rrf(used) * concept_weight
+
+    # Signal F weight = 0.75 (narrows, rarely decides). One member can reference
+    # several tables, so its vote is split across them by rank rather than given
+    # to each at full strength — otherwise a single generic member ('Total') would
+    # outvote every other signal simply by touching more tables.
+    member_table_seen: dict[str, int] = {}
+    for _, mem in member_hits:
+        for tbl_raw in mem.get("tables") or []:
+            tbl = _norm(tbl_raw)
+            rank = member_table_seen.setdefault(tbl, 0)
+            member_table_seen[tbl] += 1
+            if tbl in scores:
+                scores[tbl] += _rrf(rank) * member_weight
+            else:
+                all_table_meta[tbl] = {"table": tbl_raw}
+                scores[tbl] = _rrf(rank) * member_weight
 
     # RRF only considers rank, not raw similarity magnitude — so a near-exact
     # paraphrase match (e.g. 0.895) and a mediocre one (e.g. 0.866) get almost
