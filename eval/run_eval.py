@@ -15,9 +15,18 @@ Usage:
   python -m eval.run_eval --table CIMS_RAQ_M_SEC1_PART_A_DOM
   python -m eval.run_eval --limit 20
 
+  # Score the QUARTERLY scope (the default EMBEDDING_DIR). The default
+  # table_qa.json dataset is monthly-only and scores 0 there — see --dataset.
+  QA_SIGNAL_WEIGHT=0 python -m eval.run_eval --dataset qa_pairs
+
+  # A/B whole-table prompts against sliced ones:
+  CONTEXT_PIPELINE=legacy QA_SIGNAL_WEIGHT=0 python -m eval.run_eval --dataset qa_pairs
+  CONTEXT_PIPELINE=slice  QA_SIGNAL_WEIGHT=0 python -m eval.run_eval --dataset qa_pairs
+
 Results land in eval/results/:
   run_<timestamp>.json   — full per-question detail, for later inspection
   latest_summary.md      — human-readable aggregate + per-table breakdown
+                           (OVERWRITTEN each run — copy it before an A/B pair)
 """
 import argparse
 import json
@@ -25,9 +34,10 @@ import os
 import time
 from collections import defaultdict
 
-from eval.dataset import load_qa_pairs
+import src.config as config
+from eval.dataset import load_dataset
 from eval.metrics import table_hit, column_recall, rows_equal
-from src.retriever import get_relevant_schema
+from src.retriever import compute_query_embedding, get_relevant_schema
 from src.sql_generator import generate_sql, validate_sql
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
@@ -48,19 +58,41 @@ def _try_execute(sql):
         return None, None, f"execution raised: {e}"
 
 
-def run(limit=None, table_filter=None, do_exec=True):
-    qa_rows = load_qa_pairs()
+def run(limit=None, table_filter=None, do_exec=True, dataset="table_qa"):
+    qa_rows = load_dataset(dataset)
     if table_filter:
         qa_rows = [r for r in qa_rows if r["table"].upper() == table_filter.upper()]
     if limit:
         qa_rows = qa_rows[:limit]
+
+    # Two ways to get a meaningless number out of this harness, both of which
+    # used to be silent. Say so up front instead.
+    if dataset == "table_qa":
+        from src import schema_store
+        live = {t.upper() for t in schema_store.all_table_names()}
+        gold = {r["table"].upper() for r in qa_rows}
+        if gold and not (gold & live):
+            print(f"\n  [WARN] none of this dataset's {len(gold)} gold tables exist in "
+                  f"{config.EMBEDDING_DIR} — every metric will be 0 by construction.")
+            print(f"  [WARN] use --dataset qa_pairs for this scope.\n")
+    if dataset == "qa_pairs" and config.QA_SIGNAL_WEIGHT:
+        print("\n  [WARN] scoring qa_pairs.json with the qa signal ENABLED — this "
+              "dataset IS the qa_index,\n  so retrieval measures memorisation. "
+              "Re-run with QA_SIGNAL_WEIGHT=0.\n")
+
+    print(f"  dataset={dataset}  questions={len(qa_rows)}  "
+          f"CONTEXT_PIPELINE={config.CONTEXT_PIPELINE}  "
+          f"EMBEDDING_DIR={config.EMBEDDING_DIR}\n")
 
     results = []
     for i, row in enumerate(qa_rows, 1):
         question, gold_table, gold_sql = row["question"], row["table"], row["gold_sql"]
         print(f"[{i}/{len(qa_rows)}] {gold_table} :: {question[:70]}")
 
-        tables, columns, matched_labels, qa_example = get_relevant_schema(question)
+        # Embed once and reuse, exactly as api/routes/query.py does, so this
+        # harness exercises the real request path rather than a variant of it.
+        tables, columns, matched_labels, qa_example = get_relevant_schema(
+            question, query_vec=compute_query_embedding(question))
         matched_table_names = [t["table"] for t in tables]
 
         hit, rank = table_hit(gold_table, matched_table_names)
@@ -167,6 +199,14 @@ def summarize(results):
         "execution_success_rate": (len(exec_ok) / len(exec_attempted)) if exec_attempted else None,
         "execution_match_accuracy": (len(exec_matched) / len(exec_match_attempted)) if exec_match_attempted else None,
         "generation_errors": len(gen_errors),
+        # Recorded so an A/B pair cannot be mixed up after the fact: the two
+        # runs differ ONLY in these, and latest_summary.md is overwritten.
+        "config": {
+            "CONTEXT_PIPELINE": config.CONTEXT_PIPELINE,
+            "EMBEDDING_DIR": config.EMBEDDING_DIR,
+            "OLLAMA_MODEL": config.OLLAMA_MODEL,
+            "QA_SIGNAL_WEIGHT": config.QA_SIGNAL_WEIGHT,
+        },
     }
 
     per_table = defaultdict(lambda: {"n": 0, "hits": 0, "valid": 0, "exec_match": 0, "exec_match_n": 0})
@@ -190,8 +230,13 @@ def write_reports(results, summary, per_table):
     with open(detail_path, "w", encoding="utf-8") as f:
         json.dump({"summary": summary, "results": results}, f, indent=2)
 
+    cfg = summary.get("config", {})
     lines = [
         f"# Accuracy Report — {stamp}",
+        "",
+        f"`CONTEXT_PIPELINE={cfg.get('CONTEXT_PIPELINE')}` · "
+        f"`QA_SIGNAL_WEIGHT={cfg.get('QA_SIGNAL_WEIGHT')}` · "
+        f"`{cfg.get('EMBEDDING_DIR')}` · `{cfg.get('OLLAMA_MODEL')}`",
         "",
         "## Overall",
         f"- Questions evaluated: **{summary['total_questions']}**",
@@ -228,14 +273,21 @@ if __name__ == "__main__":
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--table", type=str, default=None)
     parser.add_argument("--no-exec", action="store_true", help="skip DB execution, only score retrieval + SQL validity")
+    parser.add_argument("--dataset", default="table_qa", choices=["table_qa", "qa_pairs"],
+                        help="table_qa=table_qa.json (MONTHLY tables — scores 0 against "
+                             "the quarterly build); qa_pairs=<EMBEDDING_DIR>/qa_pairs.json "
+                             "(quarterly; needs QA_SIGNAL_WEIGHT=0 to be leak-free)")
     args = parser.parse_args()
 
-    results = run(limit=args.limit, table_filter=args.table, do_exec=not args.no_exec)
+    results = run(limit=args.limit, table_filter=args.table, do_exec=not args.no_exec,
+                  dataset=args.dataset)
     summary, per_table = summarize(results)
     detail_path, summary_path = write_reports(results, summary, per_table)
 
     print("\n=== SUMMARY ===")
     for k, v in summary.items():
+        if k == "config":
+            continue
         print(f"{k}: {_pct(v) if isinstance(v, float) else v}")
     print(f"\nDetail:  {detail_path}")
     print(f"Summary: {summary_path}")
