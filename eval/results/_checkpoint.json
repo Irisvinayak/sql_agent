@@ -11,11 +11,219 @@
     "table_hit": true,
     "table_rank": 2,
     "column_recall": 0.5,
-    "pred_sql": "SELECT (SELECT SUM(PROVISION_MADE_LOSSES_DOM) FROM CIMS_RAQ_Q_SEC4_PART_B WHERE MOVEMENT_FROM = 'From Doubtful') AS domestic_provision, (SELECT SUM(PROVISION_MADE_LOSSES_O) FROM CIMS_RAQ_Q_SEC4_PART_B WHERE MOVEMENT_FROM = 'From Doubtful') AS overseas_provision",
+    "pred_sql": "SELECT (b.loss_dom - b.loss_o) AS difference FROM cims_raq_q_sec4_part_b b WHERE b.movement_from = 'C.3.2 Write-offs on Account of Compromise Settlements'",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": false,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "How much of the domestic loan book falls under SMA-2 (60 to 90 days overdue) compared to the total loan assets?",
+    "gold_table": "CIMS_RAQ_Q_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TOTAL_LOAN_ASSETS FROM CIMS_RAQ_Q_SEC1_PART_A_DOM WHERE PERIOD_DELINQUENCY IN ('ii.a.3 Overdue for 60 to 90 days (SMA -2)', 'C. Total ( A + B)') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec8_infra_brkup"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 0.3333333333333333,
+    "pred_sql": "SELECT CAST(SUM(c.SMA_2) AS FLOAT) / NULLIF(SUM(c.TOTAL_LOAN_ASSETS), 0) AS proportion FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)'",
     "sql_valid": false,
-    "validation_reason": "Hallucinated tables (not in schema): ['doubtful']",
+    "validation_reason": "Column/table mismatch: ['c.sma_2 (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['doubtful']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['c.sma_2 (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the closing-period breakdown of loans and advances into standard, sub-standard, doubtful and loss categories, domestic operations?",
+    "gold_table": "CIMS_RAQ_Q_SEC4_PART_A",
+    "gold_sql": "SELECT STANDARD_DOM, SUBSTANDARD_DOM, DOUBTFUL_DOM, LOSS_DOM FROM CIMS_RAQ_Q_SEC4_PART_A WHERE MOVEMENT_FROM = 'F. Outstanding Loans and Advances at end of period (A+B-C-D+E)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec1_part_a_dom"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 0.5,
+    "pred_sql": "SELECT c.movement_from, SUM(c.total_dom) AS total_domestic_operations FROM cims_raq_q_sec4_part_a c WHERE c.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec4_part_a) AND c.movement_from IN ('From Standard', 'From Sub-standard', 'From Doubtful', 'From Loss') GROUP BY c.movement_from ORDER BY total_domestic_operations DESC NULLS LAST",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated tables (not in schema): ['in', 'order']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['in', 'order']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "How much of the NPA reduction during the period came from actual recoveries versus write-offs, domestic operations?",
+    "gold_table": "CIMS_RAQ_Q_SEC4_PART_B",
+    "gold_sql": "SELECT MOVEMENT_FROM, SUBSTANDARD_DOM, DOUBTFUL_DOM, LOSS_DOM, TOTAL_DOM FROM CIMS_RAQ_Q_SEC4_PART_B WHERE MOVEMENT_FROM IN ('C.2 Due to Actual Recoveries', 'C.3 Due to Write-offs') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_B)",
+    "matched_tables": [
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec2_part_a_npa"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT SUM(CASE WHEN cims_raq_q_sec4_part_b.movement_from = 'R' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN cims_raq_q_sec3_part_b.type_id = 'W' THEN 1 ELSE 0 END), 0) AS proportion_of_reduction_from_actual_recoveries FROM cims_raq_q_sec4_part_b, cims_raq_q_sec3_part_b",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated columns (not in schema): ['type_id']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['type_id']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "How much of the restructured standard advances slipped into NPA status during the period, across domestic, overseas and global operations?",
+    "gold_table": "CIMS_RAQ_Q_SEC3_PART_B",
+    "gold_sql": "SELECT DOMESTIC, OVERSEAS, GLOBAL FROM CIMS_RAQ_Q_SEC3_PART_B WHERE TRIM(MOVEMENT_RESTRUCTURE_STD_LA) = 'C2. Slipped to NPAs' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC3_PART_B)",
+    "matched_tables": [
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec9_sensec_partb"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT SUM(b.SLIPPAGE_DOM) AS total_slippage_domestic, SUM(b.SLIPPAGE_OVE) AS total_slippage_overseas, SUM(b.SLIPPAGE_GLO) AS total_slippage_global FROM CIMS_RAQ_Q_SEC4_PART_B b WHERE b.MOVEMENT_FROM = 'C. Slipped to NPAs'",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['b.slippage_dom (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_glo (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_ove (table CIMS_RAQ_Q_SEC4_PART_B has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['b.slippage_dom (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_glo (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_ove (table CIMS_RAQ_Q_SEC4_PART_B has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the bank's domestic exposure to equity-oriented mutual funds under capital-market sensitive-sector exposure?",
+    "gold_table": "CIMS_RAQ_Q_SEC9_SENSEC_PARTA",
+    "gold_sql": "SELECT EXPOSURE_DOM, GROSS_AMT_OS_DOM FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '3. Equity Oriented Mutual Funds' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA)",
+    "matched_tables": [
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec9_sensec_parta",
+      "cims_raq_q_sec8_ind_brkup"
+    ],
+    "table_hit": true,
+    "table_rank": 2,
+    "column_recall": 0.25,
+    "pred_sql": "SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description ilike '%A.2.1%Funded%and%Non-funded%Exposures%NHB%and%Housing%Finance%Companies%(HFCs)%'",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00920: invalid relational operator\nHelp: https://docs.oracle.com/error-help/db/ora-00920/"
+    ],
+    "exec_success": false,
+    "exec_match": null,
+    "exec_error": "Query execution failed: ORA-00920: invalid relational operator\nHelp: https://docs.oracle.com/error-help/db/ora-00920/",
+    "generation_error": null
+  },
+  {
+    "question": "How does the bank's direct exposure to priority-sector-qualifying residential housing loans compare to its commercial real estate exposure, domestic operations?",
+    "gold_table": "CIMS_RAQ_Q_SEC9_SENSEC_PARTB",
+    "gold_sql": "SELECT DESCRIPTION, TOT_EXPO_DOM FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION IN ('A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector', 'A.1.2 Commercial Real Estate') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB)",
+    "matched_tables": [
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec9_sensec_parta",
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec1_part_b_dom"
+    ],
+    "table_hit": true,
+    "table_rank": 1,
+    "column_recall": 1.0,
+    "pred_sql": "SELECT (SELECT SUM(TOT_EXPO_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION = 'A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector') AS residential_loans, (SELECT SUM(EXPOSURE_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '1.2 Indirect') AS commercial_real_estate",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC9_SENSEC_PARTA and CIMS_RAQ_Q_SEC9_SENSEC_PARTB. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC9_SENSEC_PARTA and CIMS_RAQ_Q_SEC9_SENSEC_PARTB. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the direct funded exposure to Micro Enterprises under MSME, and how much of it is impaired?",
+    "gold_table": "CIMS_RAQ_Q_SEC10",
+    "gold_sql": "SELECT FUN_EXP, OF_WHC_IMPAIR FROM CIMS_RAQ_Q_SEC10 WHERE TRIM(DESCRIPTION) = 'B.1.1 Micro Enterprises' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC10)",
+    "matched_tables": [
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec10",
+      "cims_raq_q_sec9_sensec_parta"
+    ],
+    "table_hit": true,
+    "table_rank": 2,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_funded_exposure, SUM(cims_raq_q_sec9_sensec_partb.of_which_impaired_dom) AS total_impared_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description IN ('B.2.1 Micro Enterprises', 'F.2.1 Micro Enterprises')",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['cims_raq_q_sec9_sensec_partb.of_which_impaired_dom (table CIMS_RAQ_Q_SEC9_SENSEC_PARTB has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['cims_raq_q_sec9_sensec_partb.of_which_impaired_dom (table CIMS_RAQ_Q_SEC9_SENSEC_PARTB has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What mean effective interest rate is charged on gold loans, and what level of gross NPAs has that portfolio reached?",
+    "gold_table": "CIMS_RAQ_Q_SEC_12_MISC",
+    "gold_sql": "SELECT ITEM, VALUE FROM CIMS_RAQ_Q_SEC_12_MISC WHERE ITEM IN ('b. Mean effective Interest rate charged', 'e. Gross NPAs') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC_12_MISC)",
+    "matched_tables": [
+      "cims_raq_q_sec8_ind_brkup",
+      "cims_raq_q_sec_12_misc",
+      "cims_raq_q_sec8_infra_brkup"
+    ],
+    "table_hit": true,
+    "table_rank": 2,
+    "column_recall": 0.0,
+    "pred_sql": "SELECT AVG(b.value::FLOAT) AS average_effective_interest_rate, SUM(g.value::FLOAT) AS total_gross_npas FROM CIMS_RAQ_Q_SEC8_IND_BRKUP g JOIN CIMS_RAQ_Q_SEC_12_MISC b ON g.rdate = b.rdate AND b.item = 'b. Mean effective Interest rate charged' WHERE g.gross_npa_end > 0",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC8_IND_BRKUP and CIMS_RAQ_Q_SEC_12_MISC. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC8_IND_BRKUP and CIMS_RAQ_Q_SEC_12_MISC. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Of the reduction in NPA provisions during the period, how much was on account of write-offs versus other reasons, globally?",
+    "gold_table": "CIMS_RAQ_Q_SEC2_PART_B",
+    "gold_sql": "SELECT MOVEMENT_PROVISION_NPA, GLOBAL FROM CIMS_RAQ_Q_SEC2_PART_B WHERE TRIM(MOVEMENT_PROVISION_NPA) IN ('C1. On account of Write Offs (Prov. Utilised for write-off)', 'C2. Others') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_B)",
+    "matched_tables": [
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec2_part_b",
+      "cims_raq_q_sec8_infra_brkup"
+    ],
+    "table_hit": true,
+    "table_rank": 3,
+    "column_recall": 0.6666666666666666,
+    "pred_sql": "SELECT SUM(CASE WHEN cims_raq_q_sec2_part_b.movement_provision_npa = 'C5. Write-offs' THEN cims_raq_q_sec4_part_b.loss_advances ELSE 0 END) AS write_offs, SUM(CASE WHEN cims_raq_q_sec2_part_b.movement_provision_npa != 'C5. Write-offs' THEN cims_raq_q_sec4_part_b.loss_advances ELSE 0 END) AS other_reasons FROM cims_raq_q_sec3_part_b JOIN cims_raq_q_sec4_part_b ON cims_raq_q_sec3_part_b.code = cims_raq_q_sec4_part_b.code WHERE cims_raq_q_sec3_part_b.movement_restructure_std_la = 'C. Reductions in Rest Std Adv during the FY/Period'",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC3_PART_B and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC3_PART_B and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
     ],
     "exec_success": null,
     "exec_match": null,

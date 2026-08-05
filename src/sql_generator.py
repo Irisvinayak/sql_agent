@@ -363,6 +363,25 @@ def _get_model_profile(model_name):
     return {**default_profile, **profile}
 
 
+# A single-quoted SQL string literal, tolerating Oracle's doubled-quote escape
+# ('it''s'). Matched non-greedily per literal so two literals in one statement
+# are two matches rather than one span swallowing the text between them.
+_LITERAL_RE = re.compile(r"'(?:[^']|'')*'")
+
+
+def _mask_literals(sql: str, placeholder: str = "''") -> str:
+    """
+    Replace every string literal's CONTENTS with `placeholder`, leaving the rest
+    of the statement byte-identical.
+
+    Used by validate_sql so that identifier scans (which tables are referenced,
+    which columns appear in the SELECT list) never read words out of a quoted
+    value. The default placeholder is an empty literal, so the subsequent
+    quote-stripping normalisation leaves nothing behind at all.
+    """
+    return _LITERAL_RE.sub(placeholder, sql)
+
+
 def _validation_failure_category(reason: str) -> str:
     reason = reason.lower()
     if "oracle rejected the query" in reason:
@@ -1567,8 +1586,28 @@ def validate_sql(sql, tables, columns):
 
     if not sql:
         return False, "Empty SQL"
-    # Normalise: strip quotes, lowercase
-    q = sql.lower().replace('"', '').replace("'", '').strip()
+    # Normalise: MASK string literals, strip double-quoted identifier quoting,
+    # lowercase.
+    #
+    # Masking has to happen before any identifier scan. The previous version
+    # stripped the quote characters and left the literal TEXT in place, so every
+    # word inside a row-label literal became a candidate identifier — and this
+    # schema's row labels are long English phrases. Two measured false
+    # rejections, both on SQL that is completely correct:
+    #
+    #   WHERE PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)'
+    #     -> "Hallucinated columns: ['days', 'for', 'overdue', 'sma']"
+    #   WHERE MOVEMENT_FROM = 'From Doubtful'
+    #     -> "Hallucinated tables: ['doubtful']"   (the FROM-scan ate the literal)
+    #
+    # That penalised exactly the vertical-table label filtering the prompt
+    # instructs the model to produce, so it depressed the measured validity rate
+    # on the most common query shape in this schema and burned correction
+    # retries re-generating SQL that was already right.
+    #
+    # `sql` (literals intact) is still used by the bare-date-literal check below,
+    # which needs to see them.
+    q = _mask_literals(sql).lower().replace('"', '').replace("'", '').strip()
 
     # 1 — must start with SELECT
     if not q.startswith("select"):
