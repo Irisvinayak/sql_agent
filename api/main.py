@@ -66,11 +66,17 @@ if __name__ == "__main__":
     # and another service quietly answers the requests (seen in practice: an
     # unrelated /v1/products API returning 404 for /api/query). Probe first and
     # say so, instead of leaving a confusing 404 to debug.
-    # Default 8001, not 8000: Docker Desktop publishes another service (ANCHOR-MT)
-    # on 8000 on this machine, and because Windows allows the double bind, running
-    # here produced a server that looked healthy while Docker answered every
-    # request with 404. Override with API_PORT if 8000 is genuinely free.
-    port = int(os.environ.get("API_PORT", "8001"))
+    # Default 8010. Both of the obvious ports are occupied by OTHER projects on
+    # this machine, and each collision presented identically: the squatter has no
+    # /api/query route, answers 404, and Vite forwards that 404 to the browser —
+    # so it reads as "the frontend can't find the route" rather than "the backend
+    # isn't running".
+    #   8000 — Docker Desktop publishes ANCHOR-MT there
+    #   8001 — Desktop\Chat-SystemWorking\dev_server.py, a FastAPI app titled
+    #          "Report Assistant" serving /chat
+    # MUST stay in sync with the proxy target in frontend/vite.config.js.
+    # Override with API_PORT (and update the proxy) if 8010 is ever taken too.
+    port = int(os.environ.get("API_PORT", "8010"))
 
     probe = socket.socket()
     probe.settimeout(1)
@@ -80,8 +86,13 @@ if __name__ == "__main__":
     if already_serving:
         print(f"\n  [WARNING] Something is already listening on port {port}.")
         print(f"  On Windows this server can still bind it, but requests may be")
-        print(f"  answered by the OTHER process. Start on a free port instead:")
-        print(f"      $env:API_PORT = \"8001\"; python -m api.main\n")
+        print(f"  answered by the OTHER process — which typically shows up as a")
+        print(f"  404 from /api/query rather than a connection error.")
+        print(f"  Check who owns it:")
+        print(f"      curl http://localhost:{port}/openapi.json     # whose API is this?")
+        print(f"  Then start on a free port AND update the proxy target in")
+        print(f"  frontend/vite.config.js to match:")
+        print(f"      $env:API_PORT = \"{port + 1}\"; python -m api.main\n")
 
     uvicorn.run(
         "api.main:app",

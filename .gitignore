@@ -6,8 +6,8 @@ __pycache__/
 .Python
 
 # Vector indexes (binary, rebuilt via python embedding_building/main.py)
-embedding_building/output/*.faiss
-embedding_building/output/*.pkl
+# embedding_building/output/*.faiss
+# embedding_building/output/*.pkl
 
 # Frontend
 frontend/node_modules/

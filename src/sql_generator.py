@@ -6,9 +6,9 @@ import logging
 import requests
 from datetime import date, timedelta
 import src.config as config
-# Safe at module level: description_fetcher imports only json/os/config up front
-# (oracledb and faiss are function-local there) and never imports this module.
-from src.description_fetcher import load_samples
+# Row-label samples and schema.json are both read through schema_store, which
+# caches them per process. Safe at module level: it imports only json/os/config.
+from src import schema_store
 
 log = logging.getLogger("sql_generator")
 
@@ -270,25 +270,6 @@ _SQL_KEYWORDS = {
 }
 
 
-def _columns_from_schema(schema_path, normalized_table_names):
-    try:
-        with open(schema_path) as f:
-            schema = json.load(f)
-    except FileNotFoundError:
-        return []
-    result = []
-    for entry in schema:
-        table_name = entry.get("table") or entry.get("table_name")
-        if not table_name or table_name.lower() not in normalized_table_names:
-            continue
-        for col in entry.get("columns") or []:
-            column_name = col.get("name") or col.get("column_name")
-            if not column_name:
-                continue
-            result.append({"table": table_name, "column": column_name})
-    return result
-
-
 def _load_all_columns(table_names, schema_path=None):
     """
     Return all columns for the given table names loaded from schema.json.
@@ -297,35 +278,15 @@ def _load_all_columns(table_names, schema_path=None):
     missing from the active schema. That file is in the older
     table_name/column_name format, which the loaders tolerate; note the path is
     relative, so the fallback only resolves when cwd is the repo root.
+
+    Delegates to src.schema_store, which parses each schema file once per
+    process and serves lookups from an index — this function is called several
+    times per request (here, in generate_sql's retry path and in validate_sql)
+    and used to re-read and re-scan the whole file every time. Kept as a
+    module-level name because eval/metrics.py, scripts/merge_qa_pairs.py and
+    scripts/test_accuracy_guards.py import it directly.
     """
-    if schema_path is None:
-        schema_path = f"{config.EMBEDDING_DIR}/schema.json"
-
-    normalized_table_names = {name.lower() for name in table_names}
-    result = _columns_from_schema(schema_path, normalized_table_names)
-
-    found_tables = {c["table"].lower() for c in result}
-    missing = normalized_table_names - found_tables
-    prod_path = "embedding_building/output/schema.json"
-    if missing and schema_path != prod_path:
-        result.extend(_columns_from_schema(prod_path, missing))
-
-    return result
-
-
-def _table_entries_from_schema(schema_path, normalized_table_names):
-    """Full schema.json entries (not just column names) for the given tables."""
-    try:
-        with open(schema_path) as f:
-            schema = json.load(f)
-    except FileNotFoundError:
-        return {}
-    out = {}
-    for entry in schema:
-        table_name = entry.get("table") or entry.get("table_name")
-        if table_name and table_name.lower() in normalized_table_names:
-            out[table_name.lower()] = entry
-    return out
+    return schema_store.columns_for(table_names, schema_path)
 
 
 def _load_table_entries(table_names, schema_path=None):
@@ -334,20 +295,9 @@ def _load_table_entries(table_names, schema_path=None):
     table-level primary_key/foreign_keys/description — for DDL rendering.
 
     Mirrors _load_all_columns' legacy-schema fallback for tables missing from
-    the active schema.json.
+    the active schema.json. See that function on why this delegates.
     """
-    if schema_path is None:
-        schema_path = f"{config.EMBEDDING_DIR}/schema.json"
-
-    normalized = {name.lower() for name in table_names}
-    entries = _table_entries_from_schema(schema_path, normalized)
-
-    missing = normalized - set(entries)
-    prod_path = "embedding_building/output/schema.json"
-    if missing and schema_path != prod_path:
-        entries.update(_table_entries_from_schema(prod_path, missing))
-
-    return entries
+    return schema_store.table_entries(table_names, schema_path)
 
 
 _ddl_type_cache = None
@@ -970,8 +920,7 @@ def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
     if len(table_refs) != 1:
         return None
 
-    label_samples = {k.lower(): v for k, v in load_samples().items()}
-    values = label_samples.get(table_name.lower(), {}).get(label_col.lower())
+    values = schema_store.labels_for(table_name).get(label_col.lower())
     if not values:
         return None
     total_row = _find_total_row(values)
@@ -1008,6 +957,87 @@ def _try_autocorrect_vertical_aggregation(sql: str, reason: str):
     return corrected
 
 
+def _slice_for_prompt(user_query, tables, columns, matched_labels, selected_cols_by_table):
+    """
+    Run src.context.slicer over the tables that reached the prompt, and return
+    ({table_lower: [column, ...]}, {table_lower: {column_lower: [label, ...]}}).
+
+    This is the bridge from the legacy retrieval shapes (`columns` and
+    `matched_labels` as plain dicts) to the context types, so the slicer can be
+    used without the rest of the resolver being wired up yet:
+
+      * `columns`        -> evidence_columns, in retrieval-rank order
+      * `matched_labels` -> LabelBinding, confidence descending by rank, since
+                            the retriever returns them ranked but unscored
+      * the selector's per-column choices, when it made any, -> ColumnBinding
+        with ORIGIN_QA_SQL confidence (a real selection, not a verified mapping)
+
+    Column BINDINGS from the concept channel are not available here — the
+    concept signal currently votes for a table and discards the column it
+    resolved. Until that is fixed, most slices run on evidence alone and the
+    tracker records `low_binding`, which is exactly the state eval should see.
+
+    Returns ({}, {}) on any failure: a slicing bug must degrade to the previous
+    whole-table prompt, never to a broken one.
+    """
+    try:
+        from src.context.budget import BudgetTracker, ContextBudget
+        from src.context.intent import detect_intent
+        from src.context.slicer import slice_table
+        from src.context.types import ORIGIN_QA_SQL, ColumnBinding, LabelBinding
+
+        budget = ContextBudget.from_config()
+        tracker = BudgetTracker(budget)
+        intent = detect_intent(user_query)
+
+        cols_out, labels_out = {}, {}
+        for t in tables:
+            key = t["table"].lower()
+
+            evidence = [c["column"] for c in (columns or [])
+                        if c["table"].lower() == key]
+
+            ranked_labels = [l for l in (matched_labels or [])
+                             if l["table"].lower() == key]
+            label_bindings = [
+                LabelBinding(table=t["table"], column=l["column"], value=l["value"],
+                             # ranked but unscored upstream, so position is the
+                             # only confidence signal available
+                             confidence=max(0.05, 1.0 - i * 0.05))
+                for i, l in enumerate(ranked_labels)
+            ]
+
+            bindings = [
+                ColumnBinding(table=t["table"], column=name, confidence=0.7,
+                              origin=ORIGIN_QA_SQL, why="named by the selector")
+                for name in selected_cols_by_table.get(key, [])
+            ]
+
+            sliced = slice_table(
+                t["table"], intent,
+                bindings=bindings,
+                matched_labels=label_bindings,
+                evidence_columns=evidence,
+                budget=budget, tracker=tracker,
+                query=user_query,
+            )
+            if sliced is None:
+                continue
+            cols_out[key] = list(sliced.column_names)
+            labels_out[key] = sliced.labels_by_column()
+
+        report = tracker.report()
+        log.info("sliced %d table(s): %s | drops=%d low_binding=%s",
+                 len(cols_out),
+                 {k: f"{len(v)} cols" for k, v in cols_out.items()},
+                 len(report.drops), report.low_binding)
+        return cols_out, labels_out
+    except Exception as e:                      # never let slicing break generation
+        log.error("schema slicing failed (%s) — falling back to the full table", e,
+                  exc_info=True)
+        return {}, {}
+
+
 def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None, matched_labels=None,
                  model_name=None, qa_example=None, selection=None, reasoning_plan=None):
     if today_date is None:
@@ -1026,7 +1056,7 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     # matched_labels: [{table, column, value}, ...]  — already ranked by relevance
     # Fall back to full sample dump if index doesn't exist yet (e.g. first run).
     if matched_labels is None:
-        raw_samples = load_samples()
+        raw_samples = schema_store.label_samples()
         matched_labels = []
         for tbl, col_map in raw_samples.items():
             for col, vals in col_map.items():
@@ -1056,7 +1086,7 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
     # run for EVERY prompt style, not just "rules" — whether a table needs a
     # row-label filter is a schema-shape fact, not something that should
     # depend on how verbose the prompt is allowed to be.
-    all_samples = load_samples()
+    all_samples = schema_store.label_samples()
     for tbl in table_names:
         if tbl in all_samples:
             for col, vals in all_samples[tbl].items():
@@ -1149,6 +1179,27 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
                     selected_cols_by_table[sel_name] = cols
             join_hint = selection.get("join_hint")
 
+        # ── Schema slicing ───────────────────────────────────────────────────
+        # CONTEXT_PIPELINE != "legacy" routes the DDL through src.context.slicer,
+        # which decides per column and per row label what the question needs.
+        # This is what closes the two largest context leaks:
+        #
+        #   * ALL columns of the table used to be rendered, because the only
+        #     pruning path (selection["columns"]) is None on every selector
+        #     short-circuit — i.e. the common path.
+        #   * ALL sampled row labels used to be injected and then truncated at a
+        #     fixed 14 in SAMPLE order, so the literal the question needed could
+        #     be cut while irrelevant ones stayed.
+        #
+        # `legacy` is left byte-identical on purpose: prompt changes at 7B are
+        # not additive, so the old path has to remain measurable as the baseline.
+        sliced_labels_by_table = {}
+        if config.CONTEXT_PIPELINE != "legacy":
+            sliced_cols, sliced_labels_by_table = _slice_for_prompt(
+                user_query, tables, columns, matched_labels, selected_cols_by_table,
+            )
+            selected_cols_by_table = sliced_cols or selected_cols_by_table
+
         ddl_blocks = []
         for t in tables:
             table_key = t["table"].lower()
@@ -1166,7 +1217,9 @@ def build_prompt(user_query, tables, columns, dialect="Oracle", today_date=None,
                 continue
             ddl_blocks.append(build_table_ddl(
                 entry,
-                label_values=label_map.get(t["table"], {}),
+                label_values=(sliced_labels_by_table.get(table_key)
+                              if table_key in sliced_labels_by_table
+                              else label_map.get(t["table"], {})),
                 selected_tables=table_names,
                 selected_columns=selected_cols_by_table.get(table_key),
             ))
@@ -1698,7 +1751,7 @@ def validate_sql(sql, tables, columns):
         # table-name key casing in description_samples.json (some uppercase,
         # some lowercase) — normalise to lowercase for a reliable lookup
         # regardless of which scope is active.
-        label_samples = {k.lower(): v for k, v in load_samples().items()}
+        label_samples = schema_store.label_samples_lower()
         where_match = re.search(r'\bwhere\b(.*)$', q, re.DOTALL)
         where_clause = where_match.group(1) if where_match else ""
         for tbl in real_table_refs & valid_table_names:

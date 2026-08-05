@@ -147,35 +147,39 @@ def fetch_and_save(schema_json_path=None):
         print(f"  Saved -> {trim_path}  "
               f"({sum(len(v) for v in needs_trim.values())} column(s) need TRIM())")
 
+    # These files were just rewritten, so anything this process cached from the
+    # previous version is now stale.
+    from src import schema_store
+    schema_store.clear_cache()
+
     return samples
 
 
 def load_needs_trim(path=None):
     """
-    {table: [label_column, ...]} for label columns whose stored values are
-    whitespace-padded, written by fetch_and_save.
+    {table_lower: {label_column_lower, ...}} for label columns whose stored
+    values are whitespace-padded, written by fetch_and_save.
 
-    Consumed by the prompt builder so it can tell the model to write
-    TRIM(COL) = 'value' for those columns. Returns {} when absent.
+    Consumed by the context slicer, which combines it with a live padding check
+    over the sampled values — the two sources disagree when the file is stale or
+    absent, and a missed TRIM() is a silent empty result rather than an error.
+    Returns {} when absent.
     """
-    if path is None:
-        path = os.path.join(config.EMBEDDING_DIR, "needs_trim.json")
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    from src import schema_store
+    return schema_store.needs_trim(path)
 
 
 def load_samples(path=None):
-    """Load previously fetched description samples. Returns {} if file missing."""
-    if path is None:
-        path = _output_path()
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    """
+    Load previously fetched description samples. Returns {} if file missing.
+
+    Reads through src.schema_store's process-lifetime cache: this is called
+    from the prompt builder and from validate_sql on every request, and used to
+    re-parse the whole file each time. The returned dict is SHARED — do not
+    mutate it.
+    """
+    from src import schema_store
+    return schema_store.label_samples(path)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

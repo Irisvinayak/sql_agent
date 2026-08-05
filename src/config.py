@@ -281,6 +281,34 @@ MEMBER_SIGNAL_WEIGHT = _env_float("MEMBER_SIGNAL_WEIGHT", 0.0)
 # Leave it at the default in production; it is the strongest signal there is.
 QA_SIGNAL_WEIGHT = _env_float("QA_SIGNAL_WEIGHT", 2.5)
 
+# ── Context selection / schema slicing (src/context/) ────────────────────────
+# Which retrieval-to-prompt path a request takes:
+#   legacy  the pre-context flow — retrieval shortlist -> selector -> build_prompt
+#           renders the WHOLE selected table (all columns, all sampled row
+#           labels, blind-truncated). Unchanged, so it stays the A/B baseline.
+#   new     the Context Resolver path: intent + domain + metric binding produce a
+#           PromptContext holding only the slice the question needs.
+# Kept as a flag rather than a cutover because prompt changes at 7B are NOT
+# additive — the same reason BUSINESS_SEMANTICS_LEVEL is staged. Flip the default
+# only once `python -m scripts.eval_context` and `python -m eval.run_eval` both
+# show the new path winning.
+CONTEXT_PIPELINE = os.environ.get("CONTEXT_PIPELINE", "legacy")
+
+# Per-axis context caps — see src/context/budget.py for why each default is what
+# it is (they are set against the measured 764-token baseline in
+# scratch/sql_generation_context_report.md, not guessed).
+CTX_MAX_TABLES = _env_int("CTX_MAX_TABLES", 2)
+CTX_MAX_COLUMNS_PER_TABLE = _env_int("CTX_MAX_COLUMNS_PER_TABLE", 12)
+# Replaces the effective MAX_LABELS_DDL=14 cap applied to an UNRANKED list. Six
+# ranked values plus the always-pinned TOTAL row beat fourteen sample-ordered
+# ones: in the traced prompt one column's label list was ~23% of the entire
+# prompt, and the value the question needed was not guaranteed to be among them.
+CTX_MAX_LABELS_PER_COLUMN = _env_int("CTX_MAX_LABELS_PER_COLUMN", 6)
+CTX_MAX_EXAMPLES = _env_int("CTX_MAX_EXAMPLES", 2)
+CTX_MAX_RULE_LINES = _env_int("CTX_MAX_RULE_LINES", 12)
+CTX_MAX_SEMANTIC_LINES = _env_int("CTX_MAX_SEMANTIC_LINES", 6)
+CTX_MAX_TOTAL_TOKENS = _env_int("CTX_MAX_TOTAL_TOKENS", 1800)
+
 # ── Oracle DB connection ─────────────────────────────────────────────────────
 # DB_HOST / DB_USER / DB_PASSWORD have NO hardcoded fallback — this repo
 # previously committed a live Oracle password and bank-identifying username
