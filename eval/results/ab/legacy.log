@@ -1,0 +1,121 @@
+  dataset=qa_pairs  questions=100  CONTEXT_PIPELINE=legacy  EMBEDDING_DIR=embedding_building/cims_raq_quarterly
+
+[1/100] CIMS_RAQ_Q_SEC2_PART_A :: What is the provision made for possible losses on doubtful advances, c
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT (b.provision_made_losses_dom - b.provision_made_losses_o) AS difference FROM cims_raq_q_sec4_part_b b WHERE b.movement_from = 'C.3.2 Write-offs on Account of Compromise Settlements';
+[TIMING] ollama first_attempt: connect=122963.0ms total=122977.6ms prompt_chars=6409 response_chars=190
+   SELECT (b.loss_dom - b.loss_o) AS difference FROM cims_raq_q_sec4_part_b b WHERE b.movement_from = 'C.3.2 Write-offs on Account of Compromise Settlements'Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_1: connect=59132.3ms total=59167.3ms prompt_chars=2272 response_chars=155
+[CORRECTED] Valid after retry 1
+[2/100] CIMS_RAQ_Q_SEC1_PART_A_DOM :: How much of the domestic loan book falls under SMA-2 (60 to 90 days ov
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT CAST(SUM(c.SMA_2) AS FLOAT) / NULLIF(SUM(c.TOTAL_LOAN_ASSETS), 0) AS proportion FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)';
+[TIMING] ollama first_attempt: connect=41683.8ms total=41759.0ms prompt_chars=7827 response_chars=195
+   SELECT CAST(SUM(c.SMA_2) AS FLOAT) / NULLIF(SUM(c.TOTAL_LOAN_ASSETS), 0) AS proportion FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)'
+[TIMING] ollama retry_1: connect=96370.7ms total=96390.5ms prompt_chars=3154 response_chars=194
+   SELECT CAST(SUM(c.SMA_2) AS FLOAT) / NULLIF(SUM(c.TOTAL_LOAN_ASSETS), 0) AS proportion FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)'
+[TIMING] ollama retry_2: connect=16474.3ms total=16504.9ms prompt_chars=3154 response_chars=194
+   SELECT CAST(SUM(c.SMA_2) AS FLOAT) / NULLIF(SUM(c.TOTAL_LOAN_ASSETS), 0) AS proportion FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.a.3 Overdue for 60 to 90 days (SMA -2)'
+[TIMING] ollama retry_3: connect=16002.8ms total=16015.3ms prompt_chars=3154 response_chars=194
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['c.sma_2 (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)']
+[3/100] CIMS_RAQ_Q_SEC4_PART_A :: What is the closing-period breakdown of loans and advances into standa
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT c.movement_from, SUM(c.total_dom) AS total_domestic_operations FROM cims_raq_q_sec4_part_a c WHERE c.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec4_part_a) AND c.movement_from IN ('From Standard', 'From Sub-standard', 'From Doubtful', 'From Loss') GROUP BY c.movement_from ORDER BY total_domestic_operations DESC NULLS LAST;
+[TIMING] ollama first_attempt: connect=135113.9ms total=135129.4ms prompt_chars=6663 response_chars=333
+   SELECT c.movement_from, SUM(c.total_dom) AS total_domestic_operations FROM cims_raq_q_sec4_part_a c WHERE c.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec4_part_a) AND c.movement_from IN ('From Standard', 'From Sub-standard', 'From Doubtful', 'From Loss') GROUP BY c.movement_from ORDER BY total_domestic_operations DESC NULLS LAST
+[TIMING] ollama retry_1: connect=71613.5ms total=71650.1ms prompt_chars=2654 response_chars=332
+   SELECT c.movement_from, SUM(c.total_dom) AS total_domestic_operations FROM cims_raq_q_sec4_part_a c WHERE c.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec4_part_a) AND c.movement_from IN ('From Standard', 'From Sub-standard', 'From Doubtful', 'From Loss') GROUP BY c.movement_from ORDER BY total_domestic_operations DESC NULLS LAST
+[TIMING] ollama retry_2: connect=18037.2ms total=18050.0ms prompt_chars=2654 response_chars=332
+   SELECT c.movement_from, SUM(c.total_dom) AS total_domestic_operations FROM cims_raq_q_sec4_part_a c WHERE c.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec4_part_a) AND c.movement_from IN ('From Standard', 'From Sub-standard', 'From Doubtful', 'From Loss') GROUP BY c.movement_from ORDER BY total_domestic_operations DESC NULLS LASTOllama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_3: connect=17797.3ms total=17828.3ms prompt_chars=2654 response_chars=332
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['in', 'order']
+[4/100] CIMS_RAQ_Q_SEC4_PART_B :: How much of the NPA reduction during the period came from actual recov
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT (SELECT SUM(CASE WHEN c.2.2.recovery THEN 1 ELSE 0 END) FROM c.2.2)::FLOAT / NULLIF((SELECT SUM(CASE WHEN c.3.3 THEN 1 ELSE 0 END) FROM c.3.3), 0) AS proportion_of_reduction_from_actual_recoveries;
+[TIMING] ollama first_attempt: connect=18766.6ms total=18776.6ms prompt_chars=7429 response_chars=205
+   SELECT SUM(CASE WHEN c.2.2.recovery THEN 1 ELSE 0 END)::FLOAT / NULLIF(SUM(CASE WHEN c.3.3 THEN 1 ELSE 0 END), 0) AS proportion_of_reduction_from_actual_recoveries FROM c.2.2, c.3.3
+[TIMING] ollama retry_1: connect=71728.8ms total=71746.7ms prompt_chars=2757 response_chars=182
+   SELECT SUM(CASE WHEN cims_raq_q_sec4_part_b.movement_from = 'R' THEN 1 ELSE 0 END)::FLOAT / NULLIF(SUM(CASE WHEN cims_raq_q_sec3_part_b.type_id = 'W' THEN 1 ELSE 0 END), 0) AS proportion_of_reduction_from_actual_recoveries FROM cims_raq_q_sec4_part_b, cims_raq_q_sec3_part_b;
+[TIMING] ollama retry_2: connect=28289.4ms total=28384.3ms prompt_chars=2735 response_chars=276
+   SELECT SUM(CASE WHEN cims_raq_q_sec4_part_b.movement_from = 'R' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN cims_raq_q_sec3_part_b.type_id = 'W' THEN 1 ELSE 0 END), 0) AS proportion_of_reduction_from_actual_recoveries FROM cims_raq_q_sec4_part_b, cims_raq_q_sec3_part_b
+[TIMING] ollama retry_3: connect=27645.0ms total=27676.6ms prompt_chars=2661 response_chars=268
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['type_id']
+[5/100] CIMS_RAQ_Q_SEC3_PART_B :: How much of the restructured standard advances slipped into NPA status
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT SUM(b.SLIPPAGE_DOM) AS total_slippage_domestic, SUM(b.SLIPPAGE_OVE) AS total_slippage_overseas, SUM(b.SLIPPAGE_GLO) AS total_slippage_global FROM CIMS_RAQ_Q_SEC4_PART_B b WHERE b.MOVEMENT_FROM = 'C. Slipped to NPAs';
+[TIMING] ollama first_attempt: connect=128729.0ms total=128746.5ms prompt_chars=6619 response_chars=224
+   SELECT SUM(b.SLIPPAGE_DOM) AS total_slippage_domestic, SUM(b.SLIPPAGE_OVE) AS total_slippage_overseas, SUM(b.SLIPPAGE_GLO) AS total_slippage_global FROM CIMS_RAQ_Q_SEC4_PART_B b WHERE b.MOVEMENT_FROM = 'C. Slipped to NPAs'
+[TIMING] ollama retry_1: connect=72188.7ms total=72208.2ms prompt_chars=2406 response_chars=223
+   SELECT SUM(b.SLIPPAGE_DOM) AS total_slippage_domestic, SUM(b.SLIPPAGE_OVE) AS total_slippage_overseas, SUM(b.SLIPPAGE_GLO) AS total_slippage_global FROM CIMS_RAQ_Q_SEC4_PART_B b WHERE b.MOVEMENT_FROM = 'C. Slipped to NPAs'
+[TIMING] ollama retry_2: connect=16377.7ms total=16389.5ms prompt_chars=2406 response_chars=223
+   SELECT SUM(b.SLIPPAGE_DOM) AS total_slippage_domestic, SUM(b.SLIPPAGE_OVE) AS total_slippage_overseas, SUM(b.SLIPPAGE_GLO) AS total_slippage_global FROM CIMS_RAQ_Q_SEC4_PART_B b WHERE b.MOVEMENT_FROM = 'C. Slipped to NPAs'Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_3: connect=16163.4ms total=16176.5ms prompt_chars=2406 response_chars=223
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['b.slippage_dom (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_glo (table CIMS_RAQ_Q_SEC4_PART_B has no such column)', 'b.slippage_ove (table CIMS_RAQ_Q_SEC4_PART_B has no such column)']
+[6/100] CIMS_RAQ_Q_SEC9_SENSEC_PARTA :: What is the bank's domestic exposure to equity-oriented mutual funds u
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.exposure_dom) AS total_exposure FROM cims_raq_q_sec9_sensec_partb JOIN cims_raq_q_sec9_sensec_parta ON cims_raq_q_sec9_sensec_partb.description = cims_raq_q_sec9_sensec_parta.description WHERE cims_raq_q_sec9_sensec_partb.description ilike '%A.2.1%Funded%and%Non-funded%Exposures%NHB%and%Housing%Finance%Companies%(HFCs)%' AND cims_raq_q_sec9_sensec_parta.description ilike '%3.%Equity%Oriented%Mutual%Funds%';
+[TIMING] ollama first_attempt: connect=79183.0ms total=79493.2ms prompt_chars=8565 response_chars=451
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.exposure_dom) AS total_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description ilike '%A.2.1%Funded%and%Non-funded%Exposures%NHB%and%Housing%Finance%Companies%(HFCs)%'
+[TIMING] ollama retry_1: connect=118752.4ms total=118780.9ms prompt_chars=3815 response_chars=242
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description ilike '%A.2.1%Funded%and%Non-funded%Exposures%NHB%and%Housing%Finance%Companies%(HFCs)%'
+[TIMING] ollama retry_2: connect=27108.3ms total=28338.0ms prompt_chars=3516 response_chars=247
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description ilike '%A.2.1%Funded%and%Non-funded%Exposures%NHB%and%Housing%Finance%Companies%(HFCs)%'Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_3: connect=29257.6ms total=29274.0ms prompt_chars=3632 response_chars=247
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00920: invalid relational operator
+Help: https://docs.oracle.com/error-help/db/ora-00920/
+[7/100] CIMS_RAQ_Q_SEC9_SENSEC_PARTB :: How does the bank's direct exposure to priority-sector-qualifying resi
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT (SELECT SUM(TOT_EXPO_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION = 'A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector') AS residential_loans, (SELECT SUM(EXPOSURE_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '1.2 Indirect') AS commercial_real_estate;
+[TIMING] ollama first_attempt: connect=89091.8ms total=89143.9ms prompt_chars=9871 response_chars=323
+   SELECT (SELECT SUM(TOT_EXPO_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION = 'A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector') AS residential_loans, (SELECT SUM(EXPOSURE_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '1.2 Indirect') AS commercial_real_estate
+[TIMING] ollama retry_1: connect=130604.3ms total=130652.2ms prompt_chars=4163 response_chars=322
+   SELECT (SELECT SUM(TOT_EXPO_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION = 'A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector') AS residential_loans, (SELECT SUM(EXPOSURE_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '1.2 Indirect') AS commercial_real_estate
+[TIMING] ollama retry_2: connect=21661.3ms total=21675.3ms prompt_chars=4163 response_chars=322
+   SELECT (SELECT SUM(TOT_EXPO_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTB WHERE DESCRIPTION = 'A.1.1.a Residential Mortgages - Individual Housing Loans qualifying for Priority Sector') AS residential_loans, (SELECT SUM(EXPOSURE_DOM) FROM CIMS_RAQ_Q_SEC9_SENSEC_PARTA WHERE DESCRIPTION = '1.2 Indirect') AS commercial_real_estate
+[TIMING] ollama retry_3: connect=21696.5ms total=21724.7ms prompt_chars=4163 response_chars=322
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC9_SENSEC_PARTA and CIMS_RAQ_Q_SEC9_SENSEC_PARTB. No relationship between these tables is declared in the semantic layer, so they must not be joined — answer from a single table.
+[8/100] CIMS_RAQ_Q_SEC10 :: What is the direct funded exposure to Micro Enterprises under MSME, an
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_funded_exposure, SUM(cims_raq_q_sec9_sensec_partb.of_which_impaired_dom) AS total_impared_exposure FROM cims_raq_q_sec9_sensec_partb JOIN cims_raq_q_sec10 ON cims_raq_q_sec9_sensec_partb.description = cims_raq_q_sec10.description WHERE cims_raq_q_sec10.description IN ('B.2.1 Micro Enterprises', 'F.2.1 Micro Enterprises');
+[TIMING] ollama first_attempt: connect=146447.2ms total=146480.2ms prompt_chars=6692 response_chars=392
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_funded_exposure, SUM(cims_raq_q_sec9_sensec_partb.of_which_impaired_dom) AS total_impared_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description IN ('B.2.1 Micro Enterprises', 'F.2.1 Micro Enterprises')
+[TIMING] ollama retry_1: connect=84650.1ms total=84657.9ms prompt_chars=2667 response_chars=306
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_funded_exposure, SUM(cims_raq_q_sec9_sensec_partb.of_which_impaired_dom) AS total_impared_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description IN ('B.2.1 Micro Enterprises', 'F.2.1 Micro Enterprises')
+[TIMING] ollama retry_2: connect=27024.7ms total=27263.1ms prompt_chars=2512 response_chars=306
+   SELECT SUM(cims_raq_q_sec9_sensec_partb.amt_os_funded_dom) AS total_funded_exposure, SUM(cims_raq_q_sec9_sensec_partb.of_which_impaired_dom) AS total_impared_exposure FROM cims_raq_q_sec9_sensec_partb WHERE cims_raq_q_sec9_sensec_partb.description IN ('B.2.1 Micro Enterprises', 'F.2.1 Micro Enterprises')Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_3: connect=21376.2ms total=21388.6ms prompt_chars=2512 response_chars=306
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['cims_raq_q_sec9_sensec_partb.of_which_impaired_dom (table CIMS_RAQ_Q_SEC9_SENSEC_PARTB has no such column)']
+[9/100] CIMS_RAQ_Q_SEC_12_MISC :: What mean effective interest rate is charged on gold loans, and what l
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT AVG(m.b.value::FLOAT) AS average_effective_interest_rate, SUM(m.g.value::FLOAT) AS total_gross_npas FROM CIMS_RAQ_Q_SEC_12_MISC m WHERE m.item = 'b. Mean effective Interest rate charged' AND m.rdate = (SELECT MAX(rdate) FROM CIMS_RAQ_Q_SEC_12_MISC) AND m.g.value::FLOAT > 0;
+[TIMING] ollama first_attempt: connect=71875.1ms total=71939.1ms prompt_chars=8909 response_chars=282
+   SELECT AVG(b.value::FLOAT) AS average_effective_interest_rate, SUM(g.value::FLOAT) AS total_gross_npas FROM CIMS_RAQ_Q_SEC_12_MISC b JOIN CIMS_RAQ_Q_SEC8_IND_BRKUP g ON b.rdate = g.rdate AND b.item = 'b. Mean effective Interest rate charged' WHERE g.gross_npa_end > 0
+[TIMING] ollama retry_1: connect=138483.1ms total=138497.1ms prompt_chars=4107 response_chars=268
+   SELECT AVG(b.value::FLOAT) AS average_effective_interest_rate, SUM(g.value::FLOAT) AS total_gross_npas FROM CIMS_RAQ_Q_SEC8_IND_BRKUP g JOIN CIMS_RAQ_Q_SEC_12_MISC b ON g.rdate = b.rdate AND b.item = 'b. Mean effective Interest rate charged' WHERE g.gross_npa_end > 0
+[TIMING] ollama retry_2: connect=30085.9ms total=30163.3ms prompt_chars=4163 response_chars=268
+   SELECT AVG(b.value::FLOAT) AS average_effective_interest_rate, SUM(g.value::FLOAT) AS total_gross_npas FROM CIMS_RAQ_Q_SEC8_IND_BRKUP g JOIN CIMS_RAQ_Q_SEC_12_MISC b ON g.rdate = b.rdate AND b.item = 'b. Mean effective Interest rate charged' WHERE g.gross_npa_end > 0Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+
+[TIMING] ollama retry_3: connect=27678.5ms total=27713.1ms prompt_chars=4163 response_chars=268
+[WARNING] Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC8_IND_BRKUP and CIMS_RAQ_Q_SEC_12_MISC. No relationship between these tables is declared in the semantic layer, so they must not be joined — answer from a single table.
+[10/100] CIMS_RAQ_Q_SEC2_PART_B :: Of the reduction in NPA provisions during the period, how much was on 
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+  [warn] generate_sql failed (attempt 1/2): Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+[DEBUG] Ollama model=hf.co/defog/sqlcoder-7b-2:Q5_K_M prompt_style=ddl
+   SELECT SUM(CASE WHEN cims_raq_q_sec2_part_b.movement_provision_npa = 'C5. Write-offs' THEN cims_raq_q_sec4_part_b.loss_advances ELSE 0 END) AS write_offs, SUM(CASE WHEN cims_raq_q_sec2_part_b.movement_provision_npa != 'C5. Write-offs' THEN cims_raq_q_sec4_part_b.loss_advances ELSE 0 END) AS other_reasons FROM cims_raq_q_sec3_part_b JOIN cims_raq_q_sec4_part_b ON cims_raq_q_sec3_part_b.code = cims_raq_q_sec4_part_b.code WHERE cims_raq_q_sec3_part_b.movement_restructure_std_la = 'C. Reductions in Rest Std Adv during the FY/Period'Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+Correction retry 1 aborted: Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate
+Ollama HTTP error at http://3.109.51.228/OllamaProxy/api/generate: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate

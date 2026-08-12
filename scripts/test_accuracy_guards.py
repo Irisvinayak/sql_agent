@@ -91,6 +91,62 @@ check("truncated table name 'cims_raq' rejected", not ok, f"got ok={ok} reason={
 
 
 # ══════════════════════════════════════════════════════════════════════════════
+section("1b. Row-label literals are not read as identifiers")
+
+# validate_sql used to strip the quote CHARACTERS and leave the literal TEXT in
+# place, so every word inside a row-label literal became a candidate identifier.
+# This schema's labels are long English phrases, so correct SQL was rejected —
+# and specifically the vertical-table label filtering the prompt instructs the
+# model to write, which is the most common query shape here. Both cases below
+# were produced by the real model on real questions and were wrongly rejected.
+_dom_a = "cims_raq_q_sec1_part_a_dom"
+_dom_a_cols = _columns_for(_dom_a)
+
+literal_with_words = (
+    "SELECT SUM(CASE WHEN PERIOD_DELINQUENCY = "
+    "'ii.a.3 Overdue for 60 to 90 days (SMA -2)' THEN TOTAL_LOAN_ASSETS END) AS sma2 "
+    f"FROM {_dom_a.upper()}"
+)
+ok, reason = validate_sql(literal_with_words, _tables(_dom_a), _dom_a_cols)
+check("words inside a label literal are not 'hallucinated columns'", ok,
+      f"reason={reason!r}")
+
+literal_starting_with_from = (
+    f"SELECT TOTAL_LOAN_ASSETS FROM {_dom_a.upper()} "
+    "WHERE PERIOD_DELINQUENCY = 'From Doubtful'"
+)
+ok, reason = validate_sql(literal_starting_with_from, _tables(_dom_a), _dom_a_cols)
+check("a literal beginning 'From ' is not read as a table reference", ok,
+      f"reason={reason!r}")
+
+# The masking must not blind the real checks. Each of these has to STILL fail.
+ok, _ = validate_sql(
+    f"SELECT a.TOTAL_LOAN_ASSETS FROM {_dom_a.upper()} a JOIN SOME_LOOKUP b ON a.CODE = b.CODE",
+    _tables(_dom_a), _dom_a_cols)
+check("masking still rejects a genuinely invented table", not ok)
+
+ok, _ = validate_sql(
+    f"SELECT NOT_A_REAL_COLUMN FROM {_dom_a.upper()} WHERE PERIOD_DELINQUENCY = 'C. Total ( A + B)'",
+    _tables(_dom_a), _dom_a_cols)
+check("masking still rejects a genuinely invented column", not ok)
+
+ok, _ = validate_sql(
+    f"SELECT TOTAL_LOAN_ASSETS FROM {_dom_a.upper()} WHERE a = 'safe' ; DROP TABLE t",
+    _tables(_dom_a), _dom_a_cols)
+check("masking still rejects a banned keyword outside a literal", not ok)
+
+ok, _ = validate_sql(
+    f"SELECT TOTAL_LOAN_ASSETS FROM {_dom_a.upper()} WHERE RDATE = '2024-03-31' "
+    "AND PERIOD_DELINQUENCY = 'C. Total ( A + B)'",
+    _tables(_dom_a), _dom_a_cols)
+check("masking still rejects a bare date literal", not ok)
+
+ok, _ = validate_sql(f"SELECT SUM(TOTAL_LOAN_ASSETS) FROM {_dom_a.upper()}",
+                     _tables(_dom_a), _dom_a_cols)
+check("masking still rejects a vertical SUM with no label filter", not ok)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
 section("2. The join graph is an allow-list, not a blanket ban")
 
 clear_cache()
