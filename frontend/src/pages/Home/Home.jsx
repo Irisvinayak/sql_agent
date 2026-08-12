@@ -1,6 +1,7 @@
 import QueryInput from '../../components/QueryInput/QueryInput'
 import SqlDisplay from '../../components/SqlDisplay/SqlDisplay'
 import ResultsTable from '../../components/ResultsTable/ResultsTable'
+import TimingsPanel from '../../components/TimingsPanel/TimingsPanel'
 import { useQuery } from '../../hooks/useQuery'
 
 export default function Home({ darkMode, toggleDark }) {
@@ -147,6 +148,9 @@ export default function Home({ darkMode, toggleDark }) {
                 dbError={result.db_error}
               />
             )}
+
+            {/* Timings — per-stage latency breakdown, including Oracle execution time */}
+            <TimingsPanel timings={result.timings_ms} />
           </>
             )}
           </>
