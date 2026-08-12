@@ -68,7 +68,7 @@ def preflight():
           f"{'reachable' if db_ok else 'UNREACHABLE'}")
 
     print(f"  Model        : {config.OLLAMA_MODEL}")
-    print(f"  Selector     : {config.SELECTOR_MODEL}")
+    print(f"  Selector     : deterministic (no LLM call)")
     print(f"  num_predict  : {config.MODEL_PROFILES.get(config.OLLAMA_MODEL, {}).get('num_predict')}")
     print(f"  prompt_style : {config.MODEL_PROFILES.get(config.OLLAMA_MODEL, {}).get('prompt_style')}")
     print(f"  SHORTLIST_K  : {config.SHORTLIST_K}")
@@ -127,9 +127,11 @@ def run_question(question, db_ok):
         print(f"  direct match (>=0.99) -> table {exact['table']}, LLM skipped")
         return {"question": question, "path": "direct_match", "valid": True}
 
-    tables, columns, labels, qa = get_relevant_schema(
+    retrieval = get_relevant_schema(
         question, query_vec=query_vec, shortlist_k=config.SHORTLIST_K,
     )
+    tables, columns = retrieval.tables, retrieval.columns
+    labels, qa = retrieval.matched_labels, retrieval.qa_example
     print(f"  shortlist ({len(tables)}): {[t['table'] for t in tables]}")
 
     tables, selection = select_tables(question, tables, matched_labels=labels,

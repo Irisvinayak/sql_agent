@@ -24,7 +24,15 @@ included by default with descriptions synthesised from their names and columns
 Usage:
     python embedding_building/cims_raq_quarterly/build_schema.py
     python embedding_building/cims_raq_quarterly/build_schema.py --described-only
+    python embedding_building/cims_raq_quarterly/build_schema.py --return-name "CIMS_ALE_Domestic(Quarterly)"
+
+Onboarding a SECOND return (e.g. ALE) onto an existing schema.json: pass
+--return-name for the new return. The script MERGES rather than overwrites —
+it replaces only the entries whose return_name matches the one being built
+this run, leaving every other return's tables untouched. Re-running for the
+same return_name is idempotent (no duplicates).
 """
+import argparse
 import json
 import os
 import sys
@@ -36,7 +44,7 @@ from embedding_building.parser import parse_schema_and_constraints
 from embedding_building.formatter import load_descriptions, build_schema_json
 from src.executor import get_accessible_tables
 
-RETURN_NAME = "CIMS_RAQ(Quarterly)"
+DEFAULT_RETURN_NAME = "CIMS_RAQ(Quarterly)"
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 SCHEMA_SQL_PATH = os.path.join(ROOT, "data", "schema.sql")
 DESCRIPTIONS_PATH = os.path.join(ROOT, "data", ".json-formatted")
@@ -61,12 +69,19 @@ def tables_for_return(descriptions: dict, return_name: str):
 
 
 def main():
-    # Live tables with no Excel description are included by default; they are real
-    # data users ask about, and leaving them out guarantees a wrong-table answer
-    # rather than no answer.
-    described_only = "--described-only" in sys.argv
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--return-name", default=DEFAULT_RETURN_NAME,
+                     help="return_name as tagged in data/.json-formatted, e.g. "
+                          "'CIMS_ALE_Domestic(Quarterly)'")
+    ap.add_argument("--described-only", action="store_true",
+                     help="Live tables with no Excel description are included by "
+                          "default; they are real data users ask about, and leaving "
+                          "them out guarantees a wrong-table answer rather than no answer.")
+    args = ap.parse_args()
+    return_name = args.return_name
+    described_only = args.described_only
 
-    print(f"Building scoped schema for return: {RETURN_NAME!r}"
+    print(f"Building scoped schema for return: {return_name!r}"
           f"{'  (described tables only)' if described_only else ''}\n")
 
     with open(SCHEMA_SQL_PATH, encoding="utf-8") as f:
@@ -88,8 +103,18 @@ def main():
               "so PK/FK reach the prompt")
 
     descriptions = load_descriptions(DESCRIPTIONS_PATH)
-    described_table_names, inconsistent = tables_for_return(descriptions, RETURN_NAME)
-    print(f"Tables tagged {RETURN_NAME!r} in .json-formatted: {len(described_table_names)}")
+    described_table_names, inconsistent = tables_for_return(descriptions, return_name)
+    print(f"Tables tagged {return_name!r} in .json-formatted: {len(described_table_names)}")
+
+    # Table-name prefix for THIS return, derived from its own described tables
+    # rather than hardcoded — was hardcoded to "CIMS_RAQ_Q_" before this script
+    # supported more than one return, which would have silently matched zero
+    # ALE tables (they're prefixed "CIMS_ALE_Q_") instead of erroring.
+    _return_prefix = None
+    if described_table_names:
+        _common = os.path.commonprefix([t.upper() for t in described_table_names])
+        if "_" in _common:
+            _return_prefix = _common.rsplit("_", 1)[0] + "_"
 
     if inconsistent:
         print(f"\n[WARN] {len(inconsistent)} table(s) have columns disagreeing on return_name "
@@ -114,10 +139,20 @@ def main():
         print(f"\n[WARN] {len(missing_from_ddl)} described table(s) not found in parsed DDL "
               f"(schema.sql may be stale): {sorted(missing_from_ddl)}")
 
-    if live_tables is not None:
+    # Tables pulled in via the live-undescribed enrichment below, tracked so
+    # their return_name can be forced afterward — formatter.build_schema_json
+    # looks up description rows by table name across the WHOLE descriptions
+    # file, not scoped to this return, so a table with zero description rows
+    # for THIS return but some for a different one (e.g. an ALE table with
+    # only "(Monthly)"-tagged rows, swept in because it's a live, undescribed-
+    # for-Quarterly table) would otherwise get mistagged with that other
+    # return's name instead of the one it was actually built for.
+    addable = set()
+
+    if live_tables is not None and _return_prefix is not None:
         live_undescribed = {
             t for t in live_tables
-            if t.startswith("CIMS_RAQ_Q_") and t not in described_table_names
+            if t.startswith(_return_prefix) and t not in described_table_names
         }
         # Backup tables are excluded regardless — build_vector_records skips them
         # anyway, and they must never be queried.
@@ -127,7 +162,7 @@ def main():
 
         if live_undescribed:
             verb = "EXCLUDED" if described_only else "INCLUDED"
-            print(f"\n[INFO] {len(live_undescribed)} live CIMS_RAQ_Q_* table(s) have NO Excel "
+            print(f"\n[INFO] {len(live_undescribed)} live {_return_prefix}* table(s) have NO Excel "
                   f"description at all -> {verb}"
                   f"{' (descriptions synthesised from names/columns)' if not described_only else ''}:")
             for t in sorted(live_undescribed):
@@ -150,7 +185,12 @@ def main():
         if live_backups:
             print(f"\n[INFO] {len(live_backups)} backup table(s) always excluded: "
                   f"{sorted(live_backups)}")
+    elif live_tables is not None and _return_prefix is None:
+        print(f"\n[WARN] Could not derive a table-name prefix for {return_name!r} "
+              f"from its described tables — skipping the live-undescribed-table "
+              f"enrichment step (described tables are still included as normal).")
 
+    if live_tables is not None:
         before = len(scoped_table_names)
         scoped_table_names = {t for t in scoped_table_names if t in live_tables}
         dropped = before - len(scoped_table_names)
@@ -166,24 +206,55 @@ def main():
     # is derived from the descriptions map. Everything in this build belongs to
     # this return by construction, so tag them — retrieval embeds return_name, and
     # the planned multi-return routing filters on it.
-    untagged = [t for t in schema if not t.get("return_name")]
-    for entry in untagged:
-        entry["return_name"] = RETURN_NAME
-        if RETURN_NAME not in entry["text"]:
-            entry["text"] = f"{entry['table']} | {RETURN_NAME} | " + entry["text"].split(" | ", 1)[-1]
-        if entry.get("summary_text") and RETURN_NAME not in entry["summary_text"]:
-            entry["summary_text"] = f"{entry['table']} | {RETURN_NAME} | " + \
+    #
+    # Also force-correct any `addable` (live-undescribed-for-THIS-return) table
+    # whose return_name formatter.py filled in from OTHER-return description
+    # rows for the same physical table name — those rows are real, just for a
+    # different return, so `return_name` was never empty and the untagged check
+    # alone would miss it; see the comment where `addable` is defined above.
+    _addable_upper = {t.upper() for t in addable}
+    to_retag = [
+        t for t in schema
+        if not t.get("return_name") or t["table"].upper() in _addable_upper
+    ]
+    for entry in to_retag:
+        if entry.get("return_name") == return_name:
+            continue
+        entry["return_name"] = return_name
+        entry["text"] = f"{entry['table']} | {return_name} | " + entry["text"].split(" | ", 1)[-1]
+        if entry.get("summary_text"):
+            entry["summary_text"] = f"{entry['table']} | {return_name} | " + \
                 entry["summary_text"].split(" | ", 1)[-1]
-    if untagged:
-        print(f"\n[INFO] Tagged {len(untagged)} table(s) with return_name {RETURN_NAME!r} "
-              f"(no Excel metadata of their own).")
-
-    schema.sort(key=lambda t: t["table"])
+    if to_retag:
+        print(f"\n[INFO] Tagged/corrected {len(to_retag)} table(s) with return_name "
+              f"{return_name!r} (no Excel metadata of their own for this return, "
+              f"or mistagged from another return's description rows).")
 
     out_path = os.path.join(OUT_DIR, "schema.json")
+
+    # MERGE, don't overwrite: keep every existing table belonging to a
+    # DIFFERENT return untouched, and replace (not append to) this return's
+    # own entries so re-running for the same return_name is idempotent.
+    # Previously this was a plain overwrite, which meant onboarding a second
+    # return would silently delete the first return's entire schema.
+    existing = []
+    if os.path.exists(out_path):
+        with open(out_path, encoding="utf-8") as f:
+            existing = json.load(f)
+    kept = [t for t in existing if t.get("return_name") != return_name]
+    dropped_existing = len(existing) - len(kept)
+    if dropped_existing:
+        print(f"\n[INFO] Replacing {dropped_existing} existing table(s) already "
+              f"tagged {return_name!r} in {out_path}.")
+
+    merged_schema = kept + schema
+    merged_schema.sort(key=lambda t: t["table"])
+
     with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(schema, f, indent=2)
-    print(f"\n-> {out_path} ({len(schema)} tables)")
+        json.dump(merged_schema, f, indent=2)
+    print(f"\n-> {out_path} ({len(merged_schema)} tables total, "
+          f"{len(schema)} from this run's return {return_name!r}, "
+          f"{len(kept)} kept from other returns)")
 
 
 if __name__ == "__main__":

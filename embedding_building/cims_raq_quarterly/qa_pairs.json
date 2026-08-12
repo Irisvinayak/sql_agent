@@ -498,5 +498,10 @@
     "table": "CIMS_RAQ_Q_SEC3_PART_B",
     "question": "What is the restructured standard loans and advances balance for RAQ?",
     "sql": "SELECT DOMESTIC, OVERSEAS, GLOBAL FROM CIMS_RAQ_Q_SEC3_PART_B WHERE TRIM(MOVEMENT_RESTRUCTURE_STD_LA) = 'D. Amount of Restructured Standard Loans/Advances at end of the FY/Period' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC3_PART_B)"
+  },
+  {
+    "table": "CIMS_ALE_Q_SEC_2A",
+    "question": "What are the off-balance sheet exposures for domestic operations, credit equivalent from ale?",
+    "sql": "SELECT CR_EQV_DOM AS total_credit_equivalent_domestic FROM CIMS_ALE_Q_SEC_2A WHERE CONTRACTS = 'Total OBS Exposure' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_ALE_Q_SEC_2A)"
   }
 ]

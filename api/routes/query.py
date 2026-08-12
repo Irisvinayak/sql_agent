@@ -139,9 +139,11 @@ def run_text_query(body: QueryRequest):
     # Retrieval runs wide (SHORTLIST_K) for recall; the selector below narrows it
     # to the one table that goes in the prompt. Handing the whole shortlist to the
     # SQL model is what produced the fabricated-join failures.
-    tables, columns, matched_labels, qa_example = get_relevant_schema(
+    retrieval = get_relevant_schema(
         q, query_vec=query_vec, shortlist_k=config.SHORTLIST_K,
     )
+    tables, columns = retrieval.tables, retrieval.columns
+    matched_labels, qa_example = retrieval.matched_labels, retrieval.qa_example
     _mark("retrieval")
     log.info("SHORTLIST: %s", [t["table"] for t in tables])
     log.info("COLUMNS : %s", [f"{c['table']}.{c['column']}" for c in columns])
@@ -192,8 +194,11 @@ def run_text_query(body: QueryRequest):
     source = "llm_generated"
     match_score = max(qa_example["text_similarity"], qa_example["token_similarity"]) if qa_example else None
 
-    # Step 3 — validation
-    is_valid, reason = validate_sql(sql, tables, columns)
+    # Step 3 — validation. generate_sql() already ran this exact SQL through
+    # validate_sql() (and an Oracle dry-run) as the last step of its own
+    # retry loop and returns the result — reuse it instead of re-running the
+    # same regex checks a second time on SQL that was just validated.
+    is_valid, reason = result.get("is_valid"), result.get("validation_reason")
     _mark("validation")
     log.info("VALID   : %s  reason=%s", is_valid, reason)
 
@@ -222,4 +227,5 @@ def run_text_query(body: QueryRequest):
         source=source,
         match_score=match_score,
         timings_ms=timings_ms,
+        warnings=result.get("warnings", []),
     )

@@ -6,8 +6,8 @@ __pycache__/
 .Python
 
 # Vector indexes (binary, rebuilt via python embedding_building/main.py)
-embedding_building/output/*.faiss
-embedding_building/output/*.pkl
+# embedding_building/output/*.faiss
+# embedding_building/output/*.pkl
 
 # Frontend
 frontend/node_modules/
@@ -30,3 +30,8 @@ Thumbs.db
 # from here) but not shared state. Nothing in the pipeline reads this directory —
 # scratch/sql_generation_context_report.md predates the rule and stays tracked.
 scratch/
+
+# Audit/cleanup reports (architecture, retrieval, accuracy, dead-code, latency,
+# ALE readiness, technical debt, progress tracker, roadmap). Local analysis
+# output, not shared state — nothing in the pipeline reads this directory.
+report/

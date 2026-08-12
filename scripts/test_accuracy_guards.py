@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src import config
 from src.description_fetcher import load_samples
-from src.retriever import get_relevant_schema
+from src.retriever import compute_query_embedding, get_relevant_schema
 from src.semantic_layer import clear_cache, load_join_graph
 from src.sql_generator import (
     _load_table_entries,
@@ -27,7 +27,7 @@ from src.sql_generator import (
     build_table_ddl,
     validate_sql,
 )
-from src.selector import _parse_compact, _parse_selection, _validate_selection, select_tables
+from src.selector import _declared_join_selection, select_tables
 
 _failures = []
 _passed = 0
@@ -198,96 +198,48 @@ check("autocorrect unwraps the SUM()", corrected is not None and "sum(" not in (
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-section("5. Selector narrows, and fails open to top-1")
+section("5. Selector narrows deterministically, no LLM call, fails open to top-1")
 
 shortlist = _tables("cims_raq_q_sec2_part_a", "cims_raq_q_sec10", "cims_raq_q_sec1_part_a_dom")
 for i, t in enumerate(shortlist):
     t["score"] = 1.0 - i * 0.05           # deliberately close, so no dominance short-circuit
 
-# A near-duplicate prior question skips the LLM entirely.
+# A near-duplicate prior question skips everything and picks that table.
 strong = [{"table": "cims_raq_q_sec2_part_a", "strong_match": True}] + shortlist[1:]
 selected, selection = select_tables("anything", strong)
 check("strong QA match short-circuits to 1 table", len(selected) == 1 and selection is None)
 
-# Dominant retrieval score also skips the call.
+# Dominant retrieval score also short-circuits to top-1.
 dominant = [{"table": "cims_raq_q_sec2_part_a", "score": 1.0},
             {"table": "cims_raq_q_sec10", "score": 0.2}]
 selected, selection = select_tables("anything", dominant)
 check("dominant score short-circuits to 1 table", len(selected) == 1 and selection is None)
 
-# Parsing tolerates prose around the JSON object.
-check("selector JSON is recovered from surrounding prose",
-      _parse_selection('sure! {"tables":[{"table":"T"}],"join":null} hope that helps')
-      == {"tables": [{"table": "T"}], "join": None})
-check("unparseable selector output yields None", _parse_selection("no json here") is None)
+# Ambiguous shortlist (no dominance, no strong match) with no declared join
+# between the top-2 falls open to top-1 — never guesses a second table.
+selected, selection = select_tables("anything", shortlist, join_graph=load_join_graph())
+check("ambiguous shortlist with no declared top-2 join falls back to top-1",
+      len(selected) == 1 and selected[0]["table"] == shortlist[0]["table"] and selection is None,
+      f"got {[t['table'] for t in selected]}")
 
-# Compact format — the default, chosen because JSON output is measurably slower.
-compact = _parse_compact(
-    "TABLE: CIMS_RAQ_Q_SEC1_PART_A_DOM\n"
-    "COLUMNS: PERIOD_DELINQUENCY, TOTAL_LOAN_ASSETS\n"
-    "WHY: holds loan assets by delinquency period\n"
-    "JOIN: none"
-)
-check("compact format parses table and columns",
-      compact is not None
-      and compact["tables"][0]["table"] == "CIMS_RAQ_Q_SEC1_PART_A_DOM"
-      and [c["name"] for c in compact["tables"][0]["columns"]]
-          == ["PERIOD_DELINQUENCY", "TOTAL_LOAN_ASSETS"],
-      f"got {compact}")
-check("compact 'JOIN: none' becomes no join", compact is not None and compact["join"] is None)
+# _declared_join_selection: a table outside a declared pair yields nothing.
+outside = _declared_join_selection(shortlist, join_graph=load_join_graph())
+check("no declared join among these top-2 tables", outside is None, f"got {outside}")
 
-two_table = _parse_compact("TABLE: A\nCOLUMNS: x\nJOIN: A.CODE = B.CODE\nTABLE: B\nCOLUMNS: y")
-check("repeated TABLE: lines parse as two tables",
-      two_table is not None and len(two_table["tables"]) == 2 and two_table["join"],
-      f"got {two_table}")
-check("prose with no TABLE: line yields None, so JSON parsing can be tried",
-      _parse_compact("I think you want the loans table") is None)
-
-# A table outside the shortlist is dropped.
-outside = _validate_selection(
-    {"tables": [{"table": "some_table_that_does_not_exist", "columns": []}]},
-    shortlist,
-)
-check("table outside the shortlist is rejected", outside is None, f"got {outside}")
-
-# A column that does not exist on the chosen table is dropped, table kept.
-sel = _validate_selection(
-    {"tables": [{"table": "cims_raq_q_sec2_part_a", "why": "x",
-                 "columns": [{"name": "risk_category", "why": "a"},
-                             {"name": "totally_made_up_column", "why": "b"}]}]},
-    shortlist,
-)
-check("nonexistent column pruned from selection",
-      sel is not None and [c["name"] for c in sel["tables"][0]["columns"]] == ["risk_category"],
-      f"got {sel}")
-
-# An undeclared join drops the second table rather than being passed through.
-sel = _validate_selection(
-    {"tables": [{"table": "cims_raq_q_sec2_part_a", "columns": [{"name": "risk_category"}]},
-                {"table": "cims_raq_q_sec10", "columns": [{"name": "description"}]}],
-     "join": "a.CODE = b.CODE AND a.RDATE = b.RDATE"},
-    shortlist,
-    join_graph=load_join_graph(),
-)
-check("undeclared join collapses to one table",
-      sel is not None and len(sel["tables"]) == 1 and sel["join_hint"] is None,
-      f"got {sel}")
-
-# A declared join survives, with the declared condition (not the model's).
+# A declared join between the top-2 candidates is picked up automatically,
+# with the SEMANTIC LAYER's condition (never an invented one — there is no
+# model output to invent one from anymore).
 declared_shortlist = _tables(*declared_pair)
 for i, t in enumerate(declared_shortlist):
-    t["score"] = 1.0 - i * 0.05
-sel = _validate_selection(
-    {"tables": [{"table": declared_pair[0], "columns": [{"name": "total_loan_assets"}]},
-                {"table": declared_pair[1], "columns": [{"name": "total_loan_assets"}]}],
-     "join": "whatever the model felt like"},
-    declared_shortlist,
-    join_graph=load_join_graph(),
-)
-check("declared join is kept and uses the declared condition",
-      sel is not None and len(sel["tables"]) == 2
-      and sel["join_hint"] and "CODE" in sel["join_hint"] and "RDATE" in sel["join_hint"],
-      f"got {sel}")
+    t["score"] = 1.0 - i * 0.05           # close scores, no dominance short-circuit
+selected, selection = select_tables("anything", declared_shortlist, join_graph=load_join_graph())
+check("declared join between top-2 candidates selects both tables",
+      selection is not None and len(selected) == 2,
+      f"got {[t['table'] for t in selected]}")
+check("declared join's hint carries the declared condition",
+      selection is not None and selection.get("join_hint")
+      and "CODE" in selection["join_hint"] and "RDATE" in selection["join_hint"],
+      f"got {selection}")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -340,7 +292,7 @@ _SECTION_CASES = [
 ]
 
 for _question, _want in _SECTION_CASES:
-    _tables_out, *_ = get_relevant_schema(_question, shortlist_k=config.SHORTLIST_K)
+    _tables_out = get_relevant_schema(_question, shortlist_k=config.SHORTLIST_K).tables
     _got = _tables_out[0]["table"] if _tables_out else None
     check(f"rank-0 table for: {_question[:44]}",
           (_got or "").lower() == _want.lower(),
@@ -348,12 +300,12 @@ for _question, _want in _SECTION_CASES:
 
 # A section number that exists in the question but not in this build must be
 # ignored rather than emptying the shortlist.
-_unknown, *_ = get_relevant_schema("show me section 99 data", shortlist_k=config.SHORTLIST_K)
+_unknown = get_relevant_schema("show me section 99 data", shortlist_k=config.SHORTLIST_K).tables
 check("unknown section number falls back to normal retrieval", len(_unknown) > 0)
 
 # "Section 12" alone cannot distinguish misc / t2 / t3 / t4 — retrieval should
 # stay INSIDE section 12 rather than guessing one, or leaking other sections in.
-_ambig, *_ = get_relevant_schema("show me section 12 data", shortlist_k=config.SHORTLIST_K)
+_ambig = get_relevant_schema("show me section 12 data", shortlist_k=config.SHORTLIST_K).tables
 check("ambiguous section scopes to that section only",
       len(_ambig) > 0 and all("sec_12" in t["table"].lower() for t in _ambig),
       f"got {[t['table'] for t in _ambig]}")
@@ -433,6 +385,15 @@ if _cm.get("metrics"):
                   f"WHERE RDATE = (SELECT MAX(RDATE) FROM {_stock_tbl})", _targ))
         check("plain SELECT of a stock does not warn",
               not check_stock_aggregation(f"SELECT {_stock_col} FROM {_stock_tbl}", _targ))
+        # Regression guard for a live-model bug: SQLCoder produced
+        # `RDATE <= (SELECT MAX(RDATE) FROM t)` for "across all reporting
+        # quarters" — spans every period up to the max, the OPPOSITE of
+        # pinning to one — and the previous check's bare "max(rdate)"
+        # substring match let it through with no warning.
+        check("SUM of a stock spanning ALL periods (RDATE <=) still warns",
+              check_stock_aggregation(
+                  f"SELECT SUM({_stock_col}) FROM {_stock_tbl} "
+                  f"WHERE RDATE <= (SELECT MAX(RDATE) FROM {_stock_tbl})", _targ))
 
     # ── the level switch must actually gate output ───────────────────────────
     _saved = config.BUSINESS_SEMANTICS_LEVEL
@@ -470,6 +431,131 @@ if _cm.get("metrics"):
               _bs.build_block("anything", "NO_SUCH_TABLE", {}) == "")
     finally:
         config.BUSINESS_SEMANTICS_LEVEL = _saved
+
+
+section("9. Hallucinated-literal check (src/literal_validator.py)")
+# Confirmed live-model bug: SQLCoder generated
+# `WHERE INDUSTRY_NAME = 'Infrastructure Breakdown'`, which is not one of the
+# real stored INDUSTRY_NAME values on CIMS_RAQ_Q_SEC8_INFRA_BRKUP. The SQL
+# validated and executed cleanly and silently returned 0 rows.
+
+from src.literal_validator import check_literal_validity
+
+_lit_tbl = "cims_raq_q_sec8_infra_brkup"
+_lit_samples = load_samples().get(_lit_tbl, {})
+check("description_samples.json has industry_name values for the infra table",
+      bool(_lit_samples.get("industry_name")))
+
+if _lit_samples.get("industry_name"):
+    _real_value = _lit_samples["industry_name"][0]
+    _lit_targ = [{"table": _lit_tbl}]
+
+    check("a real stored value does not warn",
+          not check_literal_validity(
+              f"SELECT SUM(ACTUAL_RECOVERIES) FROM {_lit_tbl} "
+              f"WHERE INDUSTRY_NAME = '{_real_value}'", _lit_targ),
+          _real_value)
+
+    # The exact hallucinated literal reproduced live this session.
+    check("the reproduced hallucinated literal warns",
+          check_literal_validity(
+              f"SELECT SUM(ACTUAL_RECOVERIES) FROM {_lit_tbl} "
+              f"WHERE INDUSTRY_NAME = 'Infrastructure Breakdown'", _lit_targ))
+
+    # A value needing TRIM() normalization still matches if the trimmed form
+    # is a real stored value — no false positive from surrounding whitespace.
+    check("a padded value wrapped in TRIM() does not warn",
+          not check_literal_validity(
+              f"SELECT SUM(ACTUAL_RECOVERIES) FROM {_lit_tbl} "
+              f"WHERE TRIM(INDUSTRY_NAME) = '  {_real_value}  '", _lit_targ),
+          repr(_real_value))
+
+    check("an untracked column is skipped, not flagged",
+          not check_literal_validity(
+              f"SELECT * FROM {_lit_tbl} WHERE SOME_UNTRACKED_COL = 'anything'",
+              _lit_targ))
+
+    check("a table with no tracked samples at all is skipped, not flagged",
+          not check_literal_validity(
+              "SELECT * FROM NO_SUCH_TABLE WHERE INDUSTRY_NAME = 'anything'",
+              [{"table": "NO_SUCH_TABLE"}]))
+
+
+section("10. QA-bonus prune-floor fix (src/retriever.py)")
+# Bug: RELATIVE_FLOOR used to be computed off the POST-bonus top score, so a
+# confident QA match (bonus up to ~1.25, vs typical fused scores of 0.05-0.4)
+# inflated the reference every OTHER table's prune floor was measured
+# against, silently dropping genuinely relevant tables before the selector
+# ever saw them. Fixed by snapshotting the floor reference pre-bonus.
+#
+# A question near-identical to a qa_pairs.json entry triggers the QA bonus.
+# Widen shortlist_k so pruning, not top-k truncation, is what's being
+# observed — the fix can only ADMIT tables the old floor excluded, never
+# exclude ones it admitted, so this comparison is structurally one-directional.
+_qa_bonus_q = "What is the total SLR investment for RAQ?"
+_qa_vec = compute_query_embedding(_qa_bonus_q)
+
+_saved_fix_flag = config.QA_BONUS_FLOOR_FIX
+try:
+    config.QA_BONUS_FLOOR_FIX = 0
+    _old_tables = {t["table"] for t in
+                   get_relevant_schema(_qa_bonus_q, query_vec=_qa_vec, shortlist_k=50).tables}
+
+    config.QA_BONUS_FLOOR_FIX = 1
+    _new_tables = {t["table"] for t in
+                   get_relevant_schema(_qa_bonus_q, query_vec=_qa_vec, shortlist_k=50).tables}
+
+    check("fixed floor never excludes a table the old floor admitted",
+          _old_tables <= _new_tables,
+          f"lost: {_old_tables - _new_tables}")
+    check("fixed floor admits at least as many tables as the old floor",
+          len(_new_tables) >= len(_old_tables),
+          f"old={len(_old_tables)} new={len(_new_tables)}")
+finally:
+    config.QA_BONUS_FLOOR_FIX = _saved_fix_flag
+
+
+section("11. Correction-retry loop stops on a repeated identical mistake (src/sql_generator.py)")
+# Bug: without failed-attempt memory, a retry round rebuilds its prompt purely
+# from the CURRENT raw/reason, so if the model reproduces the exact same wrong
+# SQL, every remaining round repeats it too — pure wasted latency (75-135s+
+# per Ollama round observed against this backend) with zero chance of
+# eventual success. Mocks the Ollama HTTP call to always return the same
+# hallucinated-table SQL, so the loop is guaranteed to never validate; the fix
+# should stop after the FIRST retry reproduces attempt 0's SQL verbatim,
+# rather than burning all MAX_CORRECTION_RETRIES rounds on a guaranteed repeat.
+import unittest.mock as _mock
+from src.sql_generator import generate_sql as _generate_sql, MAX_CORRECTION_RETRIES as _MAX_RETRIES
+
+_HALLUCINATED_SQL = "SELECT * FROM TOTALLY_MADE_UP_TABLE_XYZ"
+
+
+class _FakeResponse:
+    def raise_for_status(self):
+        pass
+
+    def iter_lines(self):
+        import json as _json
+        yield _json.dumps({"response": _HALLUCINATED_SQL, "done": True}).encode()
+
+
+_real_tables = [{"table": "CIMS_RAQ_Q_SEC10"}]
+_real_columns = []
+
+with _mock.patch("src.sql_generator.requests.post", return_value=_FakeResponse()) as _post_mock, \
+     _mock.patch("src.executor.dry_run_sql", return_value=(True, None)):
+    _result = _generate_sql("What is the total for section 10?", _real_tables, _real_columns)
+
+# 1 first_attempt call + however many retries actually ran before the fix
+# would stop early on the repeat vs. always running the full budget.
+_calls_made = _post_mock.call_count
+check("correction loop stops after the first repeated-SQL round, not the full retry budget",
+      _calls_made < 1 + _MAX_RETRIES,
+      f"calls made={_calls_made} (1 first_attempt + up to {_MAX_RETRIES} retries)")
+check("the final SQL returned is still the hallucinated one (no silent corruption)",
+      _result.get("sql", "").strip() == _HALLUCINATED_SQL)
+check("a warning is present explaining the invalid SQL",
+      any("invalid" in w.lower() or "hallucinat" in w.lower() for w in _result.get("warnings", [])))
 
 
 # ══════════════════════════════════════════════════════════════════════════════

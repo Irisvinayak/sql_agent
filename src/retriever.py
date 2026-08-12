@@ -1,13 +1,68 @@
+import logging
 import os
 import re
+import time
 import difflib
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from typing import Literal
+
 import faiss
 import pickle
 import numpy as np
 from src.vectorizer import embed_query
 from src.section_alias import detect_section_reference
+from src.lexical_search import search_bm25
 import src.config as config
 from src.config import TOP_K_TABLES, TOP_K_COLUMNS
+
+
+@dataclass
+class ColumnBinding:
+    """
+    A concept-index hit's OWN column payload, carried forward as a typed
+    binding rather than discarded at fusion time. Phase 1 retrieval-accuracy
+    roadmap, Section 5 ("concept binding promotion").
+
+    Before this existed, `search_concepts()` returned (score, meta) pairs where
+    meta already carried a `column` field (set in
+    build_concept_embeddings.py's concept_documents()) — but the fusion loop
+    below only ever read meta["table"] to vote, and the column was re-derived
+    LATER, lexically, via concept_map.py's rank_metrics() token-overlap pass,
+    after a table had already been chosen. That re-derivation is strictly
+    weaker than the embedding-similarity match the concept index itself found.
+    This class is what lets a caller (the Context Resolver, or anything else
+    building the SQL prompt) use the FIRST, stronger signal instead.
+    """
+    table: str
+    column: str
+    concept_id: str
+    concept_label: str
+    confidence: float
+    source: Literal["concept_semantic", "concept_lexical", "qa_example", "bm25_literal"]
+    is_certain: bool
+
+
+@dataclass
+class RetrievalResult:
+    """
+    Return type of get_relevant_schema(), replacing a positional 4-tuple.
+
+    Deliberately NOT a NamedTuple/plain tuple: every existing call site
+    unpacks the old 4-tuple by position (`tables, columns, matched_labels,
+    qa_example = get_relevant_schema(...)`), so adding a 5th field to a tuple
+    would either silently shift meaning (if a caller used `*_` to swallow
+    extras, harmless) or break loudly with "too many values to unpack" (every
+    exact-4 unpack site) — a deliberate choice per the Phase 1 roadmap: a
+    non-iterable object makes EVERY old call site fail at the assignment line
+    with an unambiguous TypeError, rather than some sites failing loudly and
+    others (the `*_` ones) silently reading a stale shape.
+    """
+    tables: list
+    columns: list
+    matched_labels: list
+    qa_example: dict | None
+    concept_bindings: list = field(default_factory=list)
 
 TOP_K_LABELS = 10   # max row-label values to retrieve per query
 
@@ -181,35 +236,17 @@ def find_exact_qa_match(query: str, query_vec=None):
 
 
 # ── Banking / CIMS domain abbreviation expansion ──────────────────────────────
-_QUERY_EXPANSIONS = [
-    (r'\bnpa\b',    'NPA non performing assets'),
-    (r'\bgnpa\b',   'gross NPA non performing assets GNPA'),
-    (r'\bnnpa\b',   'net NPA non performing assets NNPA'),
-    (r'\bsma\b',    'special mention accounts SMA'),
-    (r'\bcar\b',    'capital adequacy ratio CAR'),
-    (r'\bpcr\b',    'provision coverage ratio PCR'),
-    (r'\brwa\b',    'risk weighted assets RWA'),
-    (r'\bslr\b',    'statutory liquidity ratio SLR'),
-    (r'\bcrr\b',    'cash reserve ratio CRR'),
-    (r'\bpsl\b',    'priority sector lending PSL'),
-    (r'\braq\b',    'Risk Assessment Questionnaire RAQ CIMS'),
-    (r'\bcims\b',   'CIMS banking supervisory return'),
-    (r'\bsec(\d+)\b', r'section \1'),
-    (r'\bdom\b',    'domestic'),
-    (r'\bove\b',    'overseas'),
-    (r'\binfra\b',  'infrastructure'),
-    (r'\bsensec\b', 'sensitive sector'),
-    (r'\bparta\b',  'part A'),
-    (r'\bpartb\b',  'part B'),
-]
+# Delegates to src/business_dictionary.py, the single place this expansion list
+# now lives (embedding_building/business_dictionary.yaml is the data source).
+# Was a hardcoded regex list inline here; moved out so BM25
+# (src/lexical_search.py) and any future signal expand the SAME way instead of
+# each forking their own copy — see src/query_rewrite.py's module docstring.
+from src.business_dictionary import detect_pinned_table, expand_acronyms
 
 
 def _expand_query(query: str) -> str:
     """Expand banking abbreviations so the embedding model understands them."""
-    q = query
-    for pattern, replacement in _QUERY_EXPANSIONS:
-        q = re.sub(pattern, replacement, q, flags=re.IGNORECASE)
-    return q
+    return expand_acronyms(query)
 
 
 def _dynamic_top_k(query: str) -> int:
@@ -273,6 +310,9 @@ def search(index_path, meta_path, query_vec, k, min_score=0.0):
         if idx != -1 and dist >= min_score:
             results.append((float(dist), meta[idx]))
     return results   # list of (score, meta_dict)
+
+
+log = logging.getLogger("retriever")
 
 
 def _rrf(rank: int, k: int = 60) -> float:
@@ -360,39 +400,80 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     effective_k = shortlist_k if shortlist_k else top_k
     embedding_dir = config.EMBEDDING_DIR
 
-    # ── Signal A: direct table semantic search ────────────────────────────────
-    table_hits = search(
-        f"{embedding_dir}/table_index.faiss", f"{embedding_dir}/table_meta.pkl",
-        query_vec, top_k * 3, min_score=MIN_TABLE_SCORE,
-    )
-
-    # ── Signal B: column search → which tables do best columns belong to? ─────
-    col_hits = search(
-        f"{embedding_dir}/column_index.faiss", f"{embedding_dir}/column_meta.pkl",
-        query_vec, TOP_K_COLUMNS * 6, min_score=MIN_COLUMN_SCORE,
-    )
-
-    # ── Signal C: row-label search → which tables do best labels belong to? ───
+    # ── Signals A-G: 7 independent FAISS/BM25 searches ─────────────────────────
+    # Each signal only reads an already-loaded, cached index (see _get_index)
+    # and the single query_vec computed above — there is no cross-signal
+    # dependency, so they used to run one after another for no reason. Run
+    # them concurrently via a thread pool instead: FAISS's native search()
+    # releases the GIL, and disabled signals (weight 0) are cheap no-op
+    # lambdas so the pool overhead never dominates. Per-signal timing is
+    # logged so a slow signal shows up without re-instrumenting later.
     from src.description_fetcher import search_labels_with_scores
-    label_hits = search_labels_with_scores(query_vec, top_k=TOP_K_LABELS * 3)
 
-    # ── Signal D: question→SQL example search (test/qa_index.faiss, optional) ─
-    # Weight 0 removes this signal entirely — the search, the fusion votes, the
-    # score bonus and the strong-match tier — so retrieval can be measured on
-    # qa_pairs.json without the index leaking its own answers back in.
     qa_weight = config.QA_SIGNAL_WEIGHT
-    qa_hits = search_qa(query_vec, top_k=top_k * 3) if qa_weight else []
-
-    # ── Signal E: XBRL business-concept search → concept's mapped table ───────
-    # Weight 0 disables the signal entirely (no search, no fusion) so the two
-    # XBRL signals can be A/B'd against the pre-integration ranking without
-    # rebuilding or moving any index file.
     concept_weight = config.CONCEPT_SIGNAL_WEIGHT
     member_weight = config.MEMBER_SIGNAL_WEIGHT
-    concept_hits = search_concepts(query_vec, top_k=top_k * 3) if concept_weight else []
+    bm25_weight = config.BM25_SIGNAL_WEIGHT
 
-    # ── Signal F: XBRL dimension-member search → tables using that axis ───────
-    member_hits = search_members(query_vec, top_k=TOP_K_LABELS) if member_weight else []
+    def _timed(name, fn):
+        def _run():
+            t0 = time.perf_counter()
+            result = fn()
+            log.info("[TIMING] retrieval signal %s = %.1fms", name,
+                      (time.perf_counter() - t0) * 1000)
+            return result
+        return _run
+
+    signal_jobs = {
+        # ── Signal A: direct table semantic search ─────────────────────────
+        "A_table": _timed("A_table", lambda: search(
+            f"{embedding_dir}/table_index.faiss", f"{embedding_dir}/table_meta.pkl",
+            query_vec, top_k * 3, min_score=MIN_TABLE_SCORE,
+        )),
+        # ── Signal B: column search → which tables do best columns belong to? ─
+        "B_column": _timed("B_column", lambda: search(
+            f"{embedding_dir}/column_index.faiss", f"{embedding_dir}/column_meta.pkl",
+            query_vec, TOP_K_COLUMNS * 6, min_score=MIN_COLUMN_SCORE,
+        )),
+        # ── Signal C: row-label search → which tables do best labels belong to? ─
+        "C_label": _timed("C_label", lambda: search_labels_with_scores(
+            query_vec, top_k=TOP_K_LABELS * 3,
+        )),
+        # ── Signal D: question→SQL example search (test/qa_index.faiss, optional) ─
+        # Weight 0 removes this signal entirely — the search, the fusion votes,
+        # the score bonus and the strong-match tier — so retrieval can be
+        # measured on qa_pairs.json without the index leaking its own answers
+        # back in.
+        "D_qa": _timed("D_qa", lambda: search_qa(query_vec, top_k=top_k * 3) if qa_weight else []),
+        # ── Signal E: XBRL business-concept search → concept's mapped table ────
+        # Weight 0 disables the signal entirely (no search, no fusion) so the
+        # two XBRL signals can be A/B'd against the pre-integration ranking
+        # without rebuilding or moving any index file.
+        "E_concept": _timed("E_concept", lambda: search_concepts(query_vec, top_k=top_k * 3) if concept_weight else []),
+        # ── Signal F: XBRL dimension-member search → tables using that axis ────
+        "F_member": _timed("F_member", lambda: search_members(query_vec, top_k=TOP_K_LABELS) if member_weight else []),
+        # ── Signal G: BM25 lexical search → exact-term table match ─────────────
+        # Takes the RAW query text (BM25 does its own tokenization internally
+        # via src/business_dictionary.py's expand_acronyms, applied identically
+        # on the document side by build_bm25_index.py) — not query_vec, which
+        # is an embedding and meaningless to a lexical scorer.
+        "G_bm25": _timed("G_bm25", lambda: search_bm25(query, top_k=top_k * 3) if bm25_weight else []),
+    }
+
+    _signal_t0 = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=len(signal_jobs)) as pool:
+        futures = {name: pool.submit(job) for name, job in signal_jobs.items()}
+        signal_results = {name: fut.result() for name, fut in futures.items()}
+    log.info("[TIMING] retrieval signals A-G total (parallel) = %.1fms",
+              (time.perf_counter() - _signal_t0) * 1000)
+
+    table_hits = signal_results["A_table"]
+    col_hits = signal_results["B_column"]
+    label_hits = signal_results["C_label"]
+    qa_hits = signal_results["D_qa"]
+    concept_hits = signal_results["E_concept"]
+    member_hits = signal_results["F_member"]
+    bm25_hits = signal_results["G_bm25"]
     # Best single QA match, re-ranked by text/token overlap rather than raw
     # embedding rank — see _rerank_qa_hits docstring. Used below wherever ONE
     # winning hit is picked (bonus, strong-match, few-shot example); RRF
@@ -479,9 +560,30 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     # SEC1_PART_A_DOM held four weaker hits ('Loans', 'Overdraft and cash
     # credits', ...) and won the sum. Best-hit scoring fixes that without
     # weakening the signal where it is right.
+    # concept_bindings is built from the SAME loop but is NOT subject to
+    # CONCEPT_MAX_HITS_PER_TABLE — that cap exists only to stop weak sibling
+    # hits from winning the table VOTE (see the measured "inter-bank assets"
+    # case above); it has nothing to do with how many candidate column
+    # bindings a downstream consumer (the Context Resolver) might reasonably
+    # want to consider for a table once it IS selected. Different consumer,
+    # different tolerance for multiple candidates — see ColumnBinding's
+    # docstring.
+    concept_bindings: list[ColumnBinding] = []
     concept_hits_used: dict[str, int] = {}
-    for _, cp in concept_hits:
+    for score, cp in concept_hits:
         tbl = _norm(cp["table"])
+        if cp.get("column"):
+            from src.concept_map import metrics_for_table
+            is_certain = False
+            for m in metrics_for_table(cp["table"]):
+                if m.get("concept_id") == cp.get("concept_id"):
+                    is_certain = bool(m.get("row_code_selects_metric"))
+                    break
+            concept_bindings.append(ColumnBinding(
+                table=cp["table"], column=cp["column"],
+                concept_id=cp.get("concept_id", ""), concept_label=cp.get("label", ""),
+                confidence=score, source="concept_semantic", is_certain=is_certain,
+            ))
         used = concept_hits_used.setdefault(tbl, 0)
         if used >= config.CONCEPT_MAX_HITS_PER_TABLE:
             continue
@@ -507,6 +609,71 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
                 all_table_meta[tbl] = {"table": tbl_raw}
                 scores[tbl] = _rrf(rank) * member_weight
 
+    # Signal G weight = config.BM25_SIGNAL_WEIGHT, default 1.5 (same tier as
+    # column_index: a precision signal on exact terms). Accumulates a vote per
+    # hit, like signals A/B/C/D — BM25 hits are genuine evidence (more matching
+    # terms means more relevant), unlike the concept signal's best-hit-only
+    # scoring, which exists because a concept hit is an ANSWER, not evidence.
+    bm25_table_seen: dict[str, int] = {}
+    for _, bt in bm25_hits:
+        tbl = _norm(bt["table"])
+        rank = bm25_table_seen.setdefault(tbl, 0)
+        bm25_table_seen[tbl] += 1
+        if tbl in scores:
+            scores[tbl] += _rrf(rank) * bm25_weight
+        else:
+            all_table_meta[tbl] = {"table": bt["table"]}
+            scores[tbl] = _rrf(rank) * bm25_weight
+
+    # ── Hybrid calibration term (addresses RRF's rank-only blindness) ─────────
+    # RRF discards magnitude: a near-exact match (raw score 0.95) and a
+    # mediocre one (0.81) vote almost identically if they land at the same
+    # rank. This is why the QA-match bonus above exists as a hand-tuned patch;
+    # HYBRID_BLEND_GAMMA is a general replacement for that PATTERN — a small
+    # additive term scaled by how strong each table's single best raw score
+    # was, normalised within its own signal's hit list so a BM25 score (0-20+)
+    # and a cosine score (0-1) are never compared on raw magnitude directly.
+    # gamma=0.0 (the default) makes this entire block a no-op — byte-identical
+    # to pre-Phase-1 fusion.
+    if config.HYBRID_BLEND_GAMMA:
+        def _normalized_top_raw(hit_lists):
+            """{table: 0..1} — this table's best raw score in this signal,
+            min-max normalised against the FULL range of scores this signal
+            returned (not against other signals, which use unrelated scales)."""
+            best_raw: dict[str, float] = {}
+            for _, meta in hit_lists:
+                tbl = _norm(meta["table"])
+                sc = meta.get("_raw_score")
+                if sc is None:
+                    continue
+                if tbl not in best_raw or sc > best_raw[tbl]:
+                    best_raw[tbl] = sc
+            if not best_raw:
+                return {}
+            lo, hi = min(best_raw.values()), max(best_raw.values())
+            if hi <= lo:
+                return {t: 1.0 for t in best_raw}
+            return {t: (v - lo) / (hi - lo) for t, v in best_raw.items()}
+
+        # Reattach each hit's own raw score into its meta for the helper above
+        # (search() results are (score, meta) pairs — the score lives outside
+        # meta, so pair them back together here rather than mutate `search()`'s
+        # contract for every caller).
+        def _with_raw(hits):
+            return [(sc, {**meta, "_raw_score": sc}) for sc, meta in hits]
+
+        normalized_per_signal = [
+            _normalized_top_raw(_with_raw(table_hits)),
+            _normalized_top_raw(_with_raw(col_hits)),
+            _normalized_top_raw(_with_raw(label_hits)),
+            _normalized_top_raw(_with_raw(qa_hits)),
+            _normalized_top_raw(_with_raw(concept_hits)),
+            _normalized_top_raw(_with_raw(bm25_hits)),
+        ]
+        for tbl in scores:
+            best_normalized = max((d.get(tbl, 0.0) for d in normalized_per_signal), default=0.0)
+            scores[tbl] += config.HYBRID_BLEND_GAMMA * best_normalized
+
     # RRF only considers rank, not raw similarity magnitude — so a near-exact
     # paraphrase match (e.g. 0.895) and a mediocre one (e.g. 0.866) get almost
     # the same vote if they land at rank 0 vs rank 1. In this schema, table
@@ -518,6 +685,16 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     # by how far above the "trustworthy example" bar it scores, so a
     # confident question match can override a crowd of similarly-scored but
     # actually-unrelated tables instead of being diluted into one more vote.
+    # Snapshot the fused score BEFORE the QA bonus below can inflate it. Bug
+    # fix: RELATIVE_FLOOR used to be computed off the post-bonus top score, so
+    # a confident QA match (bonus up to ~1.25, vs typical fused scores of
+    # 0.05-0.4) inflated the reference every OTHER table's prune floor was
+    # measured against, silently dropping genuinely relevant tables (e.g. a
+    # join partner for a "compare X vs Y" question) before the selector ever
+    # saw them. The bonus's effect on final ranking/inclusion is untouched —
+    # only the floor's reference point changes. See config.QA_BONUS_FLOOR_FIX.
+    pre_bonus_top = max(scores.values()) if scores else 0.0
+
     if qa_hits_ranked:
         top_qa_score, top_qa = qa_hits_ranked[0]
         if top_qa_score >= QA_EXAMPLE_MIN_SCORE:
@@ -534,8 +711,17 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     ranked_all = sorted(scores, key=scores.__getitem__, reverse=True)
     if ranked_all:
         top_score = scores[ranked_all[0]]
+        # pre_bonus_top can be 0.0 if `scores` started empty and the only entry
+        # came from the QA bonus itself (bonus_tbl wasn't previously in
+        # scores) — fall back to the post-bonus top score rather than a zero
+        # floor in that edge case, matching pre-fix behaviour for the one
+        # table that IS the QA hit.
+        if config.QA_BONUS_FLOOR_FIX and pre_bonus_top > 0.0:
+            floor_reference = pre_bonus_top
+        else:
+            floor_reference = top_score
         RELATIVE_FLOOR = 0.15  # keep tables scoring at least this fraction of the top hit
-        ranked = [t for t in ranked_all if scores[t] >= top_score * RELATIVE_FLOOR][:effective_k]
+        ranked = [t for t in ranked_all if scores[t] >= floor_reference * RELATIVE_FLOOR][:effective_k]
     else:
         ranked = []
     # Copy the meta dicts rather than annotating them in place — they come from
@@ -564,6 +750,21 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
             tables.insert(0, {"table": strong_table, "strong_match": True})
             if effective_k:
                 tables = tables[:effective_k]
+
+    # A BUSINESS-DICTIONARY ALIAS ("other risk assets and exposures" -> the
+    # table whose real name is sec2_part_b but whose own source-sheet header
+    # reads "Part C") is a harder signal than any embedding score, same tier as
+    # the QA strong-match above — the alias is a curated, validated fact, not a
+    # ranking. Checked BEFORE the explicit-section-reference block below so an
+    # unambiguous, genuinely-different section number (rare, but possible if a
+    # query names one) still has the final say — see business_dictionary.py's
+    # detect_pinned_table docstring for why this precedence is safe.
+    pinned_alias = detect_pinned_table(query)
+    if pinned_alias:
+        tables = [t for t in tables if t["table"].upper() != pinned_alias.upper()]
+        tables.insert(0, {"table": pinned_alias, "alias_match": True})
+        if effective_k:
+            tables = tables[:effective_k]
 
     # An EXPLICIT section reference in the question ("Section 10", "Section 12
     # Misc T4") is a harder signal than any embedding score — the user named the
@@ -621,4 +822,7 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
             "token_similarity": token_similarity(query, qa["question"]),
         }
 
-    return tables, columns, matched_labels, qa_example
+    return RetrievalResult(
+        tables=tables, columns=columns, matched_labels=matched_labels,
+        qa_example=qa_example, concept_bindings=concept_bindings,
+    )

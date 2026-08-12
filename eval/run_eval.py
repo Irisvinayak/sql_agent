@@ -60,7 +60,9 @@ def run(limit=None, table_filter=None, do_exec=True):
         question, gold_table, gold_sql = row["question"], row["table"], row["gold_sql"]
         print(f"[{i}/{len(qa_rows)}] {gold_table} :: {question[:70]}")
 
-        tables, columns, matched_labels, qa_example = get_relevant_schema(question)
+        retrieval = get_relevant_schema(question)
+        tables, columns = retrieval.tables, retrieval.columns
+        matched_labels, qa_example = retrieval.matched_labels, retrieval.qa_example
         matched_table_names = [t["table"] for t in tables]
 
         hit, rank = table_hit(gold_table, matched_table_names)

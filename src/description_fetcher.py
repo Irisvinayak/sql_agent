@@ -1,8 +1,8 @@
 """
 Fetches distinct DESCRIPTION (and ITEM / CATEGORY / MOVEMENT_FROM etc.) values
 from Oracle for tables that use a text column as a row-label identifier.
-Results are saved to output/description_samples.json and injected into the
-LLM prompt so it can write accurate WHERE clauses.
+Results are saved to config.EMBEDDING_DIR/description_samples.json and
+injected into the LLM prompt so it can write accurate WHERE clauses.
 """
 
 import json
@@ -100,9 +100,22 @@ def fetch_and_save(schema_json_path=None):
             table_samples = {}
             for col in label_cols_in_table:
                 try:
+                    # ROWNUM is assigned BEFORE any ORDER BY in a flat query, so
+                    # "...WHERE ROWNUM <= N" alone samples an arbitrary N rows in
+                    # whatever order Oracle's query plan happens to produce —
+                    # not stable across runs/rebuilds. That non-determinism
+                    # showed up as a real bug: re-running this sampler could
+                    # flip which of two near-tied tables' embeddings ranked
+                    # higher for the same question, and could non-deterministically
+                    # include/exclude a whitespace-padded value, changing whether
+                    # build_table_ddl emits a TRIM() hint. Ordering INSIDE the
+                    # subquery, then applying ROWNUM to its already-sorted
+                    # output, makes the sampled set and its order reproducible.
                     cursor.execute(
-                        f"SELECT DISTINCT {col.upper()} FROM {table} "
-                        f"WHERE {col.upper()} IS NOT NULL AND ROWNUM <= :max_rows",
+                        f"SELECT {col.upper()} FROM ("
+                        f"  SELECT DISTINCT {col.upper()} FROM {table} "
+                        f"  WHERE {col.upper()} IS NOT NULL ORDER BY {col.upper()}"
+                        f") WHERE ROWNUM <= :max_rows",
                         {"max_rows": MAX_SAMPLES},
                     )
                     rows = cursor.fetchall()
@@ -150,6 +163,19 @@ def fetch_and_save(schema_json_path=None):
     return samples
 
 
+# Cache of parsed description_samples.json / needs_trim.json contents, keyed
+# by path. Unlike every sibling data source in this codebase (FAISS indexes,
+# BM25 index, concept_map, business_dictionary), these two were re-read and
+# re-parsed from disk on EVERY call — and check_literal_validity() in
+# literal_validator.py calls both on every SQL validation, so a single request
+# (plus every retry) paid for this disk I/O + JSON parse repeatedly even
+# though the underlying file never changes between requests. Cached for the
+# life of the process — a re-fetch (fetch_and_save) needs a restart to be
+# picked up, same caveat as the other module-level caches.
+_needs_trim_cache: dict = {}
+_samples_cache: dict = {}
+
+
 def load_needs_trim(path=None):
     """
     {table: [label_column, ...]} for label columns whose stored values are
@@ -160,22 +186,26 @@ def load_needs_trim(path=None):
     """
     if path is None:
         path = os.path.join(config.EMBEDDING_DIR, "needs_trim.json")
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    if path not in _needs_trim_cache:
+        try:
+            with open(path) as f:
+                _needs_trim_cache[path] = json.load(f)
+        except FileNotFoundError:
+            _needs_trim_cache[path] = {}
+    return _needs_trim_cache[path]
 
 
 def load_samples(path=None):
     """Load previously fetched description samples. Returns {} if file missing."""
     if path is None:
         path = _output_path()
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+    if path not in _samples_cache:
+        try:
+            with open(path) as f:
+                _samples_cache[path] = json.load(f)
+        except FileNotFoundError:
+            _samples_cache[path] = {}
+    return _samples_cache[path]
 
 
 # ──────────────────────────────────────────────────────────────────────────────

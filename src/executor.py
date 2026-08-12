@@ -1,5 +1,10 @@
+import logging
+import time
+
 import oracledb
 from src.config import DB_HOST, DB_PORT, DB_SERVICE, DB_USER, DB_PASSWORD, DB_MAX_ROWS
+
+log = logging.getLogger("executor")
 
 # Previously every get_connection() call opened a brand-new TCP+auth session
 # with Oracle and every execute_query() paid for a second round-trip just to
@@ -61,6 +66,18 @@ def get_accessible_tables() -> set:
 
 
 def dry_run_sql(sql):
+    """Timed wrapper around _dry_run_sql — see that function's docstring.
+    This round-trip previously had no latency visibility of its own; it was
+    folded into whichever caller's [TIMING] block wrapped the whole retry
+    round, so its cost (up to one per generation attempt) was invisible."""
+    t0 = time.perf_counter()
+    try:
+        return _dry_run_sql(sql)
+    finally:
+        log.info("[TIMING] dry_run_sql total_ms=%.1f", (time.perf_counter() - t0) * 1000)
+
+
+def _dry_run_sql(sql):
     """
     Ask Oracle to parse and plan the query without running it.
 
@@ -120,11 +137,21 @@ def execute_query(sql):
     """
     Execute a SELECT query against Oracle DB.
     Returns (columns: list[str], rows: list[tuple], error: str|None)
+
+    Timed in three parts — connect (pool acquire), execute (Oracle actually
+    running the query), fetch (pulling DB_MAX_ROWS back over the network) —
+    because api/routes/query.py's `db_execution` timings_ms entry only ever
+    showed the sum of all three, so a slow pool wait and a slow query looked
+    identical from the response's timing breakdown.
     """
+    t0 = time.perf_counter()
     try:
         conn = get_connection()
     except oracledb.DatabaseError as e:
+        log.info("[TIMING] execute_query connect_ms=%.1f (failed)",
+                 (time.perf_counter() - t0) * 1000)
         return [], [], f"Connection failed: {e}"
+    connect_ms = (time.perf_counter() - t0) * 1000
 
     cursor = None
     try:
@@ -133,13 +160,27 @@ def execute_query(sql):
         # request — no longer needs a second cursor/round-trip here.
         cursor = conn.cursor()
         # Oracle driver does not accept a trailing semicolon
+        t1 = time.perf_counter()
         cursor.execute(sql.rstrip().rstrip(";"))
+        execute_ms = (time.perf_counter() - t1) * 1000
         columns = [col[0] for col in cursor.description]
+        t2 = time.perf_counter()
         rows = cursor.fetchmany(DB_MAX_ROWS)
+        fetch_ms = (time.perf_counter() - t2) * 1000
+        log.info(
+            "[TIMING] execute_query connect_ms=%.1f execute_ms=%.1f fetch_ms=%.1f "
+            "total_ms=%.1f rows=%d",
+            connect_ms, execute_ms, fetch_ms,
+            connect_ms + execute_ms + fetch_ms, len(rows),
+        )
         return columns, rows, None
     except oracledb.DatabaseError as e:
+        log.info("[TIMING] execute_query connect_ms=%.1f total_ms=%.1f (query failed)",
+                 connect_ms, (time.perf_counter() - t0) * 1000)
         return [], [], f"Query execution failed: {e}"
     except Exception as e:
+        log.info("[TIMING] execute_query connect_ms=%.1f total_ms=%.1f (unexpected error)",
+                 connect_ms, (time.perf_counter() - t0) * 1000)
         return [], [], f"Unexpected error: {e}"
     finally:
         if cursor is not None:

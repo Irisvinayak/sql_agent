@@ -270,11 +270,30 @@ _SQL_KEYWORDS = {
 }
 
 
+# Cache of parsed schema.json contents, keyed by path — _columns_from_schema
+# and _table_entries_from_schema both re-read and re-parsed the same file from
+# disk on every call (build_prompt, retry-prep, and validate_sql all call into
+# these, so a single request could pay for this several times). Mirrors the
+# load-once pattern already used for FAISS/BM25/
+# concept_map/business_dictionary elsewhere in this codebase. Cached for the
+# life of the process — a schema.json rebuild needs a restart to take effect,
+# same caveat as retriever.py's _index_cache.
+_schema_json_cache: dict = {}
+
+
+def _load_schema_json(schema_path):
+    if schema_path not in _schema_json_cache:
+        try:
+            with open(schema_path) as f:
+                _schema_json_cache[schema_path] = json.load(f)
+        except FileNotFoundError:
+            _schema_json_cache[schema_path] = None
+    return _schema_json_cache[schema_path]
+
+
 def _columns_from_schema(schema_path, normalized_table_names):
-    try:
-        with open(schema_path) as f:
-            schema = json.load(f)
-    except FileNotFoundError:
+    schema = _load_schema_json(schema_path)
+    if schema is None:
         return []
     result = []
     for entry in schema:
@@ -291,34 +310,21 @@ def _columns_from_schema(schema_path, normalized_table_names):
 
 def _load_all_columns(table_names, schema_path=None):
     """
-    Return all columns for the given table names loaded from schema.json.
-
-    Falls back to the legacy embedding_building/output/schema.json for any table
-    missing from the active schema. That file is in the older
-    table_name/column_name format, which the loaders tolerate; note the path is
-    relative, so the fallback only resolves when cwd is the repo root.
+    Return all columns for the given table names loaded from schema.json
+    (config.EMBEDDING_DIR by default). No fallback to any other schema —
+    a table missing from the active schema simply returns no columns.
     """
     if schema_path is None:
         schema_path = f"{config.EMBEDDING_DIR}/schema.json"
 
     normalized_table_names = {name.lower() for name in table_names}
-    result = _columns_from_schema(schema_path, normalized_table_names)
-
-    found_tables = {c["table"].lower() for c in result}
-    missing = normalized_table_names - found_tables
-    prod_path = "embedding_building/output/schema.json"
-    if missing and schema_path != prod_path:
-        result.extend(_columns_from_schema(prod_path, missing))
-
-    return result
+    return _columns_from_schema(schema_path, normalized_table_names)
 
 
 def _table_entries_from_schema(schema_path, normalized_table_names):
     """Full schema.json entries (not just column names) for the given tables."""
-    try:
-        with open(schema_path) as f:
-            schema = json.load(f)
-    except FileNotFoundError:
+    schema = _load_schema_json(schema_path)
+    if schema is None:
         return {}
     out = {}
     for entry in schema:
@@ -331,23 +337,15 @@ def _table_entries_from_schema(schema_path, normalized_table_names):
 def _load_table_entries(table_names, schema_path=None):
     """
     Load full table entries — columns with type/nullable/is_primary_key, plus
-    table-level primary_key/foreign_keys/description — for DDL rendering.
-
-    Mirrors _load_all_columns' legacy-schema fallback for tables missing from
-    the active schema.json.
+    table-level primary_key/foreign_keys/description — for DDL rendering, from
+    schema.json (config.EMBEDDING_DIR by default). No fallback to any other
+    schema — a table missing from the active schema simply has no entry.
     """
     if schema_path is None:
         schema_path = f"{config.EMBEDDING_DIR}/schema.json"
 
     normalized = {name.lower() for name in table_names}
-    entries = _table_entries_from_schema(schema_path, normalized)
-
-    missing = normalized - set(entries)
-    prod_path = "embedding_building/output/schema.json"
-    if missing and schema_path != prod_path:
-        entries.update(_table_entries_from_schema(prod_path, missing))
-
-    return entries
+    return _table_entries_from_schema(schema_path, normalized)
 
 
 _ddl_type_cache = None
@@ -476,6 +474,9 @@ ABSOLUTE RULES (never break these)
 2. Use ONLY table names and column names listed in the SCHEMA CONTEXT below. Never invent names.
 3. Never use bind variables or placeholders (:val, ?, %s). Embed all values as literals.
 4. Never touch backup tables (_bkup, _bk, _bckup, _backup suffixes). Use only the main tables.
+5. This is Oracle SQL only. Never use ILIKE, ~*, or any other non-Oracle operator (those
+   belong to PostgreSQL/MySQL). For case-insensitive matching use UPPER(col) LIKE UPPER('%...%')
+   instead; prefer an exact literal match from the schema's row-label values whenever one exists.
 
 ════════════════════════════════════════════════
 VERTICAL FORMAT TABLES — CRITICAL RULES
@@ -699,6 +700,7 @@ Allowed tables: {valid_tables}{time_section}{business_section}{examples_section}
 - When the user requests a total or overall value, use the exact total row label provided in the schema context.
 - Never invent row labels or column names that are not shown in the schema context.
 - Never use bind variables or placeholders (:val, ?, %s, :rdate, :bank_code, etc.) — embed every value as a literal. The query must run standalone with no parameters supplied.
+- This is Oracle SQL only. Never use ILIKE, ~*, or any other non-Oracle operator (those belong to PostgreSQL/MySQL). For case-insensitive matching use UPPER(col) LIKE UPPER('%...%') instead; prefer an exact literal match from the schema's row-label values whenever one exists.
 - If the user's question does NOT mention a date/period, filter with RDATE = (SELECT MAX(RDATE) FROM <same_table>) to get the latest available reporting period. Never omit the RDATE filter and never guess a hardcoded date.
 - Copy every table and column name EXACTLY as spelled in the schema above, character for character. Do not alter, abbreviate, or "correct" the spelling of any identifier.
 - A column such as RISK_CATEGORY, CATEGORY, ITEM, or DESCRIPTION is a plain text VALUE stored directly on the table shown above — it is NOT a separate lookup/dimension table. Never JOIN to a table that is not listed under "Allowed tables".
@@ -853,6 +855,35 @@ def build_table_ddl(entry, label_values=None, selected_tables=None, selected_col
     return "\n".join(lines)
 
 
+# The subset of _build_ddl_prompt's rules that is IDENTICAL on every call to
+# this model, regardless of question/table/join — moved to the very front of
+# the prompt (see _build_ddl_prompt) so a serving stack that does prompt-
+# prefix caching (Ollama/llama.cpp KV-cache reuse) can reuse these tokens
+# across every request instead of reprocessing them from scratch each time.
+# Previously this text lived inside "### Rules" near the END of the prompt,
+# AFTER the per-request question and schema — meaning even though this text
+# never changes, no serving stack could ever cache it, because everything
+# before it already differed call to call. Pure reordering, no wording
+# change: each line still maps to the same specific hallucination class noted
+# where it originally lived (identifier copying, phantom lookup tables, bind
+# variables, date literals, RDATE-latest default, vertical-table labels).
+_STATIC_DDL_RULES = (
+    "### Rules\n"
+    "- Copy identifiers character for character. Do not abbreviate, pluralise or 'correct' a name.\n"
+    "- A text column such as DESCRIPTION, ITEM, CATEGORY or RISK_CATEGORY holds the value directly. "
+    "It is not a lookup table - never join to a table that is not declared in the schema below.\n"
+    "- Never use bind variables or placeholders (:val, ?, %s). Embed every value as a literal.\n"
+    "- Wrap every date literal as TO_DATE('YYYY-MM-DD', 'YYYY-MM-DD').\n"
+    "- If the question names no period, filter RDATE = (SELECT MAX(RDATE) FROM <that table>).\n"
+    "- On a VERTICAL table, filter by an exact row-label literal from its comment; "
+    "for a total, use the TOTAL row label rather than SUM() across labels.\n"
+    "- This is Oracle SQL only. Never use ILIKE, ~*, or any other non-Oracle operator "
+    "(those belong to PostgreSQL/MySQL). For case-insensitive matching use "
+    "UPPER(col) LIKE UPPER('%...%') instead; prefer an exact literal match from the "
+    "schema's row-label values whenever one exists."
+)
+
+
 def _build_ddl_prompt(
     dialect_hint: str,
     user_query: str,
@@ -871,9 +902,13 @@ def _build_ddl_prompt(
     prose bullet list that a 7B model demonstrably did not follow.
 
     Section order follows WrenAI's assembly: schema, then examples, then
-    instructions, then the reasoning plan, then the question last.
+    instructions, then the reasoning plan, then the question last — EXCEPT
+    for the model-invariant rules text, which goes first (see
+    _STATIC_DDL_RULES) so it's the one part of the prompt a prefix-caching
+    serving stack could ever actually reuse across different tables/questions.
     """
     sections = [
+        _STATIC_DDL_RULES,
         f"### Task\nGenerate an {dialect_hint} SQL SELECT query to answer "
         f"[QUESTION]{user_query}[/QUESTION]",
         "### Database Schema\nThe query will run on a database with the following schema:\n"
@@ -898,16 +933,12 @@ def _build_ddl_prompt(
             f"{qa_example['sql']}"
         )
 
+    # Per-request rules only — the model-invariant bullets that used to live
+    # here moved to _STATIC_DDL_RULES at the front of the prompt (see there).
+    # Kept under a distinct header (not "### Rules" again) since these lines
+    # genuinely vary call to call and can never be part of a cached prefix.
     rules = [
         f"- Use only the tables and columns declared in the schema above. Allowed tables: {valid_tables}.",
-        "- Copy identifiers character for character. Do not abbreviate, pluralise or 'correct' a name.",
-        "- A text column such as DESCRIPTION, ITEM, CATEGORY or RISK_CATEGORY holds the value directly. "
-        "It is not a lookup table - never join to a table that is not declared above.",
-        "- Never use bind variables or placeholders (:val, ?, %s). Embed every value as a literal.",
-        "- Wrap every date literal as TO_DATE('YYYY-MM-DD', 'YYYY-MM-DD').",
-        "- If the question names no period, filter RDATE = (SELECT MAX(RDATE) FROM <that table>).",
-        "- On a VERTICAL table, filter by an exact row-label literal from its comment; "
-        "for a total, use the TOTAL row label rather than SUM() across labels.",
     ]
     if join_hint:
         rules.append(f"- {join_hint}")
@@ -916,7 +947,7 @@ def _build_ddl_prompt(
             "- Answer from the single table above. Do not join."
         )
     rules.extend(business_rules or [])
-    sections.append("### Rules\n" + "\n".join(rules))
+    sections.append("### Query-specific constraints\n" + "\n".join(rules))
 
     if reasoning_plan:
         sections.append("### Reasoning plan\n" + reasoning_plan.strip())
@@ -1319,21 +1350,66 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
 
         print("  ", end="", flush=True)
         raw = ""
+        token_count = 0
+        _ttft_ms = None
+        _final_chunk = {}
         for line in response.iter_lines():
             if not line:
                 continue
             chunk = json.loads(line)
             token = chunk.get("response", "")
+            if token and _ttft_ms is None:
+                # Time-to-first-token: separates prompt processing (prefill —
+                # everything before this) from decoding (everything after).
+                # `connect_ms` above is just TCP+headers and says nothing
+                # about model speed; without TTFT, a slow call's entire cost
+                # is one opaque `total_ms` number that could equally mean
+                # "huge prompt, slow prefill" or "tiny response, slow decode
+                # (CPU inference)" — two different fixes.
+                _ttft_ms = round((time.perf_counter() - _call_started) * 1000, 1)
+            if token:
+                token_count += 1
             print(token, end="", flush=True)
             raw += token
             if chunk.get("done"):
+                _final_chunk = chunk
                 break
         print()
         total_ms = round((time.perf_counter() - _call_started) * 1000, 1)
+        ttft_ms = _ttft_ms if _ttft_ms is not None else total_ms
+        decode_s = (total_ms - ttft_ms) / 1000
+        # tokens/sec is the standard CPU-vs-GPU inference signal: single
+        # digits strongly indicates CPU-only serving or a contended GPU;
+        # tens-to-hundreds indicates a healthy dedicated GPU. token_count - 1
+        # excludes the token that produced TTFT itself from the decode-rate
+        # window, but guard against token_count <= 1 (e.g. empty response).
+        tokens_per_sec = round((token_count - 1) / decode_s, 1) if token_count > 1 and decode_s > 0 else None
+
+        # Ollama's own server-side breakdown, carried on the final ("done":
+        # true) chunk, in nanoseconds. This is authoritative — unlike every
+        # timing above, which is inferred from OUR side of the wire and can't
+        # actually tell model-load time, prompt-eval (prefill) time, and
+        # generation time apart. A slow call with a small ollama_load_ms and
+        # a large ollama_prompt_eval_ms is a prompt-size problem (fixable
+        # here); a large ollama_load_ms means the model is being reloaded
+        # every call (a keep_alive/host/proxy problem, not a prompt problem).
+        # .get(...) with None defaults so an older Ollama/proxy that omits
+        # these fields degrades to "unknown" instead of a KeyError.
+        def _ns_to_ms(ns):
+            return round(ns / 1e6, 1) if isinstance(ns, (int, float)) else None
+
+        ollama_load_ms = _ns_to_ms(_final_chunk.get("load_duration"))
+        ollama_prompt_eval_ms = _ns_to_ms(_final_chunk.get("prompt_eval_duration"))
+        ollama_prompt_tokens = _final_chunk.get("prompt_eval_count")
+        ollama_eval_ms = _ns_to_ms(_final_chunk.get("eval_duration"))
+
         # Prompt length correlates with time-to-first-token on a remote proxy —
         # log it alongside timing so a slow call can be attributed to network/
         # model latency vs. an oversized prompt, instead of staying a mystery.
-        print(f"[TIMING] ollama {call_label}: connect={_connect_ms}ms total={total_ms}ms "
+        print(f"[TIMING] ollama {call_label}: connect={_connect_ms}ms ttft={ttft_ms}ms "
+              f"total={total_ms}ms tokens={token_count} tokens_per_sec={tokens_per_sec} "
+              f"ollama_load_ms={ollama_load_ms} ollama_prompt_eval_ms={ollama_prompt_eval_ms} "
+              f"ollama_prompt_tokens={ollama_prompt_tokens} ollama_eval_ms={ollama_eval_ms} "
               f"prompt_chars={len(prompt_text)} response_chars={len(raw)}")
         return raw
 
@@ -1387,10 +1463,29 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
     # (tried 0.4) let a weak 7B model wander into pure fabrication instead of
     # correcting itself. Keep the nudge small and constant across rounds.
     retry_temp = 0.15 if base_temp is not None and base_temp <= 0.05 else base_temp
+    # Reserved for the LAST retry round only (see below) — the model has
+    # already had two attempts at the safe, information-only retry prompt by
+    # then, so a small additional nudge is scoped to the one round that was
+    # already heading for failure anyway, rather than broadly re-attempting
+    # the flat 0.4 this codebase already tried and rejected.
+    FINAL_ROUND_TEMP_BUMP = 0.1
+
+    # Failed-attempt memory: without this, each retry round is rebuilt purely
+    # from the CURRENT raw/reason, so if the model reproduces the same wrong
+    # SQL on round 2 the round-3 prompt carries no new information — pure
+    # wasted latency (each Ollama round costs 75-135s+ in this deployment) on
+    # a guaranteed repeat of the same mistake.
+    tried_sql = [raw]
 
     attempt = 0
     while not is_valid and attempt < MAX_CORRECTION_RETRIES:
         attempt += 1
+        # Per-round timing: the caller's `llm_generation` timings_ms entry
+        # covers this ENTIRE retry loop as one lump sum, so a slow first
+        # attempt was indistinguishable from 3 slow retries. Logged
+        # unconditionally at the end of the round (see round_t0 uses below)
+        # regardless of which of the round's several exit points is taken.
+        round_t0 = time.perf_counter()
 
         # Deterministic fix first — it is free and it targets the one failure
         # mode observed to survive a targeted retry (the vertical-table
@@ -1407,6 +1502,8 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
                     "so it was rewritten deterministically instead of guessed."
                 )
                 raw, is_valid, reason = corrected, corrected_valid, corrected_reason
+                log.info("[TIMING] retry_round=%d (autocorrect) total_ms=%.1f",
+                         attempt, (time.perf_counter() - round_t0) * 1000)
                 break
 
         extra_hint = ""
@@ -1430,6 +1527,21 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
                 "do not restructure the rest of the query."
             )
 
+        # Failed-attempt memory: at the top of each loop iteration, `raw` (the
+        # SQL about to be retried) is always the most recently appended entry
+        # in tried_sql — so checking it against every EARLIER entry detects
+        # whether this exact SQL already failed once before (not just last
+        # round). Tell the model outright instead of silently resending an
+        # equivalent prompt and hoping for a different roll. Purely additive
+        # information — never removes an existing guardrail — so it cannot
+        # make fabrication more likely, only less likely to repeat verbatim.
+        if raw.strip() in {s.strip() for s in tried_sql[:-1]}:
+            extra_hint += (
+                "\nYou already tried this exact SQL in a previous attempt and it had this "
+                "same problem — do not repeat it verbatim. Make a structurally different "
+                "change this time, not a cosmetic one."
+            )
+
         # Keep the retry prompt short: resending the full original prompt
         # doubles its size and can overflow the context window, which returns
         # nothing at all.
@@ -1448,21 +1560,48 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
             "Corrected SQL:"
         )
 
+        # Final-round-only temperature bump: by the last attempt, the safe
+        # information-only escalation above has already had two rounds to
+        # work: if the model is still stuck, the alternative is certain
+        # failure anyway, so a small bounded nudge is scoped to the one round
+        # where there is nothing left to lose.
+        attempt_temp = retry_temp
+        if attempt == MAX_CORRECTION_RETRIES and retry_temp is not None:
+            attempt_temp = retry_temp + FINAL_ROUND_TEMP_BUMP
+
         try:
-            raw = _call_ollama(retry_prompt, temperature_override=retry_temp,
+            raw = _call_ollama(retry_prompt, temperature_override=attempt_temp,
                                call_label=f"retry_{attempt}")
         except RuntimeError as e:
             # Outage or timeout mid-loop: stop retrying and report the last
             # validation reason rather than a connection error.
             log.error("Correction retry %d aborted: %s", attempt, e)
+            log.info("[TIMING] retry_round=%d (aborted) total_ms=%.1f",
+                     attempt, (time.perf_counter() - round_t0) * 1000)
             break
 
         raw = re.sub(r'^```(?:sql)?\s*', '', raw.strip(), flags=re.IGNORECASE)
         raw = re.sub(r'```\s*$', '', raw).strip()
         raw = raw.rstrip().rstrip(";")
+
+        # Same-as-last-time early exit: the model reproduced the identical
+        # SQL it was just told was invalid — every subsequent round would
+        # face the exact same prompt shape with no new information, so stop
+        # burning latency (75-135s+ per round observed against this backend)
+        # on a guaranteed repeat instead of using up the remaining budget.
+        if raw.strip() == tried_sql[-1].strip():
+            is_valid, reason = _check(raw)
+            log.info("Correction retry %d reproduced the identical SQL — stopping early.", attempt)
+            log.info("[TIMING] retry_round=%d (duplicate) total_ms=%.1f",
+                     attempt, (time.perf_counter() - round_t0) * 1000)
+            break
+
+        tried_sql.append(raw)
         is_valid, reason = _check(raw)
         if is_valid:
             print(f"[CORRECTED] Valid after retry {attempt}")
+        log.info("[TIMING] retry_round=%d total_ms=%.1f", attempt,
+                 (time.perf_counter() - round_t0) * 1000)
 
     if not is_valid:
         category = _validation_failure_category(reason)
@@ -1497,6 +1636,15 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
                 warnings.append(w)
                 print(f"[WARNING] {w}")
 
+    # Hallucinated-literal check. Always on (not gated by BUSINESS_SEMANTICS_LEVEL) —
+    # description_samples.json's values are already unconditionally in the prompt,
+    # so this check's relevance doesn't depend on that flag.
+    if is_valid:
+        from src.literal_validator import check_literal_validity
+        for w in check_literal_validity(raw, tables):
+            warnings.append(w)
+            print(f"[WARNING] {w}")
+
     return {
         "question_understanding": "",
         "sql": raw,
@@ -1504,6 +1652,12 @@ def generate_sql(user_query, tables, columns, dialect="Oracle", today_date=None,
         "visualizations": [],
         "followup_questions": [],
         "warnings": warnings,
+        # Already computed above by the internal _check()/retry loop — the
+        # caller (api/routes/query.py) used to call validate_sql() again on
+        # this exact `raw` SQL, re-running the same regex checks for no
+        # reason. Surfacing the result here lets the caller skip that.
+        "is_valid": is_valid,
+        "validation_reason": reason,
     }
 
 
@@ -1514,8 +1668,12 @@ def validate_sql(sql, tables, columns):
 
     if not sql:
         return False, "Empty SQL"
-    # Normalise: strip quotes, lowercase
-    q = sql.lower().replace('"', '').replace("'", '').strip()
+    # Normalise: blank out string-literal contents (not just the quote marks —
+    # a literal like 'Total (1 to 4)' otherwise leaves the word "total" in the
+    # token stream, where the SELECT-list column scanner below mistakes it for
+    # a hallucinated column reference), then lowercase.
+    q = re.sub(r"'[^']*'", ' ', sql).lower()
+    q = q.replace('"', '').strip()
 
     # 1 — must start with SELECT
     if not q.startswith("select"):
@@ -1525,6 +1683,15 @@ def validate_sql(sql, tables, columns):
     for word in BANNED_KEYWORDS:
         if re.search(rf'\b{word}\b', q):
             return False, f"Dangerous keyword detected: '{word}'"
+
+    # 2.2 — non-Oracle operators (ILIKE, ~*, POSIX regex ~) are PostgreSQL/MySQL
+    # syntax; Oracle's parser rejects them outright. Caught here as a fast,
+    # DB-independent reject instead of relying solely on the Oracle EXPLAIN
+    # PLAN dry run (which also catches this, but only with a live connection).
+    if re.search(r'\bilike\b', q):
+        return False, "Non-Oracle operator 'ILIKE' is not valid Oracle SQL — use UPPER(col) LIKE UPPER('%...%') instead"
+    if re.search(r'~\*?', sql):
+        return False, "Non-Oracle regex operator ('~' / '~*') is not valid Oracle SQL"
 
     # 2.5 — bare 'YYYY-MM-DD' string literals compared against a DATE column
     # (e.g. RDATE) pass every other check here but fail at Oracle execution

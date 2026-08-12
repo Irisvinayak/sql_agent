@@ -1,5 +1,2154 @@
 [
   {
+    "table": "cims_ale_q_anx_1_a",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_A \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 annual yearly. Fields include: A. Accounts with banks in India, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount.",
+    "is_backup": false,
+    "col_count": 7,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "ac_bnk_ind",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "A. Accounts with banks in India",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_a | CIMS_ALE_Domestic(Quarterly) | ac_bnk_ind db_no db_amt cr_no cr_amt code rdate | A. Accounts with banks in India | Debit Entries Number | Debit Entries Amount | Credit Entries Number | Credit Entries Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_a | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_ANX_1_A \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 annual yearly. Fields include: A. Accounts with banks in India, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount. | Columns: ac_bnk_ind, db_no, db_amt, cr_no, cr_amt, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_1_b",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_B \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 b. Fields include: B. Accounts with banks overseas, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount.",
+    "is_backup": false,
+    "col_count": 7,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "ac_bnk_ind",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "B. Accounts with banks overseas",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_b | CIMS_ALE_Domestic(Quarterly) | ac_bnk_ind db_no db_amt cr_no cr_amt code rdate | B. Accounts with banks overseas | Debit Entries Number | Debit Entries Amount | Credit Entries Number | Credit Entries Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_b | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_ANX_1_B \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 b. Fields include: B. Accounts with banks overseas, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount. | Columns: ac_bnk_ind, db_no, db_amt, cr_no, cr_amt, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_1_bal",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_BAL \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 bal. Fields include: Balances in current accounts, Amount.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Balances in current accounts",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(20)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_bal | CIMS_ALE_Domestic(Quarterly) | description value code rdate | Balances in current accounts | Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_bal | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_ANX_1_BAL \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 bal. Fields include: Balances in current accounts, Amount. | Columns: description, value, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_1_loss_pro_iba",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_LOSS_PRO_IBA \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro iba. Fields include: DESCRIPTION, Amount.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "DESCRIPTION",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Amount",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(20)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_loss_pro_iba | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | description value code rdate | DESCRIPTION | Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_loss_pro_iba | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | CIMS_ALE_Q_ANX_1_LOSS_PRO_IBA \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro iba. Fields include: DESCRIPTION, Amount. | Columns: description, value, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_1_loss_pro_ind",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_LOSS_PRO_IND \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro industry. Fields include: DESCRIPTION, Amount.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "DESCRIPTION",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Amount",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(20)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_loss_pro_ind | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | description value code rdate | DESCRIPTION | Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_loss_pro_ind | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | CIMS_ALE_Q_ANX_1_LOSS_PRO_IND \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro industry. Fields include: DESCRIPTION, Amount. | Columns: description, value, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_1_loss_pro_ovr",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_1_LOSS_PRO_OVR \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro ovr. Fields include: DESCRIPTION, Amount.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "DESCRIPTION",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Amount",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(20)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_1_loss_pro_ovr | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | description value code rdate | DESCRIPTION | Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_1_loss_pro_ovr | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | CIMS_ALE_Q_ANX_1_LOSS_PRO_OVR \u2014 CIMS banking supervisory regulatory return ale quarterly anx 1 loss pro ovr. Fields include: DESCRIPTION, Amount. | Columns: description, value, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_anx_2",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_ANX_2 \u2014 CIMS banking supervisory regulatory return ale quarterly anx 2. Fields include: Ageing analysis of long outstanding entries, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount.",
+    "is_backup": false,
+    "col_count": 7,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "ac_bnk_ind",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Ageing analysis of long outstanding entries",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "db_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Debit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_no",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Number",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Entries Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_anx_2 | CIMS_ALE_Domestic(Quarterly) | ac_bnk_ind db_no db_amt cr_no cr_amt code rdate | Ageing analysis of long outstanding entries | Debit Entries Number | Debit Entries Amount | Credit Entries Number | Credit Entries Amount | CODE | RDATE",
+    "summary_text": "cims_ale_q_anx_2 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_ANX_2 \u2014 CIMS banking supervisory regulatory return ale quarterly anx 2. Fields include: Ageing analysis of long outstanding entries, Debit Entries Number, Debit Entries Amount, Credit Entries Number, Credit Entries Amount. | Columns: ac_bnk_ind, db_no, db_amt, cr_no, cr_amt, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_gen_info",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_GEN_INFO \u2014 CIMS banking supervisory regulatory return ale quarterly general information.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "description",
+        "return_name": ""
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "value",
+        "return_name": ""
+      },
+      {
+        "name": "code",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "bank entity code identifier",
+        "return_name": ""
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "reporting date period",
+        "return_name": ""
+      }
+    ],
+    "text": "cims_ale_q_gen_info | CIMS_ALE_Domestic(Quarterly) | description value code rdate | bank entity code identifier | reporting date period",
+    "summary_text": "cims_ale_q_gen_info | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_GEN_INFO \u2014 CIMS banking supervisory regulatory return ale quarterly general information. | Columns: description, value, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_d1",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_D1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 d1. Fields include: Part D1: Derivatives - from Risk Perspective (Domestic Operations), Notional Principal Total, Notional Principal Out of Total Derivatives Contracted for Hedging Purpose, Credit Equivalent  Current Credit Exposure (Positive MTM value), Credit Equivalent Potential Future Exposure, Negative MTM value, PVBP(01)/ delta/CV01 (Sanctioned Limit), PVBP(01)/ delta/CV01 (Actual) *.",
+    "is_backup": false,
+    "col_count": 14,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "derivative",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Part D1: Derivatives - from Risk Perspective (Domestic Operations)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_prin_tl",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_pri_out_tl_dr",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Out of Total Derivatives Contracted for Hedging Purpose",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent  Current Credit Exposure (Positive MTM value)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_ptn_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ngt_mtm_val",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Negative MTM value",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pvbp_sanc_lmt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PVBP(01)/ delta/CV01 (Sanctioned Limit)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pvbp_actual",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PVBP(01)/ delta/CV01 (Actual) *",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "var_sanc_lmt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "VaR (Sanctioned Limit)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "vat_actual",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "VaR (Actual)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "remark",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Remark",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_d1 | CIMS_ALE_Domestic(Quarterly) | derivative nat_prin_tl nat_pri_out_tl_dr cr_cur_cr_exp cr_ptn_exp ngt_mtm_val pvbp_sanc_lmt pvbp_actual var_sanc_lmt vat_actual remark code rdate typeid | Part D1: Derivatives - from Risk Perspective (Domestic Operations) | Notional Principal Total | Notional Principal Out of Total Derivatives Contracted for Hedging Purpose | Credit Equivalent  Current Credit Exposure (Positive MTM value) | Credit Equivalent Potential Future Exposure | Negative MTM value | PVBP(01)/ delta/CV01 (Sanctioned Limit) | PVBP(01)/ delta/CV01 (Actual) * | VaR (Sanctioned Limit) | VaR (Actual) | Remark | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec2_d1 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_D1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 d1. Fields include: Part D1: Derivatives - from Risk Perspective (Domestic Operations), Notional Principal Total, Notional Principal Out of Total Derivatives Contracted for Hedging Purpose, Credit Equivalent  Current Credit Exposure (Positive MTM value), Credit Equivalent Potential Future Exposure, Negative MTM value, PVBP(01)/ delta/CV01 (Sanctioned Limit), PVBP(01)/ delta/CV01 (Actual) *. | Columns: derivative, nat_prin_tl, nat_pri_out_tl_dr, cr_cur_cr_exp, cr_ptn_exp, ngt_mtm_val, pvbp_sanc_lmt, pvbp_actual, var_sanc_lmt, vat_actual, remark, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec2_d2",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_D2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 d2. Fields include: Part D2: Derivatives - from Risk Perspective (Overseas Operations), Notional Principal Total, Notional Principal Out of Total Derivatives Contracted for Hedging Purpose, Credit Equivalent  Current Credit Exposure (Positive MTM value), Credit Equivalent Potential Future Exposure, Negative MTM value, PVBP(01)/ delta/CV01 (Sanctioned Limit), PVBP(01)/ delta/CV01 (Actual) *.",
+    "is_backup": false,
+    "col_count": 14,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "derivative",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Part D2: Derivatives - from Risk Perspective (Overseas Operations)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_prin_tl",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_pri_out_tl_dr",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Out of Total Derivatives Contracted for Hedging Purpose",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent  Current Credit Exposure (Positive MTM value)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_ptn_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ngt_mtm_val",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Negative MTM value",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pvbp_sanc_lmt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PVBP(01)/ delta/CV01 (Sanctioned Limit)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pvbp_actual",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PVBP(01)/ delta/CV01 (Actual) *",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "var_sanc_lmt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "VaR (Sanctioned Limit)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "vat_actual",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "VaR (Actual)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "remark",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Remark",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_d2 | CIMS_ALE_Domestic(Quarterly) | derivative nat_prin_tl nat_pri_out_tl_dr cr_cur_cr_exp cr_ptn_exp ngt_mtm_val pvbp_sanc_lmt pvbp_actual var_sanc_lmt vat_actual remark code rdate typeid | Part D2: Derivatives - from Risk Perspective (Overseas Operations) | Notional Principal Total | Notional Principal Out of Total Derivatives Contracted for Hedging Purpose | Credit Equivalent  Current Credit Exposure (Positive MTM value) | Credit Equivalent Potential Future Exposure | Negative MTM value | PVBP(01)/ delta/CV01 (Sanctioned Limit) | PVBP(01)/ delta/CV01 (Actual) * | VaR (Sanctioned Limit) | VaR (Actual) | Remark | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec2_d2 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_D2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 d2. Fields include: Part D2: Derivatives - from Risk Perspective (Overseas Operations), Notional Principal Total, Notional Principal Out of Total Derivatives Contracted for Hedging Purpose, Credit Equivalent  Current Credit Exposure (Positive MTM value), Credit Equivalent Potential Future Exposure, Negative MTM value, PVBP(01)/ delta/CV01 (Sanctioned Limit), PVBP(01)/ delta/CV01 (Actual) *. | Columns: derivative, nat_prin_tl, nat_pri_out_tl_dr, cr_cur_cr_exp, cr_ptn_exp, ngt_mtm_val, pvbp_sanc_lmt, pvbp_actual, var_sanc_lmt, vat_actual, remark, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec2_e1",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_E1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 e1. Fields include: Items, For Trading Bank Pays - Notional Principal Amt (a), For Trading Bank  Receives - Notional Principal Amt (b), For Hedging Bank Pays - Notional Principal Amt (c), For Hedging Bank  Receives - Notional Principal Amt (d), Total Notional Principal [(a) + (b) + (c) + (d)], Gross Received TB, Gross Received BB.",
+    "is_backup": false,
+    "col_count": 17,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "item",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Items",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_bnk_pays",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Trading Bank Pays - Notional Principal Amt (a)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_bnk_rec",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Trading Bank  Receives - Notional Principal Amt (b)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "hedg_bnk_pays",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Hedging Bank Pays - Notional Principal Amt (c)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "hedg_bnk_rec",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Hedging Bank  Receives - Notional Principal Amt (d)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "tl_nat_pri",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Total Notional Principal [(a) + (b) + (c) + (d)]",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_tb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received TB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_bb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received BB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_total",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received Total (p)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_tb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 TB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_bb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 BB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_total",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 Total (q)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "higher",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Higher of           (p) or (q)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "net_pvbp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Net PVBP01            (pl indicate sign)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "remark",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Remarks",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_e1 | CIMS_ALE_Domestic(Quarterly) | item trade_bnk_pays trade_bnk_rec hedg_bnk_pays hedg_bnk_rec tl_nat_pri gross_rec_tb gross_rec_bb gross_rec_total gross_paid_rec_tb gross_paid_rec_bb gross_paid_rec_total higher net_pvbp remark code rdate | Items | For Trading Bank Pays - Notional Principal Amt (a) | For Trading Bank  Receives - Notional Principal Amt (b) | For Hedging Bank Pays - Notional Principal Amt (c) | For Hedging Bank  Receives - Notional Principal Amt (d) | Total Notional Principal [(a) + (b) + (c) + (d)] | Gross Received TB | Gross Received BB | Gross Received Total (p) | Gross Paid PVBP 01 TB | Gross Paid PVBP 01 BB | Gross Paid PVBP 01 Total (q) | Higher of           (p) or (q) | Net PVBP01            (pl indicate sign) | Remarks | CODE | RDATE",
+    "summary_text": "cims_ale_q_sec2_e1 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_E1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 e1. Fields include: Items, For Trading Bank Pays - Notional Principal Amt (a), For Trading Bank  Receives - Notional Principal Amt (b), For Hedging Bank Pays - Notional Principal Amt (c), For Hedging Bank  Receives - Notional Principal Amt (d), Total Notional Principal [(a) + (b) + (c) + (d)], Gross Received TB, Gross Received BB. | Columns: item, trade_bnk_pays, trade_bnk_rec, hedg_bnk_pays, hedg_bnk_rec, tl_nat_pri, gross_rec_tb, gross_rec_bb, gross_rec_total, gross_paid_rec_tb, gross_paid_rec_bb, gross_paid_rec_total, higher, net_pvbp, remark, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_e2",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_E2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 e2. Fields include: Items, For Trading Bank Pays - Notional Principal Amt (a), For Trading Bank  Receives - Notional Principal Amt (b), For Hedging  Bank Pays - Notional Principal Amt (c), For Hedging Bank  Receives - Notional Principal Amt (d), Total Notional Principal [(a) + (b) + (c) + (d)], Gross Received TB, Gross Received BB.",
+    "is_backup": false,
+    "col_count": 17,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "item",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Items",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_bnk_pays",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Trading Bank Pays - Notional Principal Amt (a)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_bnk_rec",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Trading Bank  Receives - Notional Principal Amt (b)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "hedg_bnk_pays",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Hedging  Bank Pays - Notional Principal Amt (c)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "hedg_bnk_rec",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "For Hedging Bank  Receives - Notional Principal Amt (d)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "tl_nat_pri",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Total Notional Principal [(a) + (b) + (c) + (d)]",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_tb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received TB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_bb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received BB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_rec_total",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Received Total (p)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_tb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 TB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_bb",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 BB",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gross_paid_rec_total",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Gross Paid PVBP 01 Total (p)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "higher",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Higher of           (p) or (q)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "net_pvbp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Net PVBP01     (pl indicate sign",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "remark",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Remarks",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_e2 | CIMS_ALE_Domestic(Quarterly) | item trade_bnk_pays trade_bnk_rec hedg_bnk_pays hedg_bnk_rec tl_nat_pri gross_rec_tb gross_rec_bb gross_rec_total gross_paid_rec_tb gross_paid_rec_bb gross_paid_rec_total higher net_pvbp remark code rdate | Items | For Trading Bank Pays - Notional Principal Amt (a) | For Trading Bank  Receives - Notional Principal Amt (b) | For Hedging  Bank Pays - Notional Principal Amt (c) | For Hedging Bank  Receives - Notional Principal Amt (d) | Total Notional Principal [(a) + (b) + (c) + (d)] | Gross Received TB | Gross Received BB | Gross Received Total (p) | Gross Paid PVBP 01 TB | Gross Paid PVBP 01 BB | Gross Paid PVBP 01 Total (p) | Higher of           (p) or (q) | Net PVBP01     (pl indicate sign | Remarks | CODE | RDATE",
+    "summary_text": "cims_ale_q_sec2_e2 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_E2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 e2. Fields include: Items, For Trading Bank Pays - Notional Principal Amt (a), For Trading Bank  Receives - Notional Principal Amt (b), For Hedging  Bank Pays - Notional Principal Amt (c), For Hedging Bank  Receives - Notional Principal Amt (d), Total Notional Principal [(a) + (b) + (c) + (d)], Gross Received TB, Gross Received BB. | Columns: item, trade_bnk_pays, trade_bnk_rec, hedg_bnk_pays, hedg_bnk_rec, tl_nat_pri, gross_rec_tb, gross_rec_bb, gross_rec_total, gross_paid_rec_tb, gross_paid_rec_bb, gross_paid_rec_total, higher, net_pvbp, remark, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_f1",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_F1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 f1. Fields include: Items, April to Date Notional Principal Protection Buyer, April to Date Notional Principal Protection Seller, At end of the Month/Quarter Notional Principal Protection Buyer, At end of the Month/Quarter Notional Principal Protection Seller.",
+    "is_backup": false,
+    "col_count": 8,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "item",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Items",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_prot_buy",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "April to Date Notional Principal Protection Buyer",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_prot_sell",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "April to Date Notional Principal Protection Seller",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "at_end_nat_prot_buy",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "At end of the Month/Quarter Notional Principal Protection Buyer",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "at_end_nat_prot_sell",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "At end of the Month/Quarter Notional Principal Protection Seller",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_f1 | CIMS_ALE_Domestic(Quarterly) | item nat_prot_buy nat_prot_sell at_end_nat_prot_buy at_end_nat_prot_sell code rdate typeid | Items | April to Date Notional Principal Protection Buyer | April to Date Notional Principal Protection Seller | At end of the Month/Quarter Notional Principal Protection Buyer | At end of the Month/Quarter Notional Principal Protection Seller | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec2_f1 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_F1 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 f1. Fields include: Items, April to Date Notional Principal Protection Buyer, April to Date Notional Principal Protection Seller, At end of the Month/Quarter Notional Principal Protection Buyer, At end of the Month/Quarter Notional Principal Protection Seller. | Columns: item, nat_prot_buy, nat_prot_sell, at_end_nat_prot_buy, at_end_nat_prot_sell, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec2_f2",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_F2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 f2. Fields include: Items, April to Date Notional Principal Protection Buyer, April to Date Notional Principal Protection Seller, At end of the Month/Quarter Notional Principal Protection Buyer, At end of the Month/Quarter Notional Principal Protection Seller.",
+    "is_backup": false,
+    "col_count": 8,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "item",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Items",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "nat_prot_buy",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "April to Date Notional Principal Protection Buyer",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "nat_prot_sell",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "April to Date Notional Principal Protection Seller",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "at_end_nat_prot_buy",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "At end of the Month/Quarter Notional Principal Protection Buyer",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "at_end_nat_prot_sell",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "At end of the Month/Quarter Notional Principal Protection Seller",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "code",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Monthly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_f2 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | item nat_prot_buy nat_prot_sell at_end_nat_prot_buy at_end_nat_prot_sell code rdate typeid | Items | April to Date Notional Principal Protection Buyer | April to Date Notional Principal Protection Seller | At end of the Month/Quarter Notional Principal Protection Buyer | At end of the Month/Quarter Notional Principal Protection Seller | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec2_f2 | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Domestic(Monthly) | CIMS_ALE_Q_SEC2_F2 \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 f2. Fields include: Items, April to Date Notional Principal Protection Buyer, April to Date Notional Principal Protection Seller, At end of the Month/Quarter Notional Principal Protection Buyer, At end of the Month/Quarter Notional Principal Protection Seller. | Columns: item, nat_prot_buy, nat_prot_sell, at_end_nat_prot_buy, at_end_nat_prot_sell, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec2_g1_bk_fi",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_G1_BK_FI \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g1 backup copy fi. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "sr_no",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Sr. No.",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "name_bk_fi",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Name of the Bank / FIs",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Current Credit Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pot_fut_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "90_dy_past_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "90 days past due amount (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "actual_cr_loss",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Actual Credit Loss (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "restruct_cont",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Restructured contracts",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "transactionid",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TRANSACTIONID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_g1_bk_fi | CIMS_ALE_Domestic(Quarterly) | sr_no name_bk_fi nat_amt cur_cr_exp pot_fut_exp 90_dy_past_amt actual_cr_loss restruct_cont transactionid rdate | Sr. No. | Name of the Bank / FIs | Notional Amount | Current Credit Exposure | Potential Future Exposure | 90 days past due amount (if any) | Actual Credit Loss (if any) | Restructured contracts | TRANSACTIONID | RDATE",
+    "summary_text": "cims_ale_q_sec2_g1_bk_fi | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_G1_BK_FI \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g1 backup copy fi. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts. | Columns: sr_no, name_bk_fi, nat_amt, cur_cr_exp, pot_fut_exp, 90_dy_past_amt, actual_cr_loss, restruct_cont, transactionid, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_g1_corp_otr",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_G1_CORP_OTR \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g1 corp otr. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "sr_no",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Sr. No.",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "name_bk_fi",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Name of the Bank / FIs",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Current Credit Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pot_fut_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "90_dy_past_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "90 days past due amount (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "actual_cr_loss",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Actual Credit Loss (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "restruct_cont",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Restructured contracts",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "transactionid",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TRANSACTIONID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_g1_corp_otr | CIMS_ALE_Domestic(Quarterly) | sr_no name_bk_fi nat_amt cur_cr_exp pot_fut_exp 90_dy_past_amt actual_cr_loss restruct_cont transactionid rdate | Sr. No. | Name of the Bank / FIs | Notional Amount | Current Credit Exposure | Potential Future Exposure | 90 days past due amount (if any) | Actual Credit Loss (if any) | Restructured contracts | TRANSACTIONID | RDATE",
+    "summary_text": "cims_ale_q_sec2_g1_corp_otr | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_G1_CORP_OTR \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g1 corp otr. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts. | Columns: sr_no, name_bk_fi, nat_amt, cur_cr_exp, pot_fut_exp, 90_dy_past_amt, actual_cr_loss, restruct_cont, transactionid, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_g2_bk_fi",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_G2_BK_FI \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g2 backup copy fi. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "sr_no",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Sr. No.",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "name_bk_fi",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Name of the Bank / FIs",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Current Credit Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pot_fut_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "90_dy_past_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "90 days past due amount (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "actual_cr_loss",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Actual Credit Loss (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "restruct_cont",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Restructured contracts",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "transactionid",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TRANSACTIONID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_g2_bk_fi | CIMS_ALE_Domestic(Quarterly) | sr_no name_bk_fi nat_amt cur_cr_exp pot_fut_exp 90_dy_past_amt actual_cr_loss restruct_cont transactionid rdate | Sr. No. | Name of the Bank / FIs | Notional Amount | Current Credit Exposure | Potential Future Exposure | 90 days past due amount (if any) | Actual Credit Loss (if any) | Restructured contracts | TRANSACTIONID | RDATE",
+    "summary_text": "cims_ale_q_sec2_g2_bk_fi | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_G2_BK_FI \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g2 backup copy fi. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts. | Columns: sr_no, name_bk_fi, nat_amt, cur_cr_exp, pot_fut_exp, 90_dy_past_amt, actual_cr_loss, restruct_cont, transactionid, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec2_g2_corp_otr",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC2_G2_CORP_OTR \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g2 corp otr. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "sr_no",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Sr. No.",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "name_bk_fi",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Name of the Bank / FIs",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "nat_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Amount",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cur_cr_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Current Credit Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "pot_fut_exp",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Potential Future Exposure",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "90_dy_past_amt",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "90 days past due amount (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "actual_cr_loss",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Actual Credit Loss (if any)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "restruct_cont",
+        "type": "number(20,2)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Restructured contracts",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "transactionid",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TRANSACTIONID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec2_g2_corp_otr | CIMS_ALE_Domestic(Quarterly) | sr_no name_bk_fi nat_amt cur_cr_exp pot_fut_exp 90_dy_past_amt actual_cr_loss restruct_cont transactionid rdate | Sr. No. | Name of the Bank / FIs | Notional Amount | Current Credit Exposure | Potential Future Exposure | 90 days past due amount (if any) | Actual Credit Loss (if any) | Restructured contracts | TRANSACTIONID | RDATE",
+    "summary_text": "cims_ale_q_sec2_g2_corp_otr | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC2_G2_CORP_OTR \u2014 CIMS banking supervisory regulatory return ale quarterly section 2 g2 corp otr. Fields include: Sr. No., Name of the Bank / FIs, Notional Amount, Current Credit Exposure, Potential Future Exposure, 90 days past due amount (if any), Actual Credit Loss (if any), Restructured contracts. | Columns: sr_no, name_bk_fi, nat_amt, cur_cr_exp, pot_fut_exp, 90_dy_past_amt, actual_cr_loss, restruct_cont, transactionid, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec_1a",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_1A \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1a. Fields include: Part-A: ASSETS (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "assets",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Part-A: ASSETS (Amount Outstanding at end of Month)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh)  Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_1a | CIMS_ALE_Domestic(Quarterly) | assets dom_amt_tot dom_amt_frx ovr_amt_tot ovr_amt_frx gbl_amt_tot gbl_amt_frx code rdate typeid | Part-A: ASSETS (Amount Outstanding at end of Month) | Domestic Operations  (Rs. Lakh Total | Domestic Operations  (Rs. Lakh) Of Which Held in Forex | Overseas Operations  (Rs. Lakh) Total | Overseas Operations  (Rs. Lakh) Of Which Held in Forex | Global Operations  (Rs. Lakh) Total | Global Operations  (Rs. Lakh)  Of Which Held in Forex | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec_1a | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_1A \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1a. Fields include: Part-A: ASSETS (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex. | Columns: assets, dom_amt_tot, dom_amt_frx, ovr_amt_tot, ovr_amt_frx, gbl_amt_tot, gbl_amt_frx, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec_1b",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_1B \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1b. Fields include: PART B - CAPITAL AND RESERVES  (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "assets",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PART B - CAPITAL AND RESERVES  (Amount Outstanding at end of Month)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh)  Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_1b | CIMS_ALE_Domestic(Quarterly) | assets dom_amt_tot dom_amt_frx ovr_amt_tot ovr_amt_frx gbl_amt_tot gbl_amt_frx code rdate typeid | PART B - CAPITAL AND RESERVES  (Amount Outstanding at end of Month) | Domestic Operations  (Rs. Lakh Total | Domestic Operations  (Rs. Lakh) Of Which Held in Forex | Overseas Operations  (Rs. Lakh) Total | Overseas Operations  (Rs. Lakh) Of Which Held in Forex | Global Operations  (Rs. Lakh) Total | Global Operations  (Rs. Lakh)  Of Which Held in Forex | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec_1b | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_1B \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1b. Fields include: PART B - CAPITAL AND RESERVES  (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex. | Columns: assets, dom_amt_tot, dom_amt_frx, ovr_amt_tot, ovr_amt_frx, gbl_amt_tot, gbl_amt_frx, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec_1c",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_1C \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1c. Fields include: PART C - LIABILITIES  (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex.",
+    "is_backup": false,
+    "col_count": 10,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "assets",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PART C - LIABILITIES  (Amount Outstanding at end of Month)",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "dom_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "ovr_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations  (Rs. Lakh) Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_tot",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh) Total",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "gbl_amt_frx",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations  (Rs. Lakh)  Of Which Held in Forex",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_1c | CIMS_ALE_Domestic(Quarterly) | assets dom_amt_tot dom_amt_frx ovr_amt_tot ovr_amt_frx gbl_amt_tot gbl_amt_frx code rdate typeid | PART C - LIABILITIES  (Amount Outstanding at end of Month) | Domestic Operations  (Rs. Lakh Total | Domestic Operations  (Rs. Lakh) Of Which Held in Forex | Overseas Operations  (Rs. Lakh) Total | Overseas Operations  (Rs. Lakh) Of Which Held in Forex | Global Operations  (Rs. Lakh) Total | Global Operations  (Rs. Lakh)  Of Which Held in Forex | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec_1c | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_1C \u2014 CIMS banking supervisory regulatory return ale quarterly sec 1c. Fields include: PART C - LIABILITIES  (Amount Outstanding at end of Month), Domestic Operations  (Rs. Lakh Total, Domestic Operations  (Rs. Lakh) Of Which Held in Forex, Overseas Operations  (Rs. Lakh) Total, Overseas Operations  (Rs. Lakh) Of Which Held in Forex, Global Operations  (Rs. Lakh) Total, Global Operations  (Rs. Lakh)  Of Which Held in Forex. | Columns: assets, dom_amt_tot, dom_amt_frx, ovr_amt_tot, ovr_amt_frx, gbl_amt_tot, gbl_amt_frx, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec_2a",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_2A \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2a. Fields include: PART-A OFF BALANCE SHEET EXPOSURES, Domestic Operations Book Value, Domestic Operations Credit Equivalent, Overseas Operations Book Value, Overseas Operations Credit Equivalent, Global Operations Book Value, Global Operations Credit Equivalent.",
+    "is_backup": false,
+    "col_count": 9,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "contracts",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "PART-A OFF BALANCE SHEET EXPOSURES",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bok_val_dom",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations Book Value",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_eqv_dom",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Domestic Operations Credit Equivalent",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bok_val_os",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations Book Value",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_eqv_os",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Overseas Operations Credit Equivalent",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bok_val_gobl",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations Book Value",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_eqv_gobl",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Global Operations Credit Equivalent",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_2a | CIMS_ALE_Domestic(Quarterly) | contracts bok_val_dom cr_eqv_dom bok_val_os cr_eqv_os bok_val_gobl cr_eqv_gobl code rdate | PART-A OFF BALANCE SHEET EXPOSURES | Domestic Operations Book Value | Domestic Operations Credit Equivalent | Overseas Operations Book Value | Overseas Operations Credit Equivalent | Global Operations Book Value | Global Operations Credit Equivalent | CODE | RDATE",
+    "summary_text": "cims_ale_q_sec_2a | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_2A \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2a. Fields include: PART-A OFF BALANCE SHEET EXPOSURES, Domestic Operations Book Value, Domestic Operations Credit Equivalent, Overseas Operations Book Value, Overseas Operations Credit Equivalent, Global Operations Book Value, Global Operations Credit Equivalent. | Columns: contracts, bok_val_dom, cr_eqv_dom, bok_val_os, cr_eqv_os, bok_val_gobl, cr_eqv_gobl, code, rdate"
+  },
+  {
+    "table": "cims_ale_q_sec_2b",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_2B \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2b. Fields include: Part B: Contracts/Derivatives, Notional Principal Principal Amount\u00a0 (A = B + C ) Turnover During Month, Notional Principal  Principal Amount\u00a0 (A = B + C ) Outstanding, Notional Principal Trading Book (B) Turnover During Month, Notional Principal Trading Book (B) Outstanding, Notional Principal Banking Book ( C ) Turnover During Month, Notional Principal Banking Book ( C ) Outstanding, Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding.",
+    "is_backup": false,
+    "col_count": 13,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "contracts",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Part B: Contracts/Derivatives",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "prin_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Principal Amount\u00a0 (A = B + C ) Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "prin_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal  Principal Amount\u00a0 (A = B + C ) Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Trading Book (B) Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Trading Book (B) Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bank_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Banking Book ( C ) Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bank_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Banking Book ( C ) Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_prin_amt",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_trade_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Trading Book (B)            Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_bank_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Banking Book (C)     Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_2b | CIMS_ALE_Domestic(Quarterly) | contracts prin_turn_ovr prin_out trade_turn_ovr trade_out bank_turn_ovr bank_out cr_prin_amt cr_trade_out cr_bank_out code rdate typeid | Part B: Contracts/Derivatives | Notional Principal Principal Amount\u00a0 (A = B + C ) Turnover During Month | Notional Principal  Principal Amount\u00a0 (A = B + C ) Outstanding | Notional Principal Trading Book (B) Turnover During Month | Notional Principal Trading Book (B) Outstanding | Notional Principal Banking Book ( C ) Turnover During Month | Notional Principal Banking Book ( C ) Outstanding | Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding | Credit Equivalent Trading Book (B)            Outstanding | Credit Equivalent Banking Book (C)     Outstanding | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec_2b | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_2B \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2b. Fields include: Part B: Contracts/Derivatives, Notional Principal Principal Amount\u00a0 (A = B + C ) Turnover During Month, Notional Principal  Principal Amount\u00a0 (A = B + C ) Outstanding, Notional Principal Trading Book (B) Turnover During Month, Notional Principal Trading Book (B) Outstanding, Notional Principal Banking Book ( C ) Turnover During Month, Notional Principal Banking Book ( C ) Outstanding, Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding. | Columns: contracts, prin_turn_ovr, prin_out, trade_turn_ovr, trade_out, bank_turn_ovr, bank_out, cr_prin_amt, cr_trade_out, cr_bank_out, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_sec_2c",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SEC_2C \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2c. Fields include: Items, Notional Principal Principal Amount Turnover During Month, Notional Principal Principal Amount Outstanding, Notional Principal Trading Book Turnover During Month, Notional Principal Trading Book Outstanding, Notional Principal Banking Book Turnover During Month, Notional Principal Banking Book Outstanding, Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding.",
+    "is_backup": false,
+    "col_count": 13,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "contracts",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Items",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "prin_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Principal Amount Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "prin_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Principal Amount Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Trading Book Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "trade_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Trading Book Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bank_turn_ovr",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Banking Book Turnover During Month",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "bank_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Notional Principal Banking Book Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_prin_amt",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_trade_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Trading Book (B)            Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "cr_bank_out",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "Credit Equivalent Banking Book (C)     Outstanding",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "code",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "CODE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "RDATE",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      },
+      {
+        "name": "typeid",
+        "type": "number",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "TYPEID",
+        "return_name": "CIMS_ALE_Domestic(Quarterly)"
+      }
+    ],
+    "text": "cims_ale_q_sec_2c | CIMS_ALE_Domestic(Quarterly) | contracts prin_turn_ovr prin_out trade_turn_ovr trade_out bank_turn_ovr bank_out cr_prin_amt cr_trade_out cr_bank_out code rdate typeid | Items | Notional Principal Principal Amount Turnover During Month | Notional Principal Principal Amount Outstanding | Notional Principal Trading Book Turnover During Month | Notional Principal Trading Book Outstanding | Notional Principal Banking Book Turnover During Month | Notional Principal Banking Book Outstanding | Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding | Credit Equivalent Trading Book (B)            Outstanding | Credit Equivalent Banking Book (C)     Outstanding | CODE | RDATE | TYPEID",
+    "summary_text": "cims_ale_q_sec_2c | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SEC_2C \u2014 CIMS banking supervisory regulatory return ale quarterly sec 2c. Fields include: Items, Notional Principal Principal Amount Turnover During Month, Notional Principal Principal Amount Outstanding, Notional Principal Trading Book Turnover During Month, Notional Principal Trading Book Outstanding, Notional Principal Banking Book Turnover During Month, Notional Principal Banking Book Outstanding, Credit Equivalent Principal Amount\u00a0           (A = B + C ) Outstanding. | Columns: contracts, prin_turn_ovr, prin_out, trade_turn_ovr, trade_out, bank_turn_ovr, bank_out, cr_prin_amt, cr_trade_out, cr_bank_out, code, rdate, typeid"
+  },
+  {
+    "table": "cims_ale_q_signatory",
+    "return_name": "CIMS_ALE_Domestic(Quarterly)",
+    "description": "CIMS_ALE_Q_SIGNATORY \u2014 CIMS banking supervisory regulatory return ale quarterly signatory.",
+    "is_backup": false,
+    "col_count": 4,
+    "primary_key": [],
+    "foreign_keys": [],
+    "columns": [
+      {
+        "name": "description",
+        "type": "varchar2(200)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "description",
+        "return_name": ""
+      },
+      {
+        "name": "value",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "value",
+        "return_name": ""
+      },
+      {
+        "name": "code",
+        "type": "varchar2(100)",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "bank entity code identifier",
+        "return_name": ""
+      },
+      {
+        "name": "rdate",
+        "type": "date",
+        "nullable": true,
+        "is_primary_key": false,
+        "description": "reporting date period",
+        "return_name": ""
+      }
+    ],
+    "text": "cims_ale_q_signatory | CIMS_ALE_Domestic(Quarterly) | description value code rdate | bank entity code identifier | reporting date period",
+    "summary_text": "cims_ale_q_signatory | CIMS_ALE_Domestic(Quarterly) | CIMS_ALE_Q_SIGNATORY \u2014 CIMS banking supervisory regulatory return ale quarterly signatory. | Columns: description, value, code, rdate"
+  },
+  {
     "table": "cims_raq_q_sec10",
     "return_name": "CIMS_RAQ(Quarterly)",
     "description": "CIMS_RAQ_Q_SEC10 \u2014 CIMS banking supervisory regulatory return Risk Assessment Questionnaire RAQ quarterly section 10. Fields include: DESCRIPTION, Funded Exposure, Non-Funded Exposure, Total, Amount Outstanding - Funded, Of which Impaired, Loss Provisions held, Interest Rate Min.",

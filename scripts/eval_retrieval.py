@@ -40,7 +40,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from eval.dataset import load_qa_pairs
-from eval.metrics import table_hit, column_recall
+from eval.metrics import table_hit, table_hit_at_n, column_recall
 import src.config as config
 from src.retriever import compute_query_embedding, get_relevant_schema
 
@@ -114,9 +114,8 @@ def run(limit=None, shortlist_k=None, dataset="table_qa", include_blocked=False)
         # Reuse ONE embedding per question, exactly as api/routes/query.py does,
         # so the timing here reflects the real request path.
         vec = compute_query_embedding(q)
-        tables, columns, _labels, qa_example = get_relevant_schema(
-            q, query_vec=vec, shortlist_k=shortlist_k
-        )
+        retrieval = get_relevant_schema(q, query_vec=vec, shortlist_k=shortlist_k)
+        tables, columns, qa_example = retrieval.tables, retrieval.columns, retrieval.qa_example
         names = [t["table"] for t in tables]
         hit, rank = table_hit(gold, names)
         per_q.append({
@@ -126,6 +125,7 @@ def run(limit=None, shortlist_k=None, dataset="table_qa", include_blocked=False)
             "hit": bool(hit),
             "rank": rank,
             "top1": bool(names and names[0].upper() == gold.upper()),
+            "top3": table_hit_at_n(gold, names, n=3),
             # No gold SQL means there is nothing to compute column recall against
             # (the raq_form set carries expected TABLES only), so report None
             # rather than a misleading 0.0.
@@ -146,6 +146,7 @@ def run(limit=None, shortlist_k=None, dataset="table_qa", include_blocked=False)
     summary = {
         "questions": len(per_q),
         "top1": sum(p["top1"] for p in per_q) / n,
+        "top3": sum(p["top3"] for p in per_q) / n,
         "hit_at_k": sum(p["hit"] for p in per_q) / n,
         # rank is 1-indexed from table_hit; a miss has rank None.
         "mrr": sum(1.0 / p["rank"] for p in per_q if p["rank"]) / n,
@@ -186,7 +187,7 @@ def main():
                          dataset=args.dataset, include_blocked=args.include_blocked)
 
     print("\n=== retrieval accuracy ===")
-    for k in ("questions", "top1", "hit_at_k", "mrr", "column_recall", "elapsed_s"):
+    for k in ("questions", "top1", "top3", "hit_at_k", "mrr", "column_recall", "elapsed_s"):
         v = summary[k]
         print(f"  {k:<15} {v:.4f}" if isinstance(v, float) else f"  {k:<15} {v}")
     print(f"  concept_weight  {summary['config']['CONCEPT_SIGNAL_WEIGHT']}")
@@ -200,7 +201,7 @@ def main():
         b, a = before["summary"], summary
         print(f"\n=== vs {args.compare} ===")
         print(f"  {'metric':<15}{'before':>10}{'after':>10}{'delta':>10}")
-        for k in ("top1", "hit_at_k", "mrr", "column_recall"):
+        for k in ("top1", "top3", "hit_at_k", "mrr", "column_recall"):
             print(f"  {k:<15}{b[k]:>10.4f}{a[k]:>10.4f}{a[k] - b[k]:>+10.4f}")
 
         # Name the questions that actually changed verdict — an aggregate that

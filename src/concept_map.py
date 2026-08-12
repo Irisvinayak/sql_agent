@@ -381,11 +381,22 @@ def check_stock_aggregation(sql: str, tables) -> list:
     lowered = sql.lower()
 
     # Is the query pinned to one period? Any of these count.
+    #
+    # Confirmed live-model bug (caught by actually running this against
+    # SQLCoder, not just hand-written unit tests): the previous version of
+    # this check treated the bare SUBSTRING "max(rdate)" as proof of pinning,
+    # regardless of the comparison operator next to it. SQLCoder produced
+    # `RDATE <= (SELECT MAX(RDATE) FROM t)` for "across all reporting
+    # quarters" — which spans EVERY period up to the max, the opposite of
+    # pinning to one — and the bare substring match let it through with zero
+    # warning. Every check below now requires the actual equality
+    # relationship with RDATE, not just the MAX(...) subquery's presence
+    # somewhere in the string.
     pinned = bool(
-        re.search(r"rdate\s*=", lowered)
-        or re.search(r"max\s*\(\s*rdate\s*\)", lowered)
+        re.search(r"rdate\s*=\s*'", lowered)                              # RDATE = '2024-...'
+        or re.search(r"rdate\s*=\s*\(\s*select\s+max\s*\(\s*rdate\s*\)", lowered)  # RDATE = (SELECT MAX(RDATE)...)
         or re.search(r"rdate\s+between", lowered)
-        or re.search(r"trunc\s*\(\s*rdate", lowered)
+        or re.search(r"trunc\s*\(\s*rdate\s*\)\s*=", lowered)             # TRUNC(RDATE) = ...
     )
     if pinned:
         return []

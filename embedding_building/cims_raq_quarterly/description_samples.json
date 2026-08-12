@@ -1,27 +1,166 @@
 {
+  "cims_ale_q_anx_1_bal": {
+    "description": [
+      "With banks Outside India ",
+      "With banks in India "
+    ]
+  },
+  "cims_ale_q_anx_1_loss_pro_iba": {
+    "description": [
+      "Loss provision made for Inter Branch Adjustments, if any"
+    ]
+  },
+  "cims_ale_q_anx_1_loss_pro_ind": {
+    "description": [
+      "Loss Provision made for accounts with banks in India, if any "
+    ]
+  },
+  "cims_ale_q_anx_1_loss_pro_ovr": {
+    "description": [
+      "Loss provision made for accounts with banks overseas, if any"
+    ]
+  },
+  "cims_ale_q_gen_info": {
+    "description": [
+      "Address of Reporting Institution",
+      "Bank Category",
+      "Bank Code",
+      "Date of Audit",
+      "Date of Report ",
+      "For the Period Ended",
+      "General Remarks",
+      "Reporting Frequency",
+      "Reporting Institution",
+      "Reporting period start date",
+      "Return Code",
+      "Return Name",
+      "Return Version",
+      "Status ",
+      "Tool Name",
+      "Validation Status "
+    ]
+  },
+  "cims_ale_q_sec2_e1": {
+    "item": [
+      "    (a)  LIBOR ($)",
+      "    (a)  LIBOR ($) ",
+      "    (a)  MIBOR / OIS - Fixed ",
+      "    (b)  MIBOR / OIS - Floating",
+      "    (b)  Others (FCY)",
+      "    (c)  INBMK / INCMT - Fixed",
+      "    (d)  INBMK / INCMT - Floating",
+      "    (e) MIFOR / MIOCS / MITOR - Fixed",
+      "    (f) MIFOR / MIOCS / MITOR - Floating",
+      "    (g) Others - Fixed **",
+      "    (h) Others - Floating **",
+      "(I) Rupee - Foreign Currency Forward Contracts",
+      "(II) IRS (Rupee)*",
+      "(III) CDS - Premium Paid",
+      "(IV) CDS - Premium Received",
+      "(V) Sub-Total (I) to (IV)",
+      "(VI) IRS (FCY)*",
+      "(X) Total (V) + (VI)",
+      "(Y) Networth at end of Previous March",
+      "Memo: IRS (FCY) in terms of USD equivalent",
+      "PVBP 01 of X/Y*100"
+    ]
+  },
+  "cims_ale_q_sec2_e2": {
+    "item": [
+      "    (a)  LIBOR ($)",
+      "    (a)  LIBOR ($) ",
+      "    (a)  MIBOR / OIS - Fixed ",
+      "    (b)  MIBOR / OIS - Floating",
+      "    (b)  Others (FCY)",
+      "    (c)  INBMK / INCMT - Fixed",
+      "    (d)  INBMK / INCMT - Floating",
+      "    (e) MIFOR / MIOCS / MITOR - Fixed",
+      "    (f) MIFOR / MIOCS / MITOR - Floating",
+      "    (g) Others - Fixed **",
+      "    (h) Others - Floating **",
+      "(I) Rupee - Foreign Currency Forward Contracts",
+      "(II) IRS (Rupee)*",
+      "(III) CDS - Premium Paid",
+      "(IV) CDS - Premium Received",
+      "(V) Sub-Total (I) to (IV)",
+      "(VI) IRS (FCY)*",
+      "(X) Total (V) + (VI)",
+      "(Y) Networth at end of Previous March",
+      "Memo: IRS (FCY) in terms of USD equivalent",
+      "PVBP 01 of X/Y*100"
+    ]
+  },
+  "cims_ale_q_sec2_f1": {
+    "item": [
+      "    a) Physically Settled",
+      "    a) physically settled",
+      "    b) Cash Settled",
+      "    b) cash settled",
+      "(I) No. of Transactions,  of which",
+      "(II) Amount of Protection Bought / Sold, of which",
+      "HGJHFGJ",
+      "Rating-wise (reference entities) distribution of Protection Bought / Sold for each Broad Rating Grade",
+      "a) premium paid / received",
+      "b) Credit event payments(cash settled):",
+      "paid",
+      "received ",
+      "\u2022 paid",
+      "\u2022 received "
+    ]
+  },
+  "cims_ale_q_sec2_f2": {
+    "item": [
+      "    a) Physically Settled",
+      "    a) physically settled",
+      "    b) Cash Settled",
+      "    b) cash settled",
+      "(I) No. of Transactions,  of which",
+      "(II) Amount of Protection Bought / Sold, of which",
+      "GHKHGDJG",
+      "HGJHFGJ",
+      "Rating-wise (reference entities) distribution of Protection Bought / Sold for each Broad Rating Grade",
+      "a) premium paid / received",
+      "b) Credit event payments(cash settled):",
+      "paid",
+      "received ",
+      "\u2022 paid",
+      "\u2022 received "
+    ]
+  },
+  "cims_ale_q_signatory": {
+    "description": [
+      "Date",
+      "Designation",
+      "E-mail Id",
+      "Landline No.",
+      "Mobile No.",
+      "Name",
+      "Place"
+    ]
+  },
   "cims_raq_q_sec10": {
     "description": [
+      "    B.2.1 Micro Enterprises",
+      "    B.2.2 Small Enterprises",
+      "    B.2.3 Medium Enterprises",
+      "    F.2.1 Micro Enterprises",
+      "    F.2.2 Small Enterprises",
+      "    F.2.3 Medium Enterprises",
+      "   B.1.1 Micro Enterprises",
+      "   B.1.2 Small Enterprises",
+      "   B.1.3 Medium Enterprises",
+      "   F.1.1 Micro Enterprises",
+      "   F.1.2 Small Enterprises",
+      "   F.1.3 Medium Enterprises",
       "A. Micro Finance Institutions/ Self Help Groups",
       "B. Micro, Small and Medium Enterprises",
       "B.1 Direct Exposure",
-      "B.1.1 Micro Enterprises",
-      "B.1.2 Small Enterprises",
-      "B.1.3 Medium Enterprises",
       "B.2 Indirect Exposure",
-      "B.2.1 Micro Enterprises",
-      "B.2.2 Small Enterprises",
-      "B.2.3 Medium Enterprises",
       "E. Micro Finance Institutions/ Self Help Groups",
       "Exposures in Foreign Currencies_FE",
       "F. Micro, Small and Medium Enterprises",
       "F.1 Direct Exposure",
-      "F.1.1 Micro Enterprises",
-      "F.1.2 Small Enterprises",
-      "F.1.3 Medium Enterprises",
-      "F.2 Indirect Exposure",
-      "F.2.1 Micro Enterprises",
-      "F.2.2 Small Enterprises",
-      "F.2.3 Medium Enterprises"
+      "F.2 Indirect Exposure"
     ]
   },
   "cims_raq_q_sec1_exc_govt_paper": {
@@ -39,15 +178,15 @@
   },
   "cims_raq_q_sec1_part_a_dom": {
     "period_delinquency": [
+      "    ii.a.1 Overdue less than 30 days (SMA -0)",
+      "    ii.a.2 Overdue for 30 to 60 days (SMA -1)",
+      "    ii.a.3 Overdue for 60 to 90 days (SMA -2)",
       "A. PERFORMING(i + ii)",
-      "B. NON-PERFORMING (iii + iv + v)",
+      "B. NON-PERFORMING (iii + iv + v) ",
       "C. Total ( A + B)",
       "i) Current",
       "ii) Overdue [ii.a + ii.b]",
       "ii.a) Loans and Advances where 90 day norms is applicable as per IRAC",
-      "ii.a.1 Overdue less than 30 days (SMA -0)",
-      "ii.a.2 Overdue for 30 to 60 days (SMA -1)",
-      "ii.a.3 Overdue for 60 to 90 days (SMA -2)",
       "ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC",
       "iii) Substandard",
       "iv) Doubtful",
@@ -56,14 +195,14 @@
   },
   "cims_raq_q_sec1_part_b_dom": {
     "period_delinquency": [
+      "     3) Substandard",
+      "     4) Doubtful",
+      "     5) Loss",
+      "    2.1 Overdue less than 30 days",
+      "    2.2 Overdue for 30 to 60 days",
+      "    2.3 Overdue for 60 to 90 days",
       "1) Current",
       "2) Overdue",
-      "2.1 Overdue less than 30 days",
-      "2.2 Overdue for 30 to 60 days",
-      "2.3 Overdue for 60 to 90 days",
-      "3) Substandard",
-      "4) Doubtful",
-      "5) Loss",
       "A. PERFORMING (1 + 2)",
       "B. NON-PERFORMING (3 + 4 + 5)",
       "C. TOTAL (A+B)"
@@ -71,15 +210,15 @@
   },
   "cims_raq_q_sec1_part_c_o": {
     "period_delinquency": [
+      "    ii.a.1 Overdue less than 30 days (SMA -0)",
+      "    ii.a.2 Overdue for 30 to 60 days (SMA -1)",
+      "    ii.a.3 Overdue for 60 to 90 days (SMA -2)",
       "A. PERFORMING(i + ii)",
-      "B. NON-PERFORMING (iii + iv + v)",
+      "B. NON-PERFORMING (iii + iv + v) ",
       "C. Total ( A + B)",
       "i) Current",
       "ii) Overdue [ii.a + ii.b]",
       "ii.a) Loans and Advances where 90 day norms is applicable as per IRAC",
-      "ii.a.1 Overdue less than 30 days (SMA -0)",
-      "ii.a.2 Overdue for 30 to 60 days (SMA -1)",
-      "ii.a.3 Overdue for 60 to 90 days (SMA -2)",
       "ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC",
       "iii) Substandard",
       "iv) Doubtful",
@@ -88,14 +227,14 @@
   },
   "cims_raq_q_sec1_part_d_o": {
     "period_delinquency": [
+      "     3) Substandard",
+      "     4) Doubtful",
+      "     5) Loss",
+      "    2.1 Overdue less than 30 days",
+      "    2.2 Overdue for 30 to 60 days",
+      "    2.3 Overdue for 60 to 90 days",
       "1) Current",
-      "2) Overdue",
-      "2.1 Overdue less than 30 days",
-      "2.2 Overdue for 30 to 60 days",
-      "2.3 Overdue for 60 to 90 days",
-      "3) Substandard",
-      "4) Doubtful",
-      "5) Loss",
+      "2) Overdue ",
       "A. PERFORMING (1 + 2)",
       "B. NON-PERFORMING (3 + 4 + 5)",
       "C. TOTAL (A+B)"
@@ -119,6 +258,14 @@
       "Total (1 to 4)"
     ]
   },
+  "cims_raq_q_sec2_part_a_memo": {
+    "memorandum_item": [
+      "# Include amount of loans & advances to Government or carrying Government guarantee which are non-performing",
+      "(a) for less than 18 months",
+      "(b) for 18 months and over",
+      "Amount of interest not recognised on the above Government & Government guaranteed loans (Break-up)"
+    ]
+  },
   "cims_raq_q_sec2_part_a_npa": {
     "risk_category": [
       "Net NPAs",
@@ -127,36 +274,36 @@
   },
   "cims_raq_q_sec2_part_b": {
     "movement_provision_npa": [
+      "    C1. On account of Write Offs (Prov. Utilised for write-off)",
+      "    C2. Others",
       "A. Amount of Provisions for NPAs at beginning of the FY",
       "B. New additions during the Period (April to Date)",
       "C. Reductions during the Period (April to Date)",
-      "C1. On account of Write Offs (Prov. Utilised for write-off)",
-      "C2. Others",
       "D. Amount of Provisions for NPAs at end of the FY/Period"
     ]
   },
   "cims_raq_q_sec3_part_b": {
     "movement_restructure_std_la": [
+      "       Of  which increase in outstanding due to additional /fresh sanctions to existing restructured accounts",
+      "     C1. Movement of Rest Std Adv to Normal Std Adv",
+      "     C2. Slipped to NPAs",
+      "     C3. Recovery",
+      "     C4. Sold to ARCs/Others",
+      "     C5. Write-offs",
+      "     C6. Others, please specify",
       "A. Amount of Restructured Standard Loans/Advances at beginning of the FY/Period",
       "Abcd",
       "B. New additions during the FY/Period",
       "B1. Due to Fresh Restructuring during the FY/Period",
       "B2. Due to Upgradation of Rest NPAs to Rest Std Adv",
       "C. Reductions in Rest Std Adv during the FY/Period",
-      "C1. Movement of Rest Std Adv to Normal Std Adv",
-      "C2. Slipped to NPAs",
-      "C3. Recovery",
-      "C4. Sold to ARCs/Others",
-      "C5. Write-offs",
-      "C6. Others, please specify",
-      "D. Amount of Restructured Standard Loans/Advances at end of the FY/Period",
-      "Of  which increase in outstanding due to additional /fresh sanctions to existing restructured accounts"
+      "D. Amount of Restructured Standard Loans/Advances at end of the FY/Period"
     ]
   },
   "cims_raq_q_sec4_part_a": {
     "movement_from": [
       "A. Loans and advances at the beginning of the period (Should be equal to the figure at end of previous period)",
-      "B. Loans and Advances Disbursed during April to Date",
+      "B. Loans and Advances Disbursed during April to Date             ",
       "C. Actual Repayments / Recoveries",
       "D. Write-offs / Technical Write offs / Compromise etc.",
       "E. Others (+ / -)",
@@ -183,7 +330,7 @@
       "C.1 Due to Upgradation",
       "C.2 Due to Actual Recoveries",
       "C.3 Due to Write-offs",
-      "C.3.1 Technical/Prudential Write-offs/AUC",
+      "C.3.1 Technical/Prudential Write-offs/AUC ",
       "C.3.2 Write-offs on Account of Compromise Settlements",
       "C.3.3 Actual Write-offs, if any",
       "C.4 Due to Regulatory Instructions, Amalgamation, Compliance to RBI Inspection Action Points, etc.",
@@ -194,6 +341,34 @@
       "E. Decrease due to change in Asset Classification (excl. up-gradation)",
       "F. Increase in the same NPA Category",
       "G. NPAs at the end of the Period"
+    ]
+  },
+  "cims_raq_q_sec6_part_a": {
+    "category_investment_dom_opr": [
+      "        - GOI Securities(Dated)",
+      "        - GOI Treasury bills",
+      "        - Other approved Securities",
+      "        - State Govt. Securities(Dated)",
+      "      (i) Quoted",
+      "      (ii) Unquoted",
+      "     (i) GOI Recapitalisation bonds",
+      "     (ii) PSU bonds(excluding Banks/FIs)",
+      "     (iii) Mutual funds(debt oriented)",
+      "     (iv) Bank Certificate of Deposits",
+      "     (v) All others excluding equities",
+      "    (i) PSU bonds (excluding Banks/FIs)  ",
+      "    (ii) Mutual funds(debt oriented)",
+      "    (iii) Bank Certificate of Deposits",
+      "    (iv) All others excluding equities",
+      "A. SLR Investments - Total",
+      "B. Debt Securities - Total(Ba + Bb)",
+      "B.a Debt Securities - Quoted - Total",
+      "B.b Debt Securities - Unquoted - Total",
+      "C. Equities - Total",
+      "Investments (Global Operations)",
+      "Investments (Overseas Operation)",
+      "Out of C Equities - Total - investments in equity - oriented mutual funds",
+      "TOTAL Investments (A+B+C) - Domestic Operations"
     ]
   },
   "cims_raq_q_sec8_ind_brkup": {
@@ -382,6 +557,7 @@
   },
   "cims_raq_q_sec9_sensec_partb": {
     "description": [
+      " A.2.2 Any Other- Please Specify",
       "A Total Credit",
       "A.1 Direct",
       "A.1.1 Residential Mortgages",
@@ -392,8 +568,7 @@
       "A.1.2.2 Commercial Real Estate - Other",
       "A.2 Indirect",
       "A.2.1 Funded and Non-funded Exposures NHB and Housing Finance Companies(HFCs)",
-      "A.2.2 Any Other- Please Specify",
-      "Any Other- Please Specify",
+      "Any Other- Please Specify ",
       "B Total Investment",
       "B.1 Direct",
       "B.1.1 Commercial Real Estate",

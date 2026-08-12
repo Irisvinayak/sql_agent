@@ -1,45 +1,19 @@
-# NL-to-SQL Query Generator — CIMS Banking Regulatory Reporting
+# CIMS SQL Agent — NL-to-SQL for RBI Regulatory Reporting
 
-A natural-language-to-SQL system built for South Indian Bank's **CIMS** (Centralised Information Management System) regulatory reporting database. Type or speak a question in plain English and get live Oracle query results instantly.
+A natural-language-to-SQL system built for South Indian Bank's **CIMS** (Centralised Information Management System) regulatory reporting database. Type a question in plain English and get live Oracle query results — currently scoped to the **RAQ** (Risk Assessment Questionnaire) and **ALE** returns.
+
+For how the pipeline actually works stage by stage, see **[PIPELINE.md](PIPELINE.md)**. For diagrams of the full system, see **[ARCHITECTURE.md](ARCHITECTURE.md)**. For adding a new return's embeddings, see **[EMBEDDING_GUIDE.md](EMBEDDING_GUIDE.md)**.
 
 ---
 
 ## Features
 
 - **Natural language queries** — ask questions in plain English, get SQL + results
-- **Voice input** — speak your query via microphone (transcribed via Sarvam AI)
-- **Semantic retrieval** — FAISS vector indexes find the right tables and columns from 1,900+ CIMS tables
+- **Hybrid semantic retrieval** — 7 fused signals (dense embeddings, BM25, XBRL concept matching, prior-question matching) find the right table from the CIMS schema
 - **Banking domain awareness** — understands NPA, SMA, GNPA, SEC1/SEC2/SEC8, domestic/overseas splits, vertical-format tables, and RBI reporting conventions
-- **Relative time resolution** — "last quarter", "this financial year", "Q1 FY2024" are automatically resolved to exact date ranges before the LLM sees the query
-- **SQL validation** — generated SQL is checked against the schema before execution; dangerous DML/DDL is blocked
-- **Dark mode** UI
-
----
-
-## Architecture
-
-```
-User query (text / voice)
-        │
-        ▼
-  [FastAPI backend]
-        │
-        ├─ Sarvam AI (voice → text)
-        │
-        ├─ FAISS retriever
-        │   ├─ table_index   (BAAI/bge-large-en embeddings)
-        │   ├─ column_index
-        │   └─ row_label_index
-        │
-        ├─ Ollama LLM  (SQL generation)
-        │
-        ├─ SQL validator
-        │
-        └─ Oracle DB  (oracledb thin mode)
-                │
-                ▼
-        [React + Vite frontend]
-```
+- **Relative time resolution** — "last quarter", "this financial year" are resolved to exact date ranges before the LLM sees the query
+- **SQL validation** — generated SQL is checked against the real schema before execution; hallucinated tables/columns and DML/DDL are hard-blocked
+- **Exact-match fast path** — a question near-identical to a previously verified one replays the stored SQL directly, skipping the LLM entirely
 
 ---
 
@@ -50,14 +24,13 @@ User query (text / voice)
 | Python | 3.11+ |
 | Node.js | 18+ |
 | Oracle Database | XE / any edition |
-| [Ollama](https://ollama.ai) | latest |
-| Ollama model | `gpt-oss:120b-cloud` (or any capable model) |
+| [Ollama](https://ollama.ai) | latest, reachable at the URL in `.env` |
 
 ---
 
 ## Setup
 
-### 1. Clone and create virtual environment
+### 1. Clone and create a virtual environment
 
 ```bash
 git clone <repo-url>
@@ -75,35 +48,24 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure credentials
+### 3. Configure
 
-Edit `src/config.py`:
-
-```python
-DB_HOST     = "your-oracle-host"
-DB_PORT     = 1521
-DB_SERVICE  = "XE"
-DB_USER     = "your_schema_user"
-DB_PASSWORD = "your_password"
-
-OLLAMA_MODEL   = "gpt-oss:120b-cloud"   # or any model you have pulled
-SARVAM_API_KEY = "your_sarvam_key"       # only needed for voice input
-```
-
-### 4. Build the vector indexes
-
-Run **once** before starting the API (and again whenever `data/schema.sql` changes):
+Copy `.env.example` to `.env` and fill in your Oracle credentials and Ollama endpoint:
 
 ```bash
-python embedding_building/main.py
+cp .env.example .env
 ```
 
-This parses `data/schema.sql`, generates descriptions, embeds all tables/columns, and writes the FAISS indexes to `embedding_building/output/`.
+At minimum you must set `DB_HOST`, `DB_USER`, `DB_PASSWORD` (there is no hardcoded fallback for these on purpose). Every other setting has a working default — see `.env.example` for the full list with explanations.
+
+### 4. Build the embedding indexes
+
+The retrieval layer reads from `embedding_building/cims_raq_quarterly/` by default (`EMBEDDING_DIR` in `.env`). If you're onboarding a brand-new return, see **[EMBEDDING_GUIDE.md](EMBEDDING_GUIDE.md)** for the one-command pipeline. If the indexes already exist in that folder, you can skip this step.
 
 ### 5. Start the API server
 
 ```bash
-uvicorn api.main:app --reload --port 8000
+python -m api.main
 ```
 
 ### 6. Start the frontend
@@ -118,7 +80,7 @@ Open [http://localhost:5173](http://localhost:5173).
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 ├── api/                    FastAPI application
@@ -126,46 +88,31 @@ Open [http://localhost:5173](http://localhost:5173).
 │   ├── schemas.py          Pydantic request/response models
 │   ├── utils.py            Oracle row serialization helpers
 │   └── routes/
-│       ├── query.py        POST /api/query
-│       ├── voice.py        POST /api/voice
-│       └── health.py       GET  /api/health
+│       ├── query.py        POST /api/query — the one production endpoint
+│       └── health.py       GET  /api/health, GET /api/test-db
 ├── src/                    Core pipeline (serving-time, used by the API)
-│   ├── config.py           All settings (DB, LLM, embedding)
-│   ├── vectorizer.py       Embedding model wrapper + FAISS helpers (shared)
-│   ├── retriever.py        RRF-fused semantic retrieval (reads embedding_building/output/)
-│   ├── sql_generator.py    LLM prompt builder + SQL validator
-│   ├── executor.py         Oracle query execution
-│   ├── description_fetcher.py  Row-label fetch (build) + row-label search (serve)
-│   └── speech.py           Microphone recording (CLI mode)
-├── embedding_building/     Everything related to (re)building the vector store
-│   ├── extract_schema.py   Pulls DDL from Oracle -> data/schema.sql
-│   ├── parser.py           Parses CREATE TABLE DDL from schema.sql
-│   ├── generators.py       Token-expansion description generator
-│   ├── formatter.py        Builds schema.json and vector records
-│   ├── main.py             Index builder entry point (run this to (re)build)
-│   ├── add_return_schema.py  Incrementally add tables without a full rebuild
-│   ├── show.py             Debug helper — dumps table_meta.pkl
-│   └── output/             Generated artifacts (rebuilt by main.py)
-│       ├── schema.json
-│       ├── description_samples.json
-│       ├── *.faiss         FAISS vector indexes (git-ignored)
-│       └── *.pkl           Index metadata (git-ignored)
-├── data/
-│   ├── schema.sql          Oracle DDL for all CIMS tables
-│   └── .json-formatted     Human-readable column label mappings
-├── frontend/               React + Vite + Tailwind CSS UI
-└── requirements.txt
+│   ├── config.py            All settings (env-driven, see .env.example)
+│   ├── retriever.py          7-signal hybrid retrieval + RRF fusion
+│   ├── selector.py            Deterministic table-shortlist narrowing (no LLM call)
+│   ├── sql_generator.py        Prompt builder, Ollama call, correction-retry loop, validation
+│   ├── executor.py             Oracle connection pool + execution
+│   ├── vectorizer.py            Embedding + FAISS helpers
+│   ├── business_dictionary.py   Acronym/alias/synonym expansion
+│   ├── concept_map.py           XBRL business-concept reader
+│   ├── business_semantics.py    Business-semantics prompt block
+│   ├── literal_validator.py     Hallucinated-literal check
+│   └── description_fetcher.py   Row-label sample fetching
+├── embedding_building/      Everything related to building the vector store
+│   └── cims_raq_quarterly/  The live embedding directory (schema.json + every index)
+├── data/                    Oracle DDL, Excel-sourced descriptions, XBRL taxonomy exports
+├── eval/                    Accuracy benchmarking harness
+├── scripts/                 Offline tests, validators, one-off tooling
+└── frontend/                React + Vite UI
 ```
 
 ---
 
-## API Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/health` | Health check |
-| `POST` | `/api/query` | Run a text query |
-| `POST` | `/api/voice` | Run a voice query (multipart audio upload) |
+## API
 
 ### POST /api/query
 
@@ -177,28 +124,22 @@ Open [http://localhost:5173](http://localhost:5173).
 {
   "query": "...",
   "matched_tables": ["cims_raq_q_sec1_part_a_dom"],
-  "matched_columns": ["cims_raq_q_sec1_part_a_dom.period_delinquency", ...],
   "sql": "SELECT ...",
   "is_valid": true,
-  "validation_reason": null,
   "columns": ["PERIOD_DELINQUENCY", "TOTAL_LOAN_ASSETS"],
   "rows": [["C. Total ( A + B)", 123456.78]],
-  "db_error": null,
-  "needs_more_info": false,
-  "more_info_hint": null,
-  "accuracy_hint": null
+  "warnings": [],
+  "timings_ms": { "retrieval": 42.1, "selection": 0.3, "llm_generation": 8210.5, "db_execution": 61.2 }
 }
 ```
 
----
+### GET /api/health
 
-## Rebuilding Indexes
+Liveness check.
 
-Whenever you update `data/schema.sql` or `data/.json-formatted`, rebuild the indexes:
+### GET /api/test-db
 
-```bash
-python embedding_building/main.py
-```
+Diagnostic-only Oracle connectivity check — not called by the frontend, intended for manual/curl use.
 
 ---
 
@@ -206,5 +147,6 @@ python embedding_building/main.py
 
 - Queries shorter than 20 characters are rejected with a prompt to add more detail.
 - The system detects missing time context and shows a soft hint to include a date/quarter/year.
-- Relative time phrases ("last quarter", "this financial year", "Q3") are resolved to exact date ranges using India's April–March financial year convention.
+- Relative time phrases ("last quarter", "this financial year") are resolved using India's April–March financial year convention.
 - Backup tables (`_bk`, `_bkup`, `_backup` suffixes) are excluded from the search index automatically.
+- There is no voice-input feature in the current codebase — earlier versions of this document described one; it has been fully removed from both backend and frontend.

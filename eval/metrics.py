@@ -12,6 +12,19 @@ def table_hit(gold_table, matched_tables):
     return False, None
 
 
+def table_hit_at_n(gold_table, matched_tables, n=3):
+    """
+    Was the gold table within the first `n` matched tables? Distinct from
+    generic hit@k (k = the full shortlist, typically 8): top-3 specifically
+    measures how much precision-narrowing work src/selector.py must do to get
+    from the shortlist down to one table — a shortlist where gold sits at
+    rank 2-3 is a very different selector workload than one where gold sits
+    at rank 7-8, even though both count identically toward hit@k.
+    """
+    hit, rank = table_hit(gold_table, matched_tables[:n])
+    return hit
+
+
 def column_recall(gold_table, gold_sql, matched_columns):
     """
     Fraction of the gold table's real columns that are (a) referenced in the

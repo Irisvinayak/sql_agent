@@ -111,7 +111,15 @@ def build_schema_json(tables, descriptions=None, constraints=None):
             col_names.append(col["name"])
 
         return_name_str = ", ".join(sorted(table_return_names))
-        is_backup = any(t in table.lower().split("_") for t in ("bk", "bkup", "bckup", "backup"))
+        # Suffix match, not "any token equals" — a genuine backup table is named
+        # with a backup SUFFIX (e.g. "..._BKUP"), but ALE's naming convention
+        # uses "BK" as a mid-name abbreviation for "Bank" (e.g.
+        # CIMS_ALE_Q_SEC2_G1_BK_FI = "Bank Financial Institution" counterparty
+        # category) — the old any-token check treated that "bk" token the same
+        # as a real "_BKUP" suffix and silently dropped two genuine, queryable
+        # ALE tables from every search index. Mirrors build_schema.py's own
+        # _BACKUP_SUFFIXES definition so both stay consistent.
+        is_backup = table.lower().endswith(("_bk", "_bkup", "_bckup", "_backup"))
 
         # Rich description: uses token expansion + embedded column labels
         table_desc = generate_table_description(table, col_excel_names)

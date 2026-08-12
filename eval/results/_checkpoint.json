@@ -5,13 +5,13 @@
     "gold_sql": "SELECT * FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec2_part_a",
-      "cims_raq_q_sec1_part_a_dom",
-      "cims_raq_q_sec1_part_c_o"
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec1_part_a_dom"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT OUTSTANDING_AMT_DOM, OUTSTANDING_AMT_O FROM CIMS_RAQ_Q_SEC2_PART_A WHERE TRIM(RISK_CATEGORY) = 'Total (1 to 4)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC2_PART_A WHERE TRIM(RISK_CATEGORY) = 'Total (1 to 4)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -26,8 +26,8 @@
     "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION = 'Bank Code' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec8_sec_credit",
-      "cims_raq_q_sec9_sensec_partb",
-      "cims_raq_q_sec1_part_a_dom"
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec2_part_a"
     ],
     "table_hit": false,
     "table_rank": null,
@@ -47,17 +47,17 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Reporting Period','Frequency') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec4_part_a",
-      "cims_raq_q_sec1_last_date_port",
-      "cims_raq_q_sec2_part_a_memo"
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec1_part_d_o"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT TO_CHAR(MAX(r.RDATE), 'YYYY') AS yearly_return_period, TO_CHAR(MAX(r.RDATE), 'Q') AS quarterly_return_frequency FROM CIMS_RAQ_Q_SEC4_PART_A r",
+    "pred_sql": "SELECT TO_CHAR(MAX(r.RDATE), 'YYYY-MM') AS latest_reporting_period, TO_CHAR(MAX(r.RDATE)-INTERVAL '1 year', 'YYYY-MM') AS previous_reporting_period FROM CIMS_RAQ_Q_SEC4_PART_A r",
     "sql_valid": false,
-    "validation_reason": "Hallucinated columns (not in schema): ['yyyy']",
+    "validation_reason": "Hallucinated columns (not in schema): ['interval', 'year', 'yyyy']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['yyyy']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['interval', 'year', 'yyyy']"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -70,19 +70,19 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec1_last_date_port",
-      "cims_raq_q_sec8_sec_credit",
-      "cims_raq_q_sec2_last_date_port"
+      "cims_raq_q_sec2_last_date_port",
+      "cims_raq_q_sec8_sec_credit"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC1_LAST_DATE_PORT c WHERE c.RDATE = TO_DATE('2023-04-05', 'YYYY-MM-DD') AND c.DESCRIPTION IN ('* Last date of portfolio review (dd/mm/yyyy)', '@ Date of last provisioning review (dd/mm/yyyy)')",
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC1_LAST_DATE_PORT c WHERE c.CODE = 'BANK CODE' AND TO_DATE(c.VALUE, 'DD/MM/YYYY') <= TO_DATE('01/01/2023', 'DD/MM/YYYY')",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
-    "exec_success": true,
-    "exec_match": false,
-    "exec_error": null,
+    "exec_success": false,
+    "exec_match": null,
+    "exec_error": "Query execution failed: ORA-01861: literal does not match format string\nHelp: https://docs.oracle.com/error-help/db/ora-01861/",
     "generation_error": null
   },
   {
@@ -91,13 +91,13 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Return Name','Return Code') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec2_part_a",
-      "CIMS_RAQ_Q_SEC3_PART_B",
-      "cims_raq_q_sec8_sec_credit"
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec_12_misc_t2"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT 'CIMS_RAQ_Q_SEC2_PART_A' AS return_name, CODE AS return_code FROM CIMS_RAQ_Q_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
+    "pred_sql": "SELECT 'CIMS_RAQ_Q_SEC2_PART_A' AS RETURN_NAME, CODE AS RETURN_CODE FROM CIMS_RAQ_Q_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
     "sql_valid": false,
     "validation_reason": "Hallucinated columns (not in schema): ['cims_raq_q_sec2_part_a']",
     "warnings": [
@@ -114,17 +114,17 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_GEN_INFO WHERE DESCRIPTION IN ('Bank Category','Audit Status','Validation Status') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_GEN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec2_part_a",
-      "cims_raq_q_sec4_part_b",
-      "cims_raq_q_sec8_sec_credit"
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec4_part_a"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT b.BANK_CATEGORY, c.AUDIT_STATUS, c.VALIDATION_STATUS FROM CIMS_RAQ_Q_SEC2_PART_A b JOIN (SELECT CODE, RDATE FROM CIMS_RAQ_Q_SEC4_PART_B WHERE TO_CHAR(RDATE, 'YYYY') = EXTRACT(YEAR FROM CURRENT_DATE) - 1) r ON b.CODE = r.CODE JOIN CIMS_RAQ_Q_SEC8_SEC_CREDIT c ON r.RDATE = c.RDATE",
+    "pred_sql": "SELECT b.RISK_CATEGORY, c.CODE AS AUDIT_STATUS FROM CIMS_RAQ_Q_SEC2_PART_A b JOIN (SELECT RDATE, CODE FROM CIMS_RAQ_Q_SEC4_PART_A WHERE MOVEMENT_FROM = 'G. NPAs at the end of the Period') c ON b.RDATE = c.RDATE",
     "sql_valid": false,
-    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC2_PART_A and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC2_PART_A and CIMS_RAQ_Q_SEC4_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC2_PART_A and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC2_PART_A and CIMS_RAQ_Q_SEC4_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
     ],
     "exec_success": null,
     "exec_match": null,
@@ -137,17 +137,17 @@
     "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION = 'Name' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec2_part_a",
-      "cims_raq_q_sec1_part_a_dom",
-      "cims_raq_q_sec9_sensec_partb"
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec2_part_a_memo"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT 'John Doe' AS authorised_signatory",
+    "pred_sql": "SELECT 'Authorised Signatory' AS Title, 'John Doe' AS Name FROM CIMS_RAQ_Q_SEC2_PART_A",
     "sql_valid": false,
-    "validation_reason": "Query does not reference any matched table: ['cims_raq_q_sec1_part_a_dom', 'cims_raq_q_sec2_part_a', 'cims_raq_q_sec9_sensec_partb']",
+    "validation_reason": "Hallucinated columns (not in schema): ['authorised', 'doe', 'john', 'signatory']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: schema grounding. Reason: Query does not reference any matched table: ['cims_raq_q_sec1_part_a_dom', 'cims_raq_q_sec2_part_a', 'cims_raq_q_sec9_sensec_partb']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['authorised', 'doe', 'john', 'signatory']"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -160,17 +160,17 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Designation','E-mail ID') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec8_sec_credit",
-      "cims_raq_q_sec7_exp_cr",
-      "cims_raq_q_sec2_part_a_memo"
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec7_exp_cr"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT 'John Doe' AS designation, 'john.doe@example.com' AS email_id FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT c",
+    "pred_sql": "SELECT c.DESIGNATION, c.EMAIL_ID FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT c",
     "sql_valid": false,
-    "validation_reason": "Hallucinated columns (not in schema): ['com', 'doe', 'john']",
+    "validation_reason": "Column/table mismatch: ['c.designation (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'c.email_id (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['com', 'doe', 'john']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['c.designation (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)', 'c.email_id (table CIMS_RAQ_Q_SEC8_SEC_CREDIT has no such column)']"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -183,13 +183,13 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Mobile No','Landline No') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec8_sec_credit",
-      "cims_raq_q_sec1_part_a_dom",
-      "cims_raq_q_sec4_part_a"
+      "cims_raq_q_sec8_infra_brkup",
+      "cims_raq_q_sec1_part_a_dom"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT 'mobile' AS phone_type, m.phone_number FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT s JOIN BANK_AUTHORISED_SIGNATORY b ON s.ITEM = b.BANK_NAME JOIN MOBILE_PHONE m ON b.MOBILE_NUMBER = m.phone_number UNION ALL SELECT 'landline' AS phone_type, l.phone_number FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT s JOIN BANK_AUTHORISED_SIGNATORY b ON s.ITEM = b.BANK_NAME JOIN LANDLINE_PHONE l ON b.LANDLINE_NUMBER = l.phone_number",
+    "pred_sql": "SELECT 'mobile' AS phone_type, m.phone_number FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT c JOIN BANK_AUTHORISED_SIGNATORY b ON c.ITEM = b.BANK_NAME JOIN MOBILE_PHONE m ON b.MOBILE_NUMBER = m.phone_number UNION ALL SELECT 'landline' AS phone_type, l.phone_number FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT c JOIN BANK_AUTHORISED_SIGNATORY b ON c.ITEM = b.BANK_NAME JOIN LANDLINE_PHONE l ON b.LANDLINE_NUMBER = l.phone_number",
     "sql_valid": false,
     "validation_reason": "Hallucinated tables (not in schema): ['bank_authorised_signatory', 'landline_phone', 'mobile_phone']",
     "warnings": [
@@ -206,17 +206,17 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SIGN_INFO WHERE DESCRIPTION IN ('Place','Date') AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
       "cims_raq_q_sec4_part_a",
-      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec2_part_a_memo",
       "cims_raq_q_sec1_last_date_port"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT 'CIMSSignature' AS SignatureType, 'CIMSBankingSupervisoryRegulatoryReturnRAQAnnualYearly' AS SignatureTable, TO_DATE('2021-04-30', 'YYYY-MM-DD') AS SignatureDate, 'Signed at CIMSTest' AS SignaturePlace",
+    "pred_sql": "SELECT 'Total Upgrade/Downgrade' AS MOVEMENT_FROM, TO_DATE('2023-12-31', 'YYYY-MM-DD') AS RDATE FROM CIMS_RAQ_Q_SEC4_PART_A",
     "sql_valid": false,
-    "validation_reason": "Query does not reference any matched table: ['cims_raq_q_sec1_last_date_port', 'cims_raq_q_sec2_part_a', 'cims_raq_q_sec4_part_a']",
+    "validation_reason": "Hallucinated columns (not in schema): ['downgrade', 'total', 'upgrade', 'yyyy']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: schema grounding. Reason: Query does not reference any matched table: ['cims_raq_q_sec1_last_date_port', 'cims_raq_q_sec2_part_a', 'cims_raq_q_sec4_part_a']"
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['downgrade', 'total', 'upgrade', 'yyyy']"
     ],
     "exec_success": null,
     "exec_match": null,
@@ -228,14 +228,14 @@
     "gold_table": "CIMS_RAQ_M_SIGN_INFO",
     "gold_sql": "SELECT * FROM CIMS_RAQ_M_SIGN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SIGN_INFO)",
     "matched_tables": [
-      "cims_raq_q_sec4_part_a",
-      "cims_raq_q_sec2_part_a",
-      "cims_raq_q_sec8_sec_credit"
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec2_part_a"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": 0.0,
-    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC4_PART_A c",
+    "pred_sql": "SELECT * FROM CIMS_RAQ_Q_SEC2_PART_A_MEMO",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -280,14 +280,14 @@
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": null,
-    "sql_valid": false,
-    "validation_reason": null,
+    "pred_sql": "SELECT SUM(c.TOTAL_LOAN_ASSETS) AS total_loan_assets FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE TRIM(c.PERIOD_DELINQUENCY) = 'C. Total ( A + B)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_PART_A_DOM)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
     "warnings": [],
-    "exec_success": null,
+    "exec_success": true,
     "exec_match": null,
-    "exec_error": null,
-    "generation_error": "Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate"
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
   },
   {
     "question": "Get term loans and cash credit/overdraft amounts by delinquency bucket, domestic portfolio",
@@ -301,28 +301,7 @@
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": null,
-    "sql_valid": false,
-    "validation_reason": null,
-    "warnings": [],
-    "exec_success": null,
-    "exec_match": null,
-    "exec_error": null,
-    "generation_error": "Ollama API error: 502 Server Error: Bad Gateway for url: http://3.109.51.228/OllamaProxy/api/generate"
-  },
-  {
-    "question": "List bills purchased and discounted for domestic loans and advances portfolio",
-    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
-    "gold_sql": "SELECT PERIOD_DELINQUENCY, BILLS_PURCHASE_DISCOUNT FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
-    "matched_tables": [
-      "CIMS_RAQ_Q_SEC1_LAST_DATE_PORT",
-      "cims_raq_q_sec1_part_a_dom",
-      "cims_raq_q_sec1_part_b_dom"
-    ],
-    "table_hit": false,
-    "table_rank": null,
-    "column_recall": null,
-    "pred_sql": "SELECT SUM(c.BILLS_PURCHASE_DISCOUNT) AS total_bills_purchased_and_discounted FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC'",
+    "pred_sql": "SELECT r.PERIOD_DELINQUENCY, SUM(r.TERM_LOAN) AS term_loans, SUM(r.CASH_CR_OVERDRAFT_DEMAND_LOAN) AS cash_cr_overdrafts FROM CIMS_RAQ_Q_SEC1_PART_A_DOM r WHERE r.CODE = 2050 AND r.RDATE = (SELECT MAX(rdate) FROM CIMS_RAQ_Q_SEC1_PART_A_DOM) GROUP BY r.PERIOD_DELINQUENCY ORDER BY term_loans DESC, cash_cr_overdrafts DESC NULLS LAST",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -332,22 +311,47 @@
     "generation_error": null
   },
   {
+    "question": "List bills purchased and discounted for domestic loans and advances portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, BILLS_PURCHASE_DISCOUNT FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
+    "matched_tables": [
+      "CIMS_RAQ_Q_SEC1_LAST_DATE_PORT",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(c.BILLS_PURCHASED) AS total_bills_purchased FROM CIMS_RAQ_Q_SEC1_PART_A_DOM c WHERE c.PERIOD_DELINQUENCY = 'ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC'",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['c.bills_purchased (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['c.bills_purchased (table CIMS_RAQ_Q_SEC1_PART_A_DOM has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
     "question": "How much loans and advances to banks are overdue in the domestic portfolio analysis section?",
     "gold_table": "CIMS_RAQ_M_SEC1_PART_A_DOM",
     "gold_sql": "SELECT PERIOD_DELINQUENCY, LOAN_ADVANCE_BANK FROM CIMS_RAQ_M_SEC1_PART_A_DOM WHERE PERIOD_DELINQUENCY != 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_A_DOM)",
     "matched_tables": [
       "cims_raq_q_sec4_part_a",
-      "cims_raq_q_sec1_part_c_o",
-      "cims_raq_q_sec1_part_a_dom"
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec8_infra_brkup"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT SUM(CASE WHEN PERIOD_DELINQUENCY = 'ii) Overdue [ii.a + ii.b]' THEN TOTAL_LOAN_ASSETS ELSE 0 END) AS total_overdue FROM CIMS_RAQ_Q_SEC1_PART_A_DOM",
+    "pred_sql": "SELECT SUM(cims_raq_q_sec1_part_a_dom.term_loan) AS total_term_loans_disbursed FROM cims_raq_q_sec1_part_a_dom WHERE trim(cims_raq_q_sec1_part_a_dom.movement_from) = 'B. Loans and Advances Disbursed during April to Date' AND cims_raq_q_sec1_part_a_dom.rdate = (SELECT MAX(cims_raq_q_sec1_part_a_dom.rdate) FROM cims_raq_q_sec1_part_a_dom) AND cims_raq_q_sec1_part_a_dom.period_delinquency = 'C. Total ( A + B)'",
     "sql_valid": true,
     "validation_reason": "Valid",
-    "warnings": [],
-    "exec_success": true,
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00904: \"CIMS_RAQ_Q_SEC1_PART_A_DOM\".\"MOVEMENT_FROM\": invalid identifier\nHelp: https://docs.oracle.com/error-help/db/ora-00904/"
+    ],
+    "exec_success": false,
     "exec_match": null,
     "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
     "generation_error": null
@@ -359,12 +363,12 @@
     "matched_tables": [
       "cims_raq_q_sec1_part_b_dom",
       "cims_raq_q_sec1_part_a_dom",
-      "CIMS_RAQ_Q_SEC4_PART_B"
+      "cims_raq_q_sec1_part_c_o"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT c.PERIOD_DELINQUENCY, SUM(c.OTHERS) AS total_oiba FROM CIMS_RAQ_Q_SEC1_PART_B_DOM c WHERE c.CODE = 2050 AND c.RDATE = (SELECT MAX(rdate) FROM CIMS_RAQ_Q_SEC1_PART_B_DOM) GROUP BY c.PERIOD_DELINQUENCY ORDER BY total_oiba DESC NULLS LAST",
+    "pred_sql": "SELECT c.PERIOD_DELINQUENCY, SUM(c.OTHERS) AS total_oiba FROM CIMS_RAQ_Q_SEC1_PART_B_DOM c WHERE c.CODE = 2050 AND c.RDATE <= TO_DATE('2023-06-30', 'YYYY-MM-DD') GROUP BY c.PERIOD_DELINQUENCY ORDER BY total_oiba DESC NULLS LAST",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -378,14 +382,14 @@
     "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
     "gold_sql": "SELECT PERIOD_DELINQUENCY, COMMERCIAL_PAPER FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
     "matched_tables": [
-      "cims_raq_q_sec9_sensec_partb",
       "cims_raq_q_sec1_part_b_dom",
-      "cims_raq_q_sec10"
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec9_sensec_parta"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT SUM(c.commercial_paper) AS total_commercial_paper FROM CIMS_RAQ_Q_SEC1_PART_B_DOM c WHERE c.period_delinquency = 'A Total Credit' AND c.rdate = (SELECT MAX(rdate) FROM CIMS_RAQ_Q_SEC1_PART_B_DOM)",
+    "pred_sql": "SELECT SUM(c.COMMERCIAL_PAPER) AS total_commercial_paper FROM CIMS_RAQ_Q_SEC1_PART_B_DOM c WHERE c.PERIOD_DELINQUENCY = '3) Substandard' AND c.RDATE = (SELECT MAX(rdate) FROM cims_raq_q_sec1_part_b_dom)",
     "sql_valid": true,
     "validation_reason": "Valid",
     "warnings": [],
@@ -423,19 +427,17 @@
     "gold_table": "CIMS_RAQ_M_SEC1_PART_B_DOM",
     "gold_sql": "SELECT TOTAL_OIBA FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE PERIOD_DELINQUENCY = 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
     "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
       "cims_raq_q_sec9_sensec_partb",
-      "cims_raq_q_sec2_part_b",
-      "cims_raq_q_sec4_part_a"
+      "cims_raq_q_sec2_part_a"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT cims_raq_q_sec9_sensec_partb.amt_os_funded_dom AS total_oiba FROM cims_raq_q_sec9_sensec_partb WHERE DESCRIPTION = 'A Total Credit' AND cims_raq_q_sec9_sensec_partb.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec9_sensec_partb)",
+    "pred_sql": "SELECT TOTAL_OIBA FROM CIMS_RAQ_Q_SEC1_PART_B_DOM WHERE PERIOD_DELINQUENCY = '1) Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_PART_B_DOM)",
     "sql_valid": true,
     "validation_reason": "Valid",
-    "warnings": [
-      "Auto-corrected: the model did not add the required row-label filter, so it was rewritten deterministically instead of guessed."
-    ],
+    "warnings": [],
     "exec_success": true,
     "exec_match": null,
     "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
@@ -447,7 +449,7 @@
     "gold_sql": "SELECT PERIOD_DELINQUENCY, NOTE_BONDS_CORPORATE FROM CIMS_RAQ_M_SEC1_PART_B_DOM WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_B_DOM)",
     "matched_tables": [
       "cims_raq_q_sec1_part_b_dom",
-      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec8_sec_credit",
       "cims_raq_q_sec1_part_d_o"
     ],
     "table_hit": false,
@@ -468,19 +470,17 @@
     "gold_sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER)",
     "matched_tables": [
       "cims_raq_q_sec1_exc_govt_paper",
-      "cims_raq_q_sec4_part_a",
-      "cims_raq_q_sec1_part_b_dom"
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o"
     ],
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT t.DESCRIPTION FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER t WHERE t.RDATE = (SELECT MAX(t2.RDATE) FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER t2) AND t.DESCRIPTION NOT ILIKE '%OIBA%'",
+    "pred_sql": "SELECT DESCRIPTION FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER WHERE TRIM(DESCRIPTION) = 'Total' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER)",
     "sql_valid": true,
     "validation_reason": "Valid",
-    "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00920: invalid relational operator\nHelp: https://docs.oracle.com/error-help/db/ora-00920/"
-    ],
-    "exec_success": false,
+    "warnings": [],
+    "exec_success": true,
     "exec_match": null,
     "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
     "generation_error": null
@@ -498,11 +498,540 @@
     "table_hit": false,
     "table_rank": null,
     "column_recall": null,
-    "pred_sql": "SELECT SUM(CASE WHEN t.description IN ('(a) Treasury bills', '(b) GOI Securities(Bonds)') THEN p.total_oiba ELSE 0 END) AS total_excluded_oiba FROM cims_raq_q_sec1_part_b_dom p JOIN cims_raq_q_sec1_exc_govt_paper t ON p.period_delinquency = t.description WHERE p.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec1_part_b_dom)",
+    "pred_sql": "SELECT SUM(CASE WHEN t.description IN ('Treasury bills', 'GOI Securities') THEN 1 ELSE 0 END) AS num_excluded_assets FROM cims_raq_q_sec1_exc_govt_paper t WHERE t.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec1_exc_govt_paper)",
     "sql_valid": false,
-    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER and CIMS_RAQ_Q_SEC1_PART_B_DOM. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "validation_reason": "Hallucinated columns (not in schema): ['bills', 'goi', 'securities', 'treasury']",
     "warnings": [
-      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER and CIMS_RAQ_Q_SEC1_PART_B_DOM. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['bills', 'goi', 'securities', 'treasury']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get total government paper excluded from OIBA for a bank",
+    "gold_table": "CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER",
+    "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER WHERE DESCRIPTION = 'Total' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER)",
+    "matched_tables": [
+      "cims_raq_q_sec1_exc_govt_paper",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec2_part_a_memo"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(VALUE) AS total_excluded_government_paper FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER WHERE TRIM(DESCRIPTION) = 'Total' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "List state government securities excluded from OIBA current row",
+    "gold_table": "CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER",
+    "gold_sql": "SELECT VALUE FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER WHERE DESCRIPTION = 'State Govt. Securities' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_EXC_GOVT_PAPER)",
+    "matched_tables": [
+      "cims_raq_q_sec1_exc_govt_paper",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT VALUE FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER WHERE TRIM(DESCRIPTION) = '(c) State Govt. securities' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_EXC_GOVT_PAPER)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Show overseas loans and advances by delinquency period, annual return",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_C_O",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TOTAL_LOAN_ASSETS FROM CIMS_RAQ_M_SEC1_PART_C_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_C_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec2_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT o.PERIOD_DELINQUENCY, EXTRACT(YEAR FROM o.RDATE) AS YEAR, SUM(o.TERM_LOAN + o.CASH_CR_OVERDRAFT_DEMAND_LOAN + o.BILLS_PURCHASE_DISCOUNT + o.LOAN_ADVANCE_BANK) AS total_loans FROM CIMS_RAQ_Q_SEC1_PART_C_O o WHERE TRIM(o.PERIOD_DELINQUENCY) = 'ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC' GROUP BY o.PERIOD_DELINQUENCY, YEAR ORDER BY YEAR NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00904: \"YEAR\": invalid identifier\nHelp: https://docs.oracle.com/error-help/db/ora-00904/"
+    ],
+    "exec_success": false,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "What is the total loan assets for overseas operations under Section 1 Part C?",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_C_O",
+    "gold_sql": "SELECT SUM(TOTAL_LOAN_ASSETS) FROM CIMS_RAQ_M_SEC1_PART_C_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_C_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec2_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(c.TOTAL_LOAN_ASSETS) AS total_loan_assets FROM CIMS_RAQ_Q_SEC1_PART_C_O c WHERE c.PERIOD_DELINQUENCY = 'ii.b) Loans and Advances where 90 day norms is NOT applicable as per IRAC' AND c.CODE = 2",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Get term loans overdue beyond current for overseas portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_C_O",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TERM_LOAN FROM CIMS_RAQ_M_SEC1_PART_C_O WHERE PERIOD_DELINQUENCY != 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_C_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec8_infra_brkup"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(tl.term_loan) AS total_overseas_term_loans FROM cims_raq_q_sec1_part_c_o tl WHERE tl.period_delinquency = 'ii.a) Loans and Advances where 90 day norms is applicable as per IRAC' AND tl.rdate > CURRENT_DATE",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "List bills purchased and discounted for overseas loans",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_C_O",
+    "gold_sql": "SELECT BILLS_PURCHASE_DISCOUNT FROM CIMS_RAQ_M_SEC1_PART_C_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_C_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_c_o",
+      "cims_raq_q_sec1_part_a_dom",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT c.bills_purchase_discount FROM cims_raq_q_sec1_part_c_o c WHERE c.period_delinquency = 'ii.a) Loans and Advances where 90 day norms is applicable as per IRAC'",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Show OIBA for overseas operations by delinquency period",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_D_O",
+    "gold_sql": "SELECT PERIOD_DELINQUENCY, TOTAL_OIBA FROM CIMS_RAQ_M_SEC1_PART_D_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_D_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o",
+      "cims_raq_q_sec1_part_c_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT c.PERIOD_DELINQUENCY, SUM(c.TOTAL_OIBA) AS total_oiba FROM CIMS_RAQ_Q_SEC1_PART_B_DOM c WHERE c.COUNTRY_OF_OPERATION = 'Overseas' GROUP BY c.PERIOD_DELINQUENCY ORDER BY total_oiba DESC NULLS LAST",
+    "sql_valid": false,
+    "validation_reason": "Column/table mismatch: ['c.country_of_operation (table CIMS_RAQ_Q_SEC1_PART_B_DOM has no such column)']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: alias/table mismatch. Reason: Column/table mismatch: ['c.country_of_operation (table CIMS_RAQ_Q_SEC1_PART_B_DOM has no such column)']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the commercial paper and inter-bank assets under overseas OIBA?",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_D_O",
+    "gold_sql": "SELECT COMMERCIAL_PAPER, INTER_BANK_ASSETS FROM CIMS_RAQ_M_SEC1_PART_D_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_D_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cp.commercial_paper, iba.inter_bank_assets FROM cims_raq_q_sec1_part_b_dom cp WHERE trim(cp.period_delinquency) = '5) Loss' AND cp.total_oiba > 0",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-00904: \"IBA\".\"INTER_BANK_ASSETS\": invalid identifier\nHelp: https://docs.oracle.com/error-help/db/ora-00904/"
+    ],
+    "exec_success": false,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Total OIBA overseas operations for current reporting period",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_D_O",
+    "gold_sql": "SELECT TOTAL_OIBA FROM CIMS_RAQ_M_SEC1_PART_D_O WHERE PERIOD_DELINQUENCY = 'Current' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_D_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec1_part_d_o"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(c.TOTAL_OIBA) AS total_oiba FROM CIMS_RAQ_Q_SEC1_PART_D_O c WHERE c.PERIOD_DELINQUENCY = 'C. TOTAL (A+B)' AND c.RDATE = (SELECT MAX(rdate) FROM cims_raq_q_sec1_part_d_o)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "List notes and bonds of corporates in overseas OIBA portfolio",
+    "gold_table": "CIMS_RAQ_M_SEC1_PART_D_O",
+    "gold_sql": "SELECT NOTE_BONDS_CORPORATE FROM CIMS_RAQ_M_SEC1_PART_D_O WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC1_PART_D_O)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec1_part_d_o",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT NOTE_BONDS_CORPORATE FROM CIMS_RAQ_Q_SEC1_PART_D_O WHERE TRIM(PERIOD_DELINQUENCY) = '5) Loss' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC1_PART_D_O)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Show classification of risk assets by risk category for the annual return",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A",
+    "gold_sql": "SELECT RISK_CATEGORY, OUTSTANDING_AMT_DOM, OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec2_last_date_port"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT r.RISK_CATEGORY, SUM(r.OUTSTANDING_AMT_DOM) AS total_outstanding_amt_dom, SUM(r.OUTSTANDING_AMT_O) AS total_outstanding_amt_o FROM CIMS_RAQ_Q_SEC2_PART_A r WHERE TO_CHAR(r.RDATE, 'YYYY') = EXTRACT(YEAR FROM CURRENT_DATE - INTERVAL '1 year') GROUP BY r.RISK_CATEGORY ORDER BY total_outstanding_amt_dom DESC NULLS LAST, total_outstanding_amt_o DESC NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: engine rejected. Reason: Oracle rejected the query: ORA-30089: missing or invalid <datetime field>\nHelp: https://docs.oracle.com/error-help/db/ora-30089/"
+    ],
+    "exec_success": false,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "What is the outstanding amount and provision made for NPA risk category, domestic operations?",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A",
+    "gold_sql": "SELECT OUTSTANDING_AMT_DOM, PROVISION_MADE_LOSSES_DOM FROM CIMS_RAQ_M_SEC2_PART_A WHERE RISK_CATEGORY = 'NPA' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec2_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT OUTSTANDING_AMT_DOM, PROVISION_MADE_LOSSES_DOM FROM CIMS_RAQ_Q_SEC2_PART_A WHERE TRIM(RISK_CATEGORY) = 'Netting Items for NPAs' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Get the percentage to total loans for each risk category, overseas operations",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A",
+    "gold_sql": "SELECT RISK_CATEGORY, PER_TO_TOTAL_O FROM CIMS_RAQ_M_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec9_sensec_partb",
+      "CIMS_RAQ_Q_SEC1_PART_C_O"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT rc.RISK_CATEGORY, SUM(ca.AMT_OS_FUNDED_OVE) AS total_overseas_loans, SUM(ca.AMT_OS_FUNDED_DOM) AS total_domestic_loans, (SUM(ca.AMT_OS_FUNDED_OVE)::FLOAT / NULLIF(SUM(ca.AMT_OS_FUNDED_DOM), 0)) * 100 AS percentage FROM CIMS_RAQ_Q_SEC2_PART_A rc JOIN CIMS_RAQ_Q_SEC1_PART_C_O ca ON rc.RISK_CATEGORY = CAST(rc.RISK_CATEGORY AS VARCHAR) GROUP BY rc.RISK_CATEGORY",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC1_PART_C_O and CIMS_RAQ_Q_SEC2_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC1_PART_C_O and CIMS_RAQ_Q_SEC2_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List provisions made for possible losses across all risk categories",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A",
+    "gold_sql": "SELECT RISK_CATEGORY, PROVISION_MADE_LOSSES_DOM, PROVISION_MADE_LOSSES_O FROM CIMS_RAQ_M_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec4_part_a"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT rc.RISK_CATEGORY, SUM(rc.PROVISION_MADE_LOSSES_DOM) AS total_provisions FROM CIMS_RAQ_Q_SEC2_PART_A rc WHERE rc.RDATE = (SELECT MAX(rdate) FROM CIMS_RAQ_Q_SEC2_PART_A) GROUP BY rc.RISK_CATEGORY ORDER BY total_provisions DESC NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Total standard assets outstanding, domestic vs overseas operations",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A",
+    "gold_sql": "SELECT OUTSTANDING_AMT_DOM, OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A WHERE RISK_CATEGORY = 'Standard' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec9_sensec_partb",
+      "cims_raq_q_sec4_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(CASE WHEN TRIM(RISK_CATEGORY) = '1. Standard #' THEN OUTSTANDING_AMT_DOM ELSE 0 END) AS total_standard_advances_domestic, SUM(CASE WHEN TRIM(RISK_CATEGORY) = '1. Standard #' THEN OUTSTANDING_AMT_O ELSE 0 END) AS total_standard_advances_overseas FROM CIMS_RAQ_Q_SEC2_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A)",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated columns (not in schema): ['standard']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated column. Reason: Hallucinated columns (not in schema): ['standard']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show netting items for NPAs and net NPA amounts for the annual return",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_NPA",
+    "gold_sql": "SELECT RISK_CATEGORY, OUTSTANDING_AMT_DOM, OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A_NPA WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_NPA)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT cims_raq_q_sec2_part_a_npa.risk_category, SUM(cims_raq_q_sec4_part_b.substandard_dom) AS substandard_dom, SUM(cims_raq_q_sec4_part_b.doubtful_dom) AS doubtful_dom, SUM(cims_raq_q_sec4_part_b.loss_dom) AS loss_dom, SUM(cims_raq_q_sec4_part_b.total_dom) AS total_dom, SUM(cims_raq_q_sec4_part_b.substandard_o) AS substandard_o, SUM(cims_raq_q_sec4_part_b.doubtful_o) AS doubtful_o, SUM(cims_raq_q_sec4_part_b.loss_o) AS loss_o, SUM(cims_raq_q_sec4_part_b.total_o) AS total_o FROM cims_raq_q_sec2_part_a_npa JOIN cims_raq_q_sec4_part_b ON cims_raq_q_sec2_part_a_npa.risk_category = cims_raq_q_sec4_part_b.movement_from WHERE cims_raq_q_sec2_part_a_npa.rdate = (SELECT MAX(rdate) FROM cims_raq_q_sec2_part_a_npa) GROUP BY cims_raq_q_sec2_part_a_npa.risk_category",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated tables (not in schema): ['where']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['where']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "What is the net NPA outstanding for domestic operations?",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_NPA",
+    "gold_sql": "SELECT OUTSTANDING_AMT_DOM FROM CIMS_RAQ_M_SEC2_PART_A_NPA WHERE RISK_CATEGORY = 'Net NPA' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_NPA)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec4_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT OUTSTANDING_AMT_DOM AS net_npa_outstanding FROM CIMS_RAQ_Q_SEC2_PART_A_NPA WHERE TRIM(RISK_CATEGORY) = 'Net NPAs' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A_NPA)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Get netting items reducing gross NPA, overseas operations",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_NPA",
+    "gold_sql": "SELECT RISK_CATEGORY, OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A_NPA WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_NPA)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec3_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(cims_raq_q_sec4_part_b.substandard_o) AS netting_items FROM cims_raq_q_sec2_part_a_npa JOIN cims_raq_q_sec4_part_b ON cims_raq_q_sec2_part_a_npa.code = cims_raq_q_sec4_part_b.code WHERE cims_raq_q_sec2_part_a_npa.risk_category = 'Netting Items for NPAs'",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC2_PART_A_NPA and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC2_PART_A_NPA and CIMS_RAQ_Q_SEC4_PART_B. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Show memorandum items for government guaranteed non-performing advances",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_MEMO",
+    "gold_sql": "SELECT MEMORANDUM_ITEM, OUTSTANDING_AMT_DOM FROM CIMS_RAQ_M_SEC2_PART_A_MEMO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_MEMO)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec3_part_b",
+      "cims_raq_q_sec8_sec_credit"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT MEMORANDUM_ITEM FROM CIMS_RAQ_Q_SEC2_PART_A_MEMO WHERE TRIM(MEMORANDUM_ITEM) = 'Amount of interest not recognised on the above Government & Government guaranteed loans (Break-up)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A_MEMO)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "What is the interest not recognised on government guaranteed NPAs, overseas operations?",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_MEMO",
+    "gold_sql": "SELECT OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A_MEMO WHERE MEMORANDUM_ITEM LIKE '%Interest not recognised%' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_MEMO)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec2_part_a_npa",
+      "cims_raq_q_sec4_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(o.OUTSTANDING_AMT_O) AS total_unrecognised_interest FROM CIMS_RAQ_Q_SEC2_PART_A_NPA n JOIN CIMS_RAQ_Q_SEC4_PART_B o ON n.RISK_CATEGORY = o.MOVEMENT_FROM WHERE n.RISK_CATEGORY = 'Net NPAs' AND o.SUBSTANDARD_O IS NOT NULL",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated tables (not in schema): ['where']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['where']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "List memorandum items for loans to government carrying government guarantee",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_A_MEMO",
+    "gold_sql": "SELECT MEMORANDUM_ITEM, OUTSTANDING_AMT_DOM, OUTSTANDING_AMT_O FROM CIMS_RAQ_M_SEC2_PART_A_MEMO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_A_MEMO)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a_memo",
+      "cims_raq_q_sec8_sec_credit",
+      "cims_raq_q_sec_12_misc"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT MEMORANDUM_ITEM FROM CIMS_RAQ_Q_SEC2_PART_A_MEMO WHERE TRIM(MEMORANDUM_ITEM) = 'Amount of interest not recognised on the above Government & Government guaranteed loans (Break-up)' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A_MEMO)",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "Show other risk assets and off-balance sheet exposures classified by asset quality",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_C",
+    "gold_sql": "SELECT ITEM, TOTAL_DOM, TOTAL_O FROM CIMS_RAQ_M_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_C)",
+    "matched_tables": [
+      "cims_raq_q_sec1_part_d_o",
+      "cims_raq_q_sec1_part_b_dom",
+      "cims_raq_q_sec9_sensec_partb"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT t.PERIOD_DELINQUENCY, SUM(t.OTHERS) AS total_other_risks FROM CIMS_RAQ_Q_SEC1_PART_D_O t WHERE TRIM(t.PERIOD_DELINQUENCY) IN ('3) Substandard', '4) Doubtful', '5) Loss') GROUP BY t.PERIOD_DELINQUENCY ORDER BY total_other_risks DESC NULLS LAST",
+    "sql_valid": true,
+    "validation_reason": "Valid",
+    "warnings": [],
+    "exec_success": true,
+    "exec_match": null,
+    "exec_error": "gold SQL also failed: Query execution failed: ORA-00942: table or view does not exist\nHelp: https://docs.oracle.com/error-help/db/ora-00942/",
+    "generation_error": null
+  },
+  {
+    "question": "What is the doubtful classification amount for off-balance sheet items, domestic operations?",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_C",
+    "gold_sql": "SELECT ITEM, DOUBTFUL_DOM FROM CIMS_RAQ_M_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_C)",
+    "matched_tables": [
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec4_part_b"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT SUM(DOUBTFUL_DOM) AS total_doubtful FROM CIMS_RAQ_Q_SEC4_PART_B WHERE TRIM(MOVEMENT_FROM) = 'From Doubtful' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_B)",
+    "sql_valid": false,
+    "validation_reason": "Hallucinated tables (not in schema): ['doubtful']",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: hallucinated table. Reason: Hallucinated tables (not in schema): ['doubtful']"
+    ],
+    "exec_success": null,
+    "exec_match": null,
+    "exec_error": null,
+    "generation_error": null
+  },
+  {
+    "question": "Get standard vs loss classification for each other risk asset item, overseas operations",
+    "gold_table": "CIMS_RAQ_M_SEC2_PART_C",
+    "gold_sql": "SELECT ITEM, STANDARD_O, LOSS_O FROM CIMS_RAQ_M_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_M_SEC2_PART_C)",
+    "matched_tables": [
+      "cims_raq_q_sec2_part_a",
+      "cims_raq_q_sec4_part_b",
+      "cims_raq_q_sec4_part_a",
+      "cims_raq_q_sec2_part_a_npa"
+    ],
+    "table_hit": false,
+    "table_rank": null,
+    "column_recall": null,
+    "pred_sql": "SELECT r.risk_category, s.standard, l.loss FROM (SELECT RISK_CATEGORY, STANDARD AS standard FROM CIMS_RAQ_Q_SEC4_PART_A WHERE MOVEMENT_FROM = 'Migration -From Standard' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_A)) s JOIN (SELECT RISK_CATEGORY, LOSS AS loss FROM CIMS_RAQ_Q_SEC4_PART_A WHERE MOVEMENT_FROM = 'From Loss' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_A)) l ON s.risk_category = l.risk_category JOIN (SELECT RISK_CATEGORY, RISK_CATEGORY AS risk_category FROM CIMS_RAQ_Q_SEC2_PART_A_NPA WHERE NPAS_TYPE = 'Netting Items for NPAs' AND RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_A_NPA)) r ON l.risk_category = r.risk_category",
+    "sql_valid": false,
+    "validation_reason": "Undeclared join between CIMS_RAQ_Q_SEC2_PART_A_NPA and CIMS_RAQ_Q_SEC4_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table.",
+    "warnings": [
+      "Model 'hf.co/defog/sqlcoder-7b-2:Q5_K_M' generated invalid SQL; probable failure category: undeclared join. Reason: Undeclared join between CIMS_RAQ_Q_SEC2_PART_A_NPA and CIMS_RAQ_Q_SEC4_PART_A. No relationship between these tables is declared in the semantic layer, so they must not be joined \u2014 answer from a single table."
     ],
     "exec_success": null,
     "exec_match": null,

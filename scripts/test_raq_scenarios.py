@@ -48,17 +48,22 @@ RETRIEVAL_CASES = [
         "vertical-total",
         "What is the total loan assets for domestic operations?",
         "CIMS_RAQ_Q_SEC1_PART_A_DOM",
-        "KNOWN MISS as of this audit — ranks #2 behind SEC1_PART_B_DOM. "
-        "Selector should recover it; if the selector is down (see selection "
-        "scenarios below) this reaches the SQL model on the wrong table.",
+        "FIXED via a business-dictionary alias (was a KNOWN MISS — ranked "
+        "#2-3 behind unrelated domestic tables on pure dense embeddings; "
+        "'Total Loan Assets' is a real column only on this table and its "
+        "overseas sibling SEC1_PART_C_O, so the alias is collision-free).",
     ),
     (
         "part-b-routing",
         "What is the loss provision held against notes and bonds, domestic operations?",
-        "CIMS_RAQ_Q_SEC2_PART_B",
-        "KNOWN MISS — the sheet is internally named 'Section2PartB' in the "
-        "source Excel but its own header reads 'Part C', so neither wording "
-        "routes reliably. Not in the shortlist at all today.",
+        "CIMS_RAQ_Q_SEC1_PART_B_DOM",
+        "CORRECTED EXPECTATION: an earlier version of this test scored this "
+        "question against CIMS_RAQ_Q_SEC2_PART_B, but that table is an "
+        "NPA-provision MOVEMENT table with no 'notes and bonds' concept at "
+        "all (verified against schema.json). The real 'Notes and Bonds of "
+        "Corporates' column lives on SEC1_PART_B_DOM (domestic) / "
+        "SEC1_PART_D_O (overseas) — a genuine sibling-collision case, not "
+        "the source-label-drift case SEC2_PART_B represents.",
     ),
     (
         "cross-part-caution",
@@ -80,7 +85,9 @@ def run_retrieval_cases():
     for cat, q, expect, why in RETRIEVAL_CASES:
         vec = compute_query_embedding(q)
         exact = find_exact_qa_match(q, query_vec=vec)
-        tables, columns, labels, qa = get_relevant_schema(q, query_vec=vec, shortlist_k=8)
+        retrieval = get_relevant_schema(q, query_vec=vec, shortlist_k=8)
+        tables, columns, labels, qa = (retrieval.tables, retrieval.columns,
+                                       retrieval.matched_labels, retrieval.qa_example)
         names = [t["table"] for t in tables]
         top1 = names[0].upper() if names else None
 
@@ -146,14 +153,29 @@ def run_generation_cases():
     print("\n" + "=" * 78)
     print("GENERATION-STAGE SCENARIOS  (requires Ollama)")
     print("=" * 78)
-    try:
-        import requests
-        from src import config
-        requests.post(config.OLLAMA_URL, json={"model": config.OLLAMA_MODEL,
-                      "prompt": "1", "stream": False, "options": {"num_predict": 1}},
-                      timeout=(3, 10)).raise_for_status()
-    except Exception as e:
-        print(f"\n[skip] Ollama backend unreachable ({e}).")
+    import requests
+    from src import config
+
+    # This endpoint is observed to be intermittently flaky in practice — 3
+    # back-to-back probes can go timeout/200/timeout with no config change in
+    # between. A single 10s probe reports "unreachable" on what is often just
+    # a transient hiccup, stricter than production's own tolerance
+    # (_OLLAMA_CONNECT_TIMEOUT_S=3s connect / up to 300s read, with a 30s
+    # outage-cooldown cache — see sql_generator.py). Retry a few times with a
+    # longer read timeout before concluding the backend is actually down.
+    reachable = False
+    last_err = None
+    for attempt in range(3):
+        try:
+            requests.post(config.OLLAMA_URL, json={"model": config.OLLAMA_MODEL,
+                          "prompt": "1", "stream": False, "options": {"num_predict": 1}},
+                          timeout=(3, 30)).raise_for_status()
+            reachable = True
+            break
+        except Exception as e:
+            last_err = e
+    if not reachable:
+        print(f"\n[skip] Ollama backend unreachable after 3 attempts ({last_err}).")
         print("These scenarios describe the EXPECTED behaviour; run manually "
               "against the API once the backend is back:\n")
         for cat, q, why in GENERATION_CASES:
@@ -168,7 +190,9 @@ def run_generation_cases():
 
     for cat, q, why in GENERATION_CASES:
         vec = compute_query_embedding(q)
-        tables, columns, labels, qa = get_relevant_schema(q, query_vec=vec, shortlist_k=8)
+        retrieval = get_relevant_schema(q, query_vec=vec, shortlist_k=8)
+        tables, columns, labels, qa = (retrieval.tables, retrieval.columns,
+                                       retrieval.matched_labels, retrieval.qa_example)
         tables, selection = select_tables(q, tables, matched_labels=labels,
                                           join_graph=load_join_graph())
         result = generate_sql(q, tables, columns, matched_labels=labels,

@@ -47,14 +47,13 @@ def _env_float(name: str, default: float) -> float:
 EMBED_MODEL = os.environ.get("EMBED_MODEL", "BAAI/bge-large-en")
 
 # Which folder retrieval reads its FAISS indexes / schema.json from.
-# Defaults to the CIMS_RAQ(Quarterly) scoped build — that's what's actually
-# under active development/testing (qa_pairs.json, direct-match tiers, the
-# validation fixes). Production (embedding_building/output, no qa_index)
-# used to be the default and repeatedly caused silent regressions whenever a
-# server restart lost the EMBEDDING_DIR env var — every fix this session
-# stopped applying with no error, just worse answers. Override with the
-# EMBEDDING_DIR env var to point elsewhere, e.g.:
-#   EMBEDDING_DIR=embedding_building/output python -m api.main
+# Defaults to the CIMS_RAQ(Quarterly) scoped build — the only actively
+# maintained embedding set (qa_pairs.json, direct-match tiers, ALE tables,
+# the validation fixes). The legacy embedding_building/output/ folder is no
+# longer read by any code path (src/sql_generator.py's schema fallback into
+# it was removed) — do not point EMBEDDING_DIR there; it is stale and
+# unmaintained. Override with the EMBEDDING_DIR env var only to point at a
+# newer scoped build under embedding_building/.
 # Every module that needs this MUST read `config.EMBEDDING_DIR` at call time
 # (not `from src.config import EMBEDDING_DIR`, which freezes a stale copy at
 # import time and silently ignores any later reassignment or env override).
@@ -105,12 +104,6 @@ OLLAMA_NUM_CTX = _env_int("OLLAMA_NUM_CTX", 8192)
 # reload BOTH on every request if they do not fit in memory together. This is
 # usually the single largest latency win available.
 OLLAMA_KEEP_ALIVE = os.environ.get("OLLAMA_KEEP_ALIVE", "30m")
-
-# "compact" (default) or "json" for the selector's reply. JSON is measurably
-# slower: constrained decoding costs per-token time, and the braces/keys/reasons
-# roughly triple the output length for the same decision. Use "json" only if the
-# selector model follows schemas better than it follows instructions.
-SELECTOR_OUTPUT_FORMAT = os.environ.get("SELECTOR_OUTPUT_FORMAT", "compact")
 
 # Kept as a plain in-code dict (not env-driven): it is keyed by exact Ollama
 # model name, several keys have long inline rationale comments, and env vars
@@ -175,17 +168,15 @@ if OLLAMA_MODEL in MODEL_PROFILES:
             "OLLAMA_TEMPERATURE", MODEL_PROFILES[OLLAMA_MODEL]["temperature"]
         )
 
-# Model used for the non-SQL reasoning calls — table/column selection
-# (src/selector.py) and, when enabled, the reasoning plan. SQLCoder is a
-# completion model: it cannot follow prose instructions or emit JSON, so it
-# stays responsible only for writing SQL against a narrow typed schema block.
-# This must be an INSTRUCT model, and it must be present in `ollama list`.
-#
-# qwen2.5-coder:7b (4.7GB) is the default because it follows the compact output
-# format reliably. Note it loads alongside SQLCoder (4.8GB), so plan for ~9.5GB;
-# if that thrashes, phi3:mini (2.2GB) is the low-memory alternative:
-#   $env:SELECTOR_MODEL = "phi3:mini"
-SELECTOR_MODEL = os.environ.get("SELECTOR_MODEL", "qwen2.5-coder:7b")
+# NOTE: table/column selection (src/selector.py) used to make its own LLM call
+# here (an instruct model, e.g. qwen2.5-coder:7b, alongside SQLCoder). Measured
+# in production, that single call cost 75-135s+ per request — often MORE than
+# SQL generation itself — almost certainly because the two 7B models did not
+# both fit in the Ollama host's memory, forcing a reload on every alternating
+# call. It was replaced with a deterministic heuristic (retrieval's own fused
+# score, plus the declared semantic-layer join graph for the rare two-table
+# case) that makes no network call at all. SELECTOR_MODEL/SELECTOR_OUTPUT_FORMAT
+# no longer exist; nothing in src/selector.py talks to Ollama anymore.
 
 # ── XBRL business-semantics layer (src/business_semantics.py) ────────────────
 # How much of the XBRL-derived business layer to inject into the SQL prompt.
@@ -271,6 +262,56 @@ CONCEPT_SIGNAL_WEIGHT = _env_float("CONCEPT_SIGNAL_WEIGHT", 2.0)
 CONCEPT_MAX_HITS_PER_TABLE = _env_int("CONCEPT_MAX_HITS_PER_TABLE", 2)
 MEMBER_SIGNAL_WEIGHT = _env_float("MEMBER_SIGNAL_WEIGHT", 0.0)
 
+# ── Phase 1 retrieval-accuracy roadmap: BM25 + hybrid fusion ─────────────────
+# Weight of the BM25 lexical signal (src/lexical_search.py), fused alongside
+# the 5 existing dense/embedding signals. Same tier as column_index (1.5): a
+# precision signal on exact terms, weaker than a verified QA/concept match.
+# Complementary to dense embedding, not a replacement — targets the confirmed
+# sibling-table collision failure mode (e.g. SEC1_PART_A_DOM vs
+# SEC1_PART_B_DOM score within ~0.02 cosine of each other; BM25 separates them
+# on the exact term "Part A"/"Part B" instead — confirmed directly: BM25 scores
+# SEC1_PART_A_DOM 9.11 vs SEC1_PART_B_DOM 8.57 on "total loan assets for
+# domestic operations", the dense-only miss case). Set to 0 to disable (no
+# BM25 search issued), reverting fusion to byte-identical pre-Phase-1 behaviour.
+#
+# Swept 0.75-3.0 at HYBRID_BLEND_GAMMA=0.3 (below): NO sensitivity in this
+# range — the plain RRF vote from BM25 (max ~0.05 at this weight) is dwarfed
+# by the existing QA-match bonus (~0.32 in the measured case above), so the
+# RRF-side contribution alone cannot flip a ranking; gamma is what actually
+# does the work (see below). 1.5 kept as a principled default (same tier as
+# column_index) rather than an empty knob.
+BM25_SIGNAL_WEIGHT = _env_float("BM25_SIGNAL_WEIGHT", 1.5)
+
+# RRF is rank-only by design — a near-exact match (raw score 0.95) and a
+# mediocre one (0.81) get almost the same fusion vote if they land at the same
+# rank. HYBRID_BLEND_GAMMA adds a small term on top of the pure-RRF fused
+# score: gamma * (each table's best raw score, min-max normalised WITHIN its
+# own best-performing signal's hit list). 0.0 = pure RRF, byte-identical to
+# pre-Phase-1 behaviour.
+#
+# Measured on eval/raq_user_queries.json (production config, QA signal on —
+# this is the whole point: unlike CONCEPT_SIGNAL_WEIGHT this had to be tuned
+# WITH the QA bonus active, since that bonus is exactly what it needs to
+# counterbalance):
+#
+#   gamma   top1     hit@k    MRR      notes
+#    0.0    0.733    0.933    0.809    baseline (BM25 in RRF only, no blend)
+#    0.3    0.733    0.956    0.826    <- default: hit@k/MRR gain, ZERO regressions
+#    0.6    0.733    0.956    0.828    same wins, s4-03 still safe
+#    0.8-1.0 0.733   0.933    0.820    s4-03 REGRESSES (drops out of shortlist)
+#    1.2-2.0 0.756   0.933    0.832    unit-02 gained, but s4-03 stays lost
+#
+# 1.2+ scores higher on top1 alone, but costs a shortlist miss on a question
+# that gamma=0.3 answers correctly (s4-03: "written off as technical
+# write-offs... domestic operations" -> CIMS_RAQ_Q_SEC4_PART_A) to gain a
+# different one (unit-02: "total loan assets... in crore"). Trading a working
+# case for a different one is not a win — same discipline already applied to
+# CONCEPT_MAX_HITS_PER_TABLE: prefer the value with zero verified regressions
+# over the value with a higher aggregate score bought by a different failure.
+# Re-tune via scripts/eval_retrieval.py --dataset raq_form if the QA corpus or
+# BM25 corpus changes meaningfully.
+HYBRID_BLEND_GAMMA = _env_float("HYBRID_BLEND_GAMMA", 0.3)
+
 # Weight of the prior-question (qa_index) signal. Exposed for ONE reason: the
 # only ground truth that matches this scope, qa_pairs.json, is also the source of
 # that index, so evaluating retrieval with it enabled measures memorisation, not
@@ -280,6 +321,21 @@ MEMBER_SIGNAL_WEIGHT = _env_float("MEMBER_SIGNAL_WEIGHT", 0.0)
 #   QA_SIGNAL_WEIGHT=0 python -m scripts.eval_retrieval --dataset qa_pairs
 # Leave it at the default in production; it is the strongest signal there is.
 QA_SIGNAL_WEIGHT = _env_float("QA_SIGNAL_WEIGHT", 2.5)
+
+# The QA-match bonus (src/retriever.py) adds an uncapped addend to one table's
+# score to let a confident question match override a crowd of similarly-scored
+# unrelated tables. Bug fixed here: the RELATIVE_FLOOR prune threshold used to
+# be computed AFTER that bonus was applied, so the bonus (which can add ~1.25
+# vs typical fused scores of 0.05-0.4) inflated the reference point every OTHER
+# table's prune floor was measured against — a genuinely relevant second table
+# (e.g. a join partner for a "compare X vs Y" question) could score below the
+# inflated floor and be silently dropped before the selector ever saw it, even
+# though effective_k had room for it. Fixed by snapshotting the floor reference
+# BEFORE the bonus is applied; the bonus's effect on final ranking/inclusion is
+# unchanged. Set to 0 to fall back to the old (buggy) post-bonus floor if this
+# fix ever needs to be dark-launched/reverted without a code change:
+#   QA_BONUS_FLOOR_FIX=0 python -m scripts.eval_retrieval --dataset raq_form
+QA_BONUS_FLOOR_FIX = _env_int("QA_BONUS_FLOOR_FIX", 1)
 
 # ── Oracle DB connection ─────────────────────────────────────────────────────
 # DB_HOST / DB_USER / DB_PASSWORD have NO hardcoded fallback — this repo

@@ -37,7 +37,9 @@ PAIRS = [
 
 def _one(question):
     vec = compute_query_embedding(question)
-    tables, columns, labels, qa = get_relevant_schema(question, query_vec=vec)
+    retrieval = get_relevant_schema(question, query_vec=vec)
+    tables, columns = retrieval.tables, retrieval.columns
+    labels, qa = retrieval.matched_labels, retrieval.qa_example
     # One table only — mirrors what the selector hands the SQL model in production.
     tables = tables[:1]
     try:
