@@ -12,6 +12,7 @@ import pickle
 import numpy as np
 from src.vectorizer import embed_query
 from src.section_alias import detect_section_reference
+from src.context.domain import build_gate
 from src.lexical_search import search_bm25
 import src.config as config
 from src.config import TOP_K_TABLES, TOP_K_COLUMNS
@@ -790,6 +791,23 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
         if effective_k:
             tables = tables[:effective_k]
 
+    # An explicit PART reference ("Part A") is likewise a harder signal than
+    # embedding score — src.context.domain.build_gate() already implements
+    # this (section -> part -> inferred-periodicity narrowing, each skipped if
+    # it would empty the candidate set), but until now nothing in the live
+    # pipeline ever called it. Concretely this fixed: "sensitivity to
+    # securitization Part A" scored cims_raq_q_sec9_sensec_PARTB (0.78) above
+    # cims_raq_q_sec9_sensec_PARTA (0.631) on embedding similarity alone, even
+    # though the question named Part A explicitly. Applied last, after every
+    # other override above, so it only ever REMOVES candidates those tiers
+    # didn't already need — never fights with them, and never empties `tables`
+    # (build_gate's own "only narrow if something survives" rule).
+    gate = build_gate(query, expanded=expanded)
+    if gate.active:
+        gated = [t for t in tables if gate.allows(t["table"])]
+        if gated:
+            tables = gated
+
     table_names = {t["table"] for t in tables}
 
     # ── Columns: take top matches from selected tables ────────────────────────
@@ -811,16 +829,34 @@ def get_relevant_schema(query: str, query_vec=None, shortlist_k: int | None = No
     matched_labels = search_labels(query_vec, table_names, top_k=TOP_K_LABELS)
 
     # ── Best qa_index match: surfaced separately for few-shot prompt injection ─
-    # Use the re-ranked winner (text/token overlap), not raw embedding rank.
+    # Use the re-ranked winner (text/token overlap), not raw embedding rank —
+    # but ONLY if it belongs to the table this retrieval ranked #1. An example
+    # for a DIFFERENT table, even a strong text match, actively misleads a
+    # small model into copying THAT table's columns/joins onto the real DDL it
+    # was given. Real case: "sensitivity to securitization Part A ... monthly"
+    # retrieved a 0.80-scoring example for CIMS_RAQ_Q_SEC1_PART_A_DOM (columns
+    # PERIOD_DELINQUENCY, TOTAL_LOAN_ASSETS) while CIMS_RAQ_Q_SEC9_SENSEC_PARTA
+    # was rank #1 — the model then hallucinated a JOIN and invented columns
+    # blending both, none of which exist on the real table.
+    #
+    # Checked against `tables[0]` specifically, NOT the whole shortlist
+    # (`table_names`): src.selector.select_tables always returns tables[:1]
+    # except for a declared semantic-layer join, so tables[0] here is what the
+    # selector will almost certainly choose — the whole shortlist is too wide
+    # a net (SEC1_PART_A_DOM was still IN the shortlist here, just not rank 0,
+    # and matched trivially against the unrestricted set).
     qa_example = None
-    if qa_hits_ranked and qa_hits_ranked[0][0] >= QA_EXAMPLE_MIN_SCORE:
-        score, qa = qa_hits_ranked[0]
-        qa_example = {
-            "question": qa["question"], "sql": qa["sql"], "table": qa["table"],
-            "score": score,
-            "text_similarity": text_similarity(query, qa["question"]),
-            "token_similarity": token_similarity(query, qa["question"]),
-        }
+    primary_table_upper = tables[0]["table"].upper() if tables else None
+    if primary_table_upper:
+        for score, qa in qa_hits_ranked:
+            if qa["table"].upper() == primary_table_upper and score >= QA_EXAMPLE_MIN_SCORE:
+                qa_example = {
+                    "question": qa["question"], "sql": qa["sql"], "table": qa["table"],
+                    "score": score,
+                    "text_similarity": text_similarity(query, qa["question"]),
+                    "token_similarity": token_similarity(query, qa["question"]),
+                }
+                break
 
     return RetrievalResult(
         tables=tables, columns=columns, matched_labels=matched_labels,

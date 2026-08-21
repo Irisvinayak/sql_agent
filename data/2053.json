@@ -1,0 +1,3341 @@
+{
+  "return_metadata": {
+    "return_code": "2053",
+    "taxonomy_path": "D:\\Repo5.5\\Database\\2053\\Taxonomy\\CRILC - Return on Defaulted  Borrowers 1.0\\in-rbi-CRILC-RDB.xsd",
+    "repo_path": "D:\\Repo5.5\\Database\\2053",
+    "linkbase_generation_detected": {
+      "presentation_style": "classic-presentation",
+      "calculation_linkbase_present": false,
+      "definition_linkbase_present": true,
+      "label_linkbase_present": true,
+      "formula_linkbase_present": true,
+      "notes": "Detected dynamically per-taxonomy - do not assume any linkbase type is present."
+    },
+    "db_mapping_source_detected": {
+      "mapping_files_found": true,
+      "mapping_files": [
+        "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+        "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+        "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+        "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml"
+      ],
+      "resolution_strategy": "deterministic_4hop_join",
+      "fallback_strategy_used": false
+    },
+    "extraction_run": {
+      "extracted_by": "arelle+mapping_parser (POC)",
+      "extractor_version": "0.1.0-poc"
+    }
+  },
+  "structure": {
+    "tables": [
+      {
+        "table_role": "DefaultBorrowers",
+        "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+        "table_type": "core",
+        "concept_refs": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "in-rbi-rep:CustomerNameAxis",
+          "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+          "in-rbi-rep:DateOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:RemarksForDefaultBorrowers",
+          "in-rbi-rep:SMA2ReportingLineItems",
+          "in-rbi-rep:SMA2ReportingTable"
+        ]
+      },
+      {
+        "table_role": "OutOfDefault",
+        "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+        "table_type": "core",
+        "concept_refs": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "in-rbi-rep:CustomerNameAxis",
+          "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+          "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:RemarksForOutOfDefaultBorrowers",
+          "in-rbi-rep:ReportingOfJointLendersForumFormationLineItems",
+          "in-rbi-rep:ReportingOfJointLendersForumFormationTable"
+        ]
+      },
+      {
+        "table_role": "SignatoryInformation",
+        "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+        "table_type": "core",
+        "concept_refs": [
+          "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "in-rbi-rep:DesignationOfSignatory",
+          "in-rbi-rep:EmailAddressOfEmployee",
+          "in-rbi-rep:NameOfSignatory"
+        ]
+      },
+      {
+        "table_role": "GeneralInformationAboutReportingInstitution",
+        "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+        "table_type": "core",
+        "concept_refs": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      }
+    ],
+    "axes": [
+      {
+        "axis_name": "in-rbi-rep:CustomerNameAxis",
+        "type": "explicit_or_typed",
+        "domain": null,
+        "members": []
+      },
+      {
+        "axis_name": "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+        "type": "explicit_or_typed",
+        "domain": null,
+        "members": []
+      },
+      {
+        "axis_name": "in-rbi-rep:TypedDefaultAxis",
+        "type": "explicit_or_typed",
+        "domain": "in-rbi-rep:TypedDefaultDomain",
+        "members": []
+      }
+    ]
+  },
+  "concepts": [
+    {
+      "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+      "label": "Amount outstanding funded non-funded default borrowers",
+      "documentation": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_lhs_total",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:DateOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:RemarksForDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "DefaultBorrowersAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Default Borrowers= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.﻿",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "TotalAmountOutstanding",
+        "table_name": null,
+        "column_name": "F6",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "1",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "query_id": "1002",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+      "label": "Amount outstanding funded non-funded out of default borrowers",
+      "documentation": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_lhs_total",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:RemarksForOutOfDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "OutOfDefaultDateofClearingAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Out of Default= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "TotalAmountOutstanding",
+        "table_name": null,
+        "column_name": "F6",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "2",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+          "query_id": "1003",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+      "label": "Authorised signatory landline number ",
+      "documentation": "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+      "data_type": "xbrli:integerItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "in-rbi-rep:DesignationOfSignatory",
+          "in-rbi-rep:EmailAddressOfEmployee",
+          "in-rbi-rep:NameOfSignatory"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "AuthorisedSignatory-LandlineNumberIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\nThe mandatory information \"Authorised signatory landline number\" is not reported",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1003",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1003",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "3",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+          "query_id": "1001",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+      "label": "Authorised signatory mobile number ",
+      "documentation": "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+      "data_type": "xbrli:integerItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "in-rbi-rep:DesignationOfSignatory",
+          "in-rbi-rep:EmailAddressOfEmployee",
+          "in-rbi-rep:NameOfSignatory"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "AuthorisedSignatory-MobileNumberIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\nThe mandatory information \"Authorised signatory mobile number\" is not reported",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1002",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1002",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "3",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+          "query_id": "1001",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:BankCode",
+      "label": "Bank Code",
+      "documentation": "in-rbi-rep:BankCode",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "BankCodeIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:BankCode",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Bank Code\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "BankCode",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "BankCode",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:CustomerNameAxis",
+      "label": "Customer name [axis]",
+      "documentation": "in-rbi-rep:CustomerNameAxis",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrldt:dimensionItem",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+      "label": "Customer permanent account number [axis]",
+      "documentation": "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrldt:dimensionItem",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:CustomerNameAxis"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+      "label": "Date of default borrowers",
+      "documentation": "in-rbi-rep:DateOfDefaultBorrowers",
+      "data_type": "xbrli:dateItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_lhs_total",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:RemarksForDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "DefaultBorrowersDateofDefault",
+          "rule_category": "conditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "lhs_total",
+              "dimensional_qualification": [
+                "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+                "in-rbi-rep:CustomerNameAxis"
+              ]
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": "(not(empty($V1))) and (not(empty($V1))) and ($V1 > \"2018-02-23\")",
+          "error_message": "Validation not satisfied: (Reporting Date - Default Date) > = 0 and <= 6.",
+          "severity": "error",
+          "variable_name": "V2",
+          "role": "lhs_total",
+          "dimensional_qualification": [
+            "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+            "in-rbi-rep:CustomerNameAxis"
+          ]
+        },
+        {
+          "assertion_id": "SamePANDateValidation",
+          "rule_category": "unclassified_or_reserved",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 <  $V2",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: \"Date of Default\" has to be less than \"Date of moving out of default\".",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "DateofDefault",
+        "table_name": null,
+        "column_name": "F3",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "1",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "query_id": "1002",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+      "label": "Date of out of default borrowers",
+      "documentation": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+      "data_type": "xbrli:dateItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_lhs_total",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:RemarksForOutOfDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "SamePANDateValidation",
+          "rule_category": "unclassified_or_reserved",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 <  $V2",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: \"Date of Default\" has to be less than \"Date of moving out of default\".",
+          "severity": "error",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        },
+        {
+          "assertion_id": "OutOfDefaultDateofClearing",
+          "rule_category": "business_threshold",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "lhs_total",
+              "dimensional_qualification": [
+                "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+                "in-rbi-rep:CustomerNameAxis"
+              ]
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: (Reporting Date - Date of clearing the dues) > = 0 and <= 6.",
+          "severity": "error",
+          "variable_name": "V2",
+          "role": "lhs_total",
+          "dimensional_qualification": [
+            "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+            "in-rbi-rep:CustomerNameAxis"
+          ]
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "Dateofmoving",
+        "table_name": null,
+        "column_name": "F3",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "2",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+          "query_id": "1003",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:DesignationOfSignatory",
+      "label": "Designation of signatory",
+      "documentation": "in-rbi-rep:DesignationOfSignatory",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "in-rbi-rep:EmailAddressOfEmployee",
+          "in-rbi-rep:NameOfSignatory"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "AuthorisedSignatory-DesignationIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:DesignationOfSignatory",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\nThe mandatory information \"Designation of signatory\" is not reported",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1001",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1001",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "3",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+          "query_id": "1001",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:EmailAddressOfEmployee",
+      "label": "Email address of employee",
+      "documentation": "in-rbi-rep:EmailAddressOfEmployee",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "in-rbi-rep:DesignationOfSignatory",
+          "in-rbi-rep:NameOfSignatory"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "AuthorisedSignatory-EmailIdIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:EmailAddressOfEmployee",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\nThe mandatory information \"Email ID of authorised reporting official\" is not reported",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1004",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1004",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "3",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+          "query_id": "1001",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+      "label": "Funded amount outstanding default borrowers",
+      "documentation": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "in-rbi-rep:DateOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:RemarksForDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "DefaultBorrowersAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Default Borrowers= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.﻿",
+          "severity": "error",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "FundedAmountOutstanding",
+        "table_name": null,
+        "column_name": "F4",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "1",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "query_id": "1002",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+      "label": "Funded amount outstanding out of default borrowers",
+      "documentation": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:RemarksForOutOfDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "OutOfDefaultDateofClearingAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Out of Default= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.",
+          "severity": "error",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "FundedAmountOutstanding",
+        "table_name": null,
+        "column_name": "F4",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "2",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+          "query_id": "1003",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:NameOfReportingInstitution",
+      "label": "Name of reporting institution",
+      "documentation": "in-rbi-rep:NameOfReportingInstitution",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "NameOfReportingInstitutionIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:NameOfReportingInstitution",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Reporting Institution\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1003",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1003",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:NameOfSignatory",
+      "label": "Name of signatory",
+      "documentation": "in-rbi-rep:NameOfSignatory",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "in-rbi-rep:DesignationOfSignatory",
+          "in-rbi-rep:EmailAddressOfEmployee"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "AuthorisedSignatory-NameIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:NameOfSignatory",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\nThe mandatory information \"Name of signatory\" is not reported",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1000",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1000",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "3",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC/SignatoryInformation",
+          "query_id": "1001",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_3.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+      "label": "Non-funded amount outstanding default borrowers",
+      "documentation": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "in-rbi-rep:DateOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:RemarksForDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "DefaultBorrowersAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Default Borrowers= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.﻿",
+          "severity": "error",
+          "variable_name": "V3",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "NonFundedAmountOustanding",
+        "table_name": null,
+        "column_name": "F5",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "1",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "query_id": "1002",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+      "label": "Non-funded amount outstanding out of default borrowers",
+      "documentation": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+      "data_type": "xbrli:monetaryItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:RemarksForOutOfDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "OutOfDefaultDateofClearingAmountOutstanding",
+          "rule_category": "cross_concept_rollup",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "$V1 = $V2 + $V3",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+              "variable_name": "V3",
+              "role": "rhs_variable",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Amount Outstanding  for Out of Default= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.",
+          "severity": "error",
+          "variable_name": "V3",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "NonFundedAmountOustanding",
+        "table_name": null,
+        "column_name": "F5",
+        "unit_multiplier": 100000,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "2",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+          "query_id": "1003",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:RemarksForDefaultBorrowers",
+      "label": "Remarks for default borrowers",
+      "documentation": "in-rbi-rep:RemarksForDefaultBorrowers",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "presentation_top_level"
+        ],
+        "score": 0.7
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "in-rbi-rep:DateOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "Remarks",
+        "table_name": null,
+        "column_name": "F7",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "1",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers",
+          "query_id": "1002",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_1.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:RemarksForOutOfDefaultBorrowers",
+      "label": "Remarks for out of default borrowers",
+      "documentation": "in-rbi-rep:RemarksForOutOfDefaultBorrowers",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "presentation_top_level"
+        ],
+        "score": 0.7
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 2,
+        "sibling_concepts": [
+          "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "wide_column",
+        "internal_code": "Remarks",
+        "table_name": null,
+        "column_name": "F7",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "2",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault",
+          "query_id": "1003",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_2.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+      "label": "Report for the year ended",
+      "documentation": "in-rbi-rep:ReportForTheYearEnded",
+      "data_type": "xbrli:dateItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_lhs_total",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "DefaultBorrowersDateofDefault",
+          "rule_category": "conditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "lhs_total",
+              "dimensional_qualification": [
+                "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+                "in-rbi-rep:CustomerNameAxis"
+              ]
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": "(not(empty($V1))) and (not(empty($V1))) and ($V1 > \"2018-02-23\")",
+          "error_message": "Validation not satisfied: (Reporting Date - Default Date) > = 0 and <= 6.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        },
+        {
+          "assertion_id": "ReportForTheYearEndedIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"For the Period Ended\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        },
+        {
+          "assertion_id": "OutOfDefaultDateofClearing",
+          "rule_category": "business_threshold",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelValueAssertion",
+          "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+              "variable_name": "V1",
+              "role": "lhs_total",
+              "dimensional_qualification": []
+            },
+            {
+              "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+              "variable_name": "V2",
+              "role": "lhs_total",
+              "dimensional_qualification": [
+                "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+                "in-rbi-rep:CustomerNameAxis"
+              ]
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: (Reporting Date - Date of clearing the dues) > = 0 and <= 6.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "ReportingDate",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "ReportingDate",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReportingFrequency",
+      "label": "Reporting frequency",
+      "documentation": "in-rbi-rep:ReportingFrequency",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "ReportingFrequencyIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReportingFrequency",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Reporting Frequency\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1005",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1005",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReportingOfJointLendersForumFormationLineItems",
+      "label": "Reporting of joint lenders' forum formation [line items] ",
+      "documentation": "in-rbi-rep:ReportingOfJointLendersForumFormationLineItems",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:ReportingOfJointLendersForumFormationTable"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReportingOfJointLendersForumFormationTable",
+      "label": "Reporting of joint lenders' forum formation [table] ",
+      "documentation": "in-rbi-rep:ReportingOfJointLendersForumFormationTable",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrldt:hypercubeItem",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/OutOfDefault"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:ReportingOfJointLendersForumFormationLineItems"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReportingPeriodStartDate",
+      "label": "Reporting period start date",
+      "documentation": "in-rbi-rep:ReportingPeriodStartDate",
+      "data_type": "xbrli:dateItemType",
+      "period_type": "instant",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "presentation_top_level"
+        ],
+        "score": 0.7
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1008",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1008",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReturnCode",
+      "label": "Return code",
+      "documentation": "in-rbi-rep:ReturnCode",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "ReturnCodeIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReturnCode",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Return Code\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "ReturnCode",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "ReturnCode",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReturnName",
+      "label": "Return name",
+      "documentation": "in-rbi-rep:ReturnName",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnVersion",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "ReturnNameIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReturnName",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Return Name\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1000",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1000",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ReturnVersion",
+      "label": "Return version",
+      "documentation": "in-rbi-rep:ReturnVersion",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ToolName"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "ReturnVersionIsMandatoryToBeReported",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ReturnVersion",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied:\n\n\"Return Version\" is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1006",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1006",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:SMA2ReportingLineItems",
+      "label": "SMA2 reporting [line items]",
+      "documentation": "in-rbi-rep:SMA2ReportingLineItems",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:SMA2ReportingTable"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:SMA2ReportingTable",
+      "label": "SMA2 reporting [table] ",
+      "documentation": "in-rbi-rep:SMA2ReportingTable",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": true,
+      "substitution_group": "xbrldt:hypercubeItem",
+      "importance": {
+        "is_core": false,
+        "reasons": [
+          "abstract_header_not_reportable"
+        ],
+        "score": 0
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/DefaultBorrowers"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:SMA2ReportingLineItems"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [],
+      "dimensional_context_required": [
+        "in-rbi-rep:CustomerNameAxis",
+        "in-rbi-rep:CustomerPermanentAccountNumberAxis"
+      ],
+      "db_mapping": {
+        "status": "unmapped",
+        "table_name": null,
+        "column_name": null,
+        "notes": null
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    },
+    {
+      "concept_id": "in-rbi-rep:ToolName",
+      "label": "Tool name",
+      "documentation": "in-rbi-rep:ToolName",
+      "data_type": "xbrli:stringItemType",
+      "period_type": "duration",
+      "balance_type": null,
+      "abstract": false,
+      "substitution_group": "xbrli:item",
+      "importance": {
+        "is_core": true,
+        "reasons": [
+          "formula_participant",
+          "presentation_top_level"
+        ],
+        "score": 1
+      },
+      "presentation": {
+        "tables": [
+          "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution"
+        ],
+        "depth_in_tree": 1,
+        "sibling_concepts": [
+          "in-rbi-rep:BankCode",
+          "in-rbi-rep:NameOfReportingInstitution",
+          "in-rbi-rep:ReportForTheYearEnded",
+          "in-rbi-rep:ReportingFrequency",
+          "in-rbi-rep:ReportingPeriodStartDate",
+          "in-rbi-rep:ReturnCode",
+          "in-rbi-rep:ReturnName",
+          "in-rbi-rep:ReturnVersion"
+        ]
+      },
+      "calculation": {
+        "linkbase_present": false,
+        "roll_up_role": null,
+        "children": [],
+        "weight": null,
+        "parent_concepts": []
+      },
+      "formula_participation": [
+        {
+          "assertion_id": "ToolNameIsMandatory",
+          "rule_category": "unconditional_mandatory",
+          "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+          "type": "ModelExistenceAssertion",
+          "expression": ".",
+          "concepts_involved": [
+            {
+              "concept_id": "in-rbi-rep:ToolName",
+              "variable_name": "V1",
+              "role": "mandatory_field",
+              "dimensional_qualification": []
+            }
+          ],
+          "applies_to_concept_filter": null,
+          "precondition_expression": null,
+          "error_message": "Validation not satisfied: Tool name is mandatory to be reported.",
+          "severity": "error",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "dimensional_context_required": [],
+      "db_mapping": {
+        "status": "confirmed",
+        "resolution_method": "deterministic_4hop_join",
+        "mapping_type": "narrow_keyvalue",
+        "internal_code": "1007",
+        "table_name": null,
+        "value_column": "F2",
+        "filter_column": "Code",
+        "filter_value": "1007",
+        "unit_multiplier": 1,
+        "extra_filters": {},
+        "notes": null,
+        "join_provenance": {
+          "prelnkbase_id": "4",
+          "role_uri": "http://www.rbi.org/in/xbrl/2012-07-14/rbi/CRILC-RDB/GeneralInformationAboutReportingInstitution",
+          "query_id": "1000",
+          "mapping_file": "D:\\Repo5.5\\Database\\2053\\Mapping_4.xml",
+          "priele_resolution": "direct_via_prelnkbase_id"
+        }
+      },
+      "llm_context": {
+        "review_status": "not_generated"
+      },
+      "trend_profile": {
+        "flow_or_stock": null,
+        "comparability": "not_yet_analyzed"
+      },
+      "variance_profile": {
+        "soft_expectations": [],
+        "empirical_stats": {
+          "status": "not_yet_computed"
+        }
+      }
+    }
+  ],
+  "validation_rules": [
+    {
+      "assertion_id": "OutOfDefaultDateofClearingAmountOutstanding",
+      "rule_category": "cross_concept_rollup",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelValueAssertion",
+      "expression": "$V1 = $V2 + $V3",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedOutOfDefaultBorrowers",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:FundedAmountOutstandingOutOfDefaultBorrowers",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:NonFundedAmountOutstandingOutOfDefaultBorrowers",
+          "variable_name": "V3",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied: Amount Outstanding  for Out of Default= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ToolNameIsMandatory",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ToolName",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied: Tool name is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "DefaultBorrowersDateofDefault",
+      "rule_category": "conditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelValueAssertion",
+      "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+          "variable_name": "V2",
+          "role": "lhs_total",
+          "dimensional_qualification": [
+            "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+            "in-rbi-rep:CustomerNameAxis"
+          ]
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": "(not(empty($V1))) and (not(empty($V1))) and ($V1 > \"2018-02-23\")",
+      "error_message": "Validation not satisfied: (Reporting Date - Default Date) > = 0 and <= 6.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ReportingFrequencyIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReportingFrequency",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Reporting Frequency\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "NameOfReportingInstitutionIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:NameOfReportingInstitution",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Reporting Institution\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "AuthorisedSignatory-NameIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:NameOfSignatory",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\nThe mandatory information \"Name of signatory\" is not reported",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "SamePANDateValidation",
+      "rule_category": "unclassified_or_reserved",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelValueAssertion",
+      "expression": "$V1 <  $V2",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:DateOfDefaultBorrowers",
+          "variable_name": "V1",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied: \"Date of Default\" has to be less than \"Date of moving out of default\".",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "DefaultBorrowersAmountOutstanding",
+      "rule_category": "cross_concept_rollup",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelValueAssertion",
+      "expression": "$V1 = $V2 + $V3",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:AmountOutstandingFundedNonfundedDefaultBorrowers",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:FundedAmountOutstandingDefaultBorrowers",
+          "variable_name": "V2",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:NonFundedAmountOutstandingDefaultBorrowers",
+          "variable_name": "V3",
+          "role": "rhs_variable",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied: Amount Outstanding  for Default Borrowers= Funded Amount Outstanding as on Reporting Date + Non-Funded Amount Outstanding as on Reporting date.﻿",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "AuthorisedSignatory-EmailIdIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:EmailAddressOfEmployee",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\nThe mandatory information \"Email ID of authorised reporting official\" is not reported",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "AuthorisedSignatory-LandlineNumberIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:AuthorisedSignatoryLandlineNumber",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\nThe mandatory information \"Authorised signatory landline number\" is not reported",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ReportForTheYearEndedIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"For the Period Ended\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ReturnVersionIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReturnVersion",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Return Version\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ReturnNameIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReturnName",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Return Name\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "AuthorisedSignatory-DesignationIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:DesignationOfSignatory",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\nThe mandatory information \"Designation of signatory\" is not reported",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "AuthorisedSignatory-MobileNumberIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-CRILC-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:AuthorisedSignatoryMobileNumber",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\nThe mandatory information \"Authorised signatory mobile number\" is not reported",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "ReturnCodeIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReturnCode",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Return Code\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "BankCodeIsMandatoryToBeReported",
+      "rule_category": "unconditional_mandatory",
+      "source_file": "in-rbi-GenInfo-RDB-formula.xml",
+      "type": "ModelExistenceAssertion",
+      "expression": ".",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:BankCode",
+          "variable_name": "V1",
+          "role": "mandatory_field",
+          "dimensional_qualification": []
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied:\n\n\"Bank Code\" is mandatory to be reported.",
+      "severity": "error"
+    },
+    {
+      "assertion_id": "OutOfDefaultDateofClearing",
+      "rule_category": "business_threshold",
+      "source_file": "in-rbi-CRILC-RDBformulav2.0.xml",
+      "type": "ModelValueAssertion",
+      "expression": "days-from-duration(xs:date($V1)-xs:date($V2)) <= 6 and days-from-duration(xs:date($V1)-xs:date($V2)) >= 0",
+      "concepts_involved": [
+        {
+          "concept_id": "in-rbi-rep:ReportForTheYearEnded",
+          "variable_name": "V1",
+          "role": "lhs_total",
+          "dimensional_qualification": []
+        },
+        {
+          "concept_id": "in-rbi-rep:DateOfOutOfDefaultBorrowers",
+          "variable_name": "V2",
+          "role": "lhs_total",
+          "dimensional_qualification": [
+            "in-rbi-rep:CustomerPermanentAccountNumberAxis",
+            "in-rbi-rep:CustomerNameAxis"
+          ]
+        }
+      ],
+      "applies_to_concept_filter": null,
+      "precondition_expression": null,
+      "error_message": "Validation not satisfied: (Reporting Date - Date of clearing the dues) > = 0 and <= 6.",
+      "severity": "error"
+    }
+  ],
+  "unmapped_summary": {
+    "total_concepts_in_footprint": 30,
+    "mapped_to_db": 24,
+    "suggested_pending_review": 0,
+    "unmapped": 6,
+    "reportable_concepts": {
+      "total": 24,
+      "mapped_to_db": 24,
+      "suggested_pending_review": 0,
+      "unmapped": 0,
+      "note": "'reportable' excludes abstract header concepts and generic scaffolding nodes, which never carry a DB value by design. This is the number that actually matters for mapping completeness - the top-level unmapped/mapped_to_db counts include every concept in the footprint and will look far worse than reality on returns with many abstract headers."
+    },
+    "validation_rule_category_breakdown": {
+      "cross_concept_rollup": 2,
+      "unconditional_mandatory": 13,
+      "conditional_mandatory": 1,
+      "unclassified_or_reserved": 1,
+      "business_threshold": 1
+    },
+    "note": "llm_context / trend_profile / variance_profile enrichment is NOT included by this simple extractor - Stage C is a separate step. suggested mappings require SME review before being trusted; confirmed mappings came from the deterministic Mapping_*.xml/XML_Query.xml join."
+  }
+}

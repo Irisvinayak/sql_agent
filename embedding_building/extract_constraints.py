@@ -159,14 +159,14 @@ def main():
         # Worth saying loudly: these regulatory tables may genuinely have no
         # declared keys, in which case the join graph has to be hand-authored in
         # semantic_layer.yaml instead of extracted.
-        print("\n  ⚠  No PK/FK declared anywhere in this schema.")
+        print("\n  [warn] No PK/FK declared anywhere in this schema.")
         print("     The join graph must be hand-authored in semantic_layer.yaml.")
 
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
         json.dump(constraints, fh, indent=2)
 
-    print(f"\n✅ Constraints written → {OUTPUT_PATH}")
+    print(f"\n[done] Constraints written -> {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":

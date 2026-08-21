@@ -1,0 +1,175 @@
+{
+  "cims_ale_q_anx_1_bal": [
+    "description"
+  ],
+  "cims_ale_q_anx_1_loss_pro_iba": [
+    "description"
+  ],
+  "cims_ale_q_anx_1_loss_pro_ind": [
+    "description"
+  ],
+  "cims_ale_q_anx_1_loss_pro_ovr": [
+    "description"
+  ],
+  "cims_ale_q_gen_info": [
+    "description"
+  ],
+  "cims_ale_q_sec2_e1": [
+    "item"
+  ],
+  "cims_ale_q_sec2_e2": [
+    "item"
+  ],
+  "cims_ale_q_sec2_f1": [
+    "item"
+  ],
+  "cims_ale_q_sec2_f2": [
+    "item"
+  ],
+  "cims_ale_q_signatory": [
+    "description"
+  ],
+  "cims_irs_agg_all_cur_dga": [
+    "description"
+  ],
+  "cims_irs_agg_allcur_tga_memitm": [
+    "description"
+  ],
+  "cims_irs_aggall_cur_tga_partb": [
+    "description"
+  ],
+  "cims_irs_coupon_yield_dga": [
+    "description"
+  ],
+  "cims_irs_dga": [
+    "description"
+  ],
+  "cims_irs_gen_info": [
+    "description"
+  ],
+  "cims_irs_memo_tga_a": [
+    "description"
+  ],
+  "cims_irs_tga": [
+    "description"
+  ],
+  "cims_raq_q_sec10": [
+    "description"
+  ],
+  "cims_raq_q_sec1_exc_govt_paper": [
+    "description"
+  ],
+  "cims_raq_q_sec1_last_date_port": [
+    "description"
+  ],
+  "cims_raq_q_sec1_part_a_dom": [
+    "period_delinquency"
+  ],
+  "cims_raq_q_sec1_part_b_dom": [
+    "period_delinquency"
+  ],
+  "cims_raq_q_sec1_part_c_o": [
+    "period_delinquency"
+  ],
+  "cims_raq_q_sec1_part_d_o": [
+    "period_delinquency"
+  ],
+  "cims_raq_q_sec2_last_date_port": [
+    "description"
+  ],
+  "cims_raq_q_sec2_part_a": [
+    "risk_category"
+  ],
+  "cims_raq_q_sec2_part_a_memo": [
+    "memorandum_item"
+  ],
+  "cims_raq_q_sec2_part_a_npa": [
+    "risk_category"
+  ],
+  "cims_raq_q_sec2_part_b": [
+    "movement_provision_npa"
+  ],
+  "cims_raq_q_sec3_part_b": [
+    "movement_restructure_std_la"
+  ],
+  "cims_raq_q_sec4_part_a": [
+    "movement_from"
+  ],
+  "cims_raq_q_sec4_part_b": [
+    "movement_from"
+  ],
+  "cims_raq_q_sec6_part_a": [
+    "category_investment_dom_opr"
+  ],
+  "cims_raq_q_sec8_ind_brkup": [
+    "industry_name"
+  ],
+  "cims_raq_q_sec8_infra_brkup": [
+    "industry_name"
+  ],
+  "cims_raq_q_sec8_sec_credit": [
+    "item"
+  ],
+  "cims_raq_q_sec9_sensec_parta": [
+    "description"
+  ],
+  "cims_raq_q_sec9_sensec_partb": [
+    "description"
+  ],
+  "cims_raq_q_sec_12_misc": [
+    "item"
+  ],
+  "cims_raq_q_sec_12_misc_t2": [
+    "category"
+  ],
+  "cims_raq_q_sec_12_misc_t3": [
+    "description"
+  ],
+  "cims_raq_q_sec_12_misc_t4": [
+    "description"
+  ],
+  "cims_rbs_q_gen_info": [
+    "description"
+  ],
+  "cims_rbs_q_net_ove_inv": [
+    "description"
+  ],
+  "cims_rbs_q_rating_wise_memo": [
+    "description"
+  ],
+  "cims_rbs_q_sec4_cr_card_bse": [
+    "category"
+  ],
+  "cims_rbs_q_signatory": [
+    "description"
+  ],
+  "cims_rca3_c_general_informtion": [
+    "description"
+  ],
+  "cims_rca3_c_general_informtion_hist": [
+    "description"
+  ],
+  "cims_rca3_general_information": [
+    "description"
+  ],
+  "cims_rdb_gen_info": [
+    "description"
+  ],
+  "cims_rdb_signatory": [
+    "description"
+  ],
+  "cims_ror_q_sec_a": [
+    "item"
+  ],
+  "cims_ror_q_sec_a1": [
+    "line_item"
+  ],
+  "cims_ror_q_sec_b": [
+    "line_item"
+  ],
+  "cims_ror_q_sec_c": [
+    "country_code",
+    "country_name",
+    "line_item"
+  ]
+}

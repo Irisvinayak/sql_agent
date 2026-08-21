@@ -1,5 +1,5 @@
 --------------------------------------------------------
---  File created - Friday-May-15-2026   
+--  File created - Thursday-August-20-2026   
 --------------------------------------------------------
 
 --------------------------------------------------------
@@ -445,6 +445,30 @@
 --------------------------------------------------------
 
   CREATE TABLE "CA_MONTH4_36" ("PAN" VARCHAR2(250), "EXTERNAL_RATING" VARCHAR2(1000), "REPORTING_DATE" VARCHAR2(250));
+
+--------------------------------------------------------
+--  DDL for Table CBJ_CBJ54_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "CBJ_CBJ54_TBL1" ("PARTICULARS" VARCHAR2(200), "NO_LOAN_OD" NUMBER(20), "NO_CUST_LOAN_OD" NUMBER(20), "LOAN_OD_1_30_DAY" NUMBER(20,2), "LOAN_OD_31_60_DAY" NUMBER(20,2), "LOAN_OD_61_90_DAY" NUMBER(20,2), "LOAN_OD_91_120_DAY" NUMBER(20,2), "LOAN_OD_121_180_DAY" NUMBER(20,2), "LOAN_OD_180_DAY" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" NUMBER, "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table CBJ_CBJ54_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "CBJ_CBJ54_TBL2" ("PARTICULARS" VARCHAR2(200), "TOT_AMT" NUMBER(20,2), "TOT_NO" NUMBER(20), "ME_AMT" NUMBER(20,2), "ME_NO" NUMBER(20), "SE_AMT" NUMBER(20,2), "SE_NO" NUMBER(20), "START_AMT" NUMBER(20,2), "START_NO" NUMBER(20), "CODE" NUMBER, "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table CBJ_CBJ54_TBL3
+--------------------------------------------------------
+
+  CREATE TABLE "CBJ_CBJ54_TBL3" ("PARTICULARS" VARCHAR2(200), "LIFE_INS" VARCHAR2(200), "HEALTH_INS" VARCHAR2(200), "OTHER_INS" VARCHAR2(200), "CODE" NUMBER, "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table CBJ_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "CBJ_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "RETURN_CODE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
 
 --------------------------------------------------------
 --  DDL for Table CIMS_ALE_M_ANX_1_A
@@ -3867,6 +3891,522 @@
   CREATE TABLE "CIMS_DPSS12_RIB_Q_LAYOUT8" ("SRNO" NUMBER, "DESCRIPTION" VARCHAR2(2000), "TOTAL_NUMBER_OF_ACCOUNTS_X310" NUMBER(20,2), "NUMBER_OF_TRX_THESE_ACC_X320" NUMBER(20,2), "AVERAGE_BALANCE_THESE_ACC_X330" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
 
 --------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ACCT_POLICIES
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ACCT_POLICIES" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ACC_PLY_DIS
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ACC_PLY_DIS" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(4000), "PY_X020" VARCHAR2(4000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ADD_DISCLSR
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ADD_DISCLSR" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(2000), "PY_X020" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_LIA_MGMT
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_LIA_MGMT" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_LIA_MGMT1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_LIA_MGMT1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "D1_CY_X030" NUMBER(20,2), "D1_PY_X040" NUMBER(20,2), "D2_TO_7D_CY_X050" NUMBER(20,2), "D2_TO_7D_PY_X060" NUMBER(20,2), "D8_TO_14D_CY_X070" NUMBER(20,2), "D8_TO_14D_PY_X080" NUMBER(20,2), "D15_TO_30D_CY_X090" NUMBER(20,2), "D15_TO_30D_PY_X100" NUMBER(20,2), "D31_TO_2M_CY_X110" NUMBER(20,2), "D31_TO_2M_PY_X120" NUMBER(20,2), "M2_TO_3M_CY_X130" NUMBER(20,2), "M2_TO_3M_PY_X140" NUMBER(20,2), "M3_TO_6M_CY_X150" NUMBER(20,2), "M3_TO_6M_PY_X160" NUMBER(20,2), "M6_TO_1Y_CY_X170" NUMBER(20,2), "M6_TO_1Y_PY_X180" NUMBER(20,2), "Y1_TO_3Y_CY_X190" NUMBER(20,2), "Y1_TO_3Y_PY_X200" NUMBER(20,2), "Y3_TO_5Y_CY_X210" NUMBER(20,2), "Y3_TO_5Y_PY_X220" NUMBER(20,2), "Y5_CY_X230" NUMBER(20,2), "Y5_PY_X240" NUMBER(20,2), "TOTAL_CY_X250" NUMBER(20,2), "TOTAL_CY_X260" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "STD_CY_X030" VARCHAR2(200), "STD_PY_X040" VARCHAR2(200), "CY_CY_X050" VARCHAR2(200), "CY_PY_X060" VARCHAR2(200), "DOUBTFUL_CY_X070" VARCHAR2(200), "DOUBTFUL_PY_X080" VARCHAR2(200), "LOSS_CY_X090" VARCHAR2(200), "LOSS_PY_X100" VARCHAR2(200), "TNP_CY_X110" VARCHAR2(200), "TNP_PY_X120" VARCHAR2(200), "TOTAL_CY_X130" VARCHAR2(200), "TOTAL_PY_X140" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X150" VARCHAR2(200), "PY_X160" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY3
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X170" VARCHAR2(200), "PY_X180" VARCHAR2(200), "CY_X190" VARCHAR2(200), "PY_X200" VARCHAR2(200), "CY_X210" VARCHAR2(200), "PY_X220" VARCHAR2(200), "CY_X230" VARCHAR2(200), "PY_X240" VARCHAR2(200), "CY_X250" VARCHAR2(200), "PY_X260" VARCHAR2(200), "CY_X270" VARCHAR2(200), "PY_X280" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY4
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY4" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X290" VARCHAR2(200), "PY_X300" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY5
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY5" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X310" NUMBER(20,2), "PY_X320" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_ASSET_QUALITY6
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_ASSET_QUALITY6" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_Y130" NUMBER(20,2), "PY_Y140" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_AUDITORSREPORT
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_AUDITORSREPORT" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "X010_Category_of_Auditor" VARCHAR2(200), "X020_Name_of_Audit_Firm" VARCHAR2(200), "X030_Name_of_Auditor_Signing_Report" VARCHAR2(200), "X040_Firm_Registration_Number" NUMBER(18,2), "X050_Membership_Number" NUMBER(18,2), "X060_Address_of_Auditors" VARCHAR2(200), "X070_PAN" VARCHAR2(200), "X080_SRN_Form_23B" NUMBER(18,2), "X090_Date_Signing_Audit_Report" VARCHAR2(200), "X100_Date_Signing_Balance_Sheet" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_AUDITORSREPORT_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_AUDITORSREPORT_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(200), "X110" VARCHAR2(100), "X120" VARCHAR2(255), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_AUTHO_SIGN
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_AUTHO_SIGN" ("DESCRIPTION" VARCHAR2(100), "SIGN_NAME" VARCHAR2(20), "RDATE" DATE, "SR_NO" VARCHAR2(20), "SIGN_DATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_BALANCE_SHEET
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_BALANCE_SHEET" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(500), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_BUSS_RATIO
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_BUSS_RATIO" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_BUSS_RATIO1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_BUSS_RATIO1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X030" NUMBER(20,4), "PY_X040" NUMBER(20,4), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_CAP_ADEQUACY
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_CAP_ADEQUACY" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_CASH_FLOW
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_CASH_FLOW" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_COMPLAINTS
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_COMPLAINTS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(50), "CY_X010" NUMBER(18,2), "PY_X020" NUMBER(18,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_COMPLAINTS_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_COMPLAINTS_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(500), "CODE" VARCHAR2(100), "CY_X030" NUMBER(10), "CY_X040" NUMBER(10), "CY_X050" NUMBER(10,2), "CY_X060" NUMBER(10), "CY_X070" NUMBER(10), "PY_X080" NUMBER(10), "PY_X090" NUMBER(10), "PY_X100" NUMBER(10,2), "PY_X110" NUMBER(10), "PY_X120" NUMBER(10), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X010" VARCHAR2(2000), "PY_X020" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X030" VARCHAR2(2000), "PY_X040" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CY_X050" NUMBER(20,2), "PY_X060" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES3
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CY_X070" NUMBER(20,2), "PY_X080" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES4
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES4" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CY_X090" NUMBER(20,2), "PY_X100" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES5
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES5" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CY_X110" NUMBER(20,2), "PY_X120" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES6
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES6" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X130" VARCHAR2(2000), "PY_X140" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_DERIVATIVES7
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_DERIVATIVES7" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CURR_DERIV_CY_X150" NUMBER(20,2), "CURR_DERIV_PY_X160" NUMBER(20,2), "INT_RATE_CY_X170" NUMBER(20,2), "INT_RATE_PY_X180" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EMPLOYEESDATA
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EMPLOYEESDATA" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" NUMBER(18,2), "PY_X020" NUMBER(18,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EMPLOYEE_DATA
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EMPLOYEE_DATA" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20), "PY_X020" NUMBER(20), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPENSES_IN_EXCESS_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPENSES_IN_EXCESS_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPENSES_IN_EXCESS_2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPENSES_IN_EXCESS_2" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CY_X030" VARCHAR2(200), "PY_X040" VARCHAR2(200), "CY_X050" NUMBER(18,2), "PY_X060" NUMBER(18,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPOSR
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPOSR" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPOSR1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPOSR1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X030" NUMBER(20,2), "PY_X040" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPOSR2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPOSR2" ("SRNO" NUMBER, "RISK_CATE" VARCHAR2(2000), "CODE" VARCHAR2(200), "EXP_NET_CY_X050" NUMBER(20,2), "EXP_NET_PY_X060" NUMBER(20,2), "PRO_HELD_CY_X070" NUMBER(20,2), "PRO_HELD_PY_X080" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPOSR3
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPOSR3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "BR1_CY_X090" VARCHAR2(500), "BR1_PY_X100" VARCHAR2(500), "BR2_CY_X110" VARCHAR2(500), "BR2_PY_X120" VARCHAR2(500), "BR3_CY_X130" VARCHAR2(500), "BR3_PY_X140" VARCHAR2(500), "BR4_CY_X150" VARCHAR2(500), "BR4_PY_X160" VARCHAR2(500), "BR5_CY_X170" VARCHAR2(500), "BR5_PY_X180" VARCHAR2(500), "BR6_CY_X190" VARCHAR2(500), "BR6_PY_X200" VARCHAR2(500), "BR7_CY_X210" VARCHAR2(500), "BR7_PY_X220" VARCHAR2(500), "BR8_CY_X230" VARCHAR2(500), "BR8_PY_X240" VARCHAR2(500), "BR9_CY_X250" VARCHAR2(500), "BR9_PY_X260" VARCHAR2(500), "BR10_CY_X270" VARCHAR2(500), "BR10_PY_X280" VARCHAR2(500), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_EXPOSR4
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_EXPOSR4" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X290" VARCHAR2(200), "PY_X300" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_GEN_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_GEN_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(100), "CODE" VARCHAR2(100), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_INVESTMENT
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_INVESTMENT" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER, "CY_X020" NUMBER, "CY_X030" NUMBER, "CY_X040" NUMBER, "CY_X050" NUMBER, "CY_X060" NUMBER, "CY_X070" NUMBER, "CY_X080" NUMBER, "CY_X090" NUMBER, "CY_X100" NUMBER, "CY_X110" NUMBER, "CY_X120" NUMBER, "PY_X130" NUMBER, "PY_X140" NUMBER, "PY_X150" NUMBER, "PY_X160" NUMBER, "PY_X170" NUMBER, "PY_X180" NUMBER, "PY_X190" NUMBER, "PY_X200" NUMBER, "PY_X210" NUMBER, "PY_X220" NUMBER, "PY_X230" NUMBER, "PY_X240" NUMBER, "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(10));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_INVESTMENT1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_INVESTMENT1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X250" VARCHAR2(200), "PY_X260" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_LCR
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_LCR" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(50), "X010" NUMBER(18,2), "X020" NUMBER(18,4), "X030" NUMBER(18,2), "X040" NUMBER(18,4), "X050" NUMBER(18,2), "X060" NUMBER(18,4), "X070" NUMBER(18,2), "X080" NUMBER(18,4), "X090" NUMBER(18,2), "X100" NUMBER(18,4), "X110" NUMBER(18,2), "X120" NUMBER(18,4), "X130" NUMBER(18,2), "X140" NUMBER(18,4), "X150" NUMBER(18,2), "X160" NUMBER(18,4), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_MISCELLANEOUS
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_MISCELLANEOUS" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(4000), "PY_X020" VARCHAR2(4000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NONSLRINVEST_PRT1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NONSLRINVEST_PRT1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X010" VARCHAR2(2000), "PY_X020" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NONSLRINVEST_PRT2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NONSLRINVEST_PRT2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "AMT_CY_X030" NUMBER(20,2), "AMT_PY_X040" NUMBER(20,2), "EXT_PRIVATE_PLAC_CY_X050" NUMBER(20,2), "EXT_PRIVATE_PLAC_PY_X060" NUMBER(20,2), "INV_GRADE_SEC_CY_X070" NUMBER(20,2), "INV_GRADE_SEC_PY_X080" NUMBER(20,2), "UNRATED_CY_X090" NUMBER(20,2), "UNRATED_PY_X100" NUMBER(20,2), "UNLISTED_CY_X110" NUMBER(20,2), "UNLISTED_PY_X120" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NONSLRINVEST_PRT3
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NONSLRINVEST_PRT3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X130" NUMBER(20,2), "PY_X140" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NOTESTOACCOUNTS
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NOTESTOACCOUNTS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NOTESTOACCOUNTS_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NOTESTOACCOUNTS_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X160" VARCHAR2(200), "PY_X170" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NOTESTOACCOUNTS_2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NOTESTOACCOUNTS_2" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "X050_Principal_Due" NUMBER(18,2), "X060_Interest_Due" NUMBER(18,2), "X070_Total_Principal_Interest_Due" NUMBER(18,2), "X080_Interest_Paid_MSMED_Act" NUMBER(18,2), "X090_Payments_Beyond_DueDate" NUMBER(18,2), "X100_Interest_Due_Payable" NUMBER(18,2), "X110_Interest_Accrued_Unpaid" NUMBER(18,2), "X120_Further_Interest_Succeeding_Year" NUMBER(18,2), "X130_Max_Outstanding_MSME" NUMBER(18,2), "X140_MSME_Supplier_Name" NUMBER, "X150_MSME_CIN" NUMBER, "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NOTESTOACC_1_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NOTESTOACC_1_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "X030" VARCHAR2(200), "X040" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_NSFR
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_NSFR" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(50), "X010" NUMBER(18,2), "X020" NUMBER(18,2), "X030" NUMBER(18,2), "X040" NUMBER(18,2), "X050" NUMBER(18,4), "X060" NUMBER(18,2), "X070" NUMBER(18,2), "X080" NUMBER(18,2), "X090" NUMBER(18,2), "X100" NUMBER(18,4), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_PANDL
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_PANDL" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_PILLAR_3_REQURMT
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_PILLAR_3_REQURMT" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(4000), "PY_X020" VARCHAR2(4000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_PILLAR_III_REQUIREMENT
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_PILLAR_III_REQUIREMENT" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_RELTD_PARTY
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_RELTD_PARTY" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(2000), "PY_X020" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_RELTD_PARTY1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_RELTD_PARTY1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "PARENT_AMT_CY_X030" NUMBER(20,2), "PARENT_AMT_PY_X040" NUMBER(20,2), "PARENT_MAX_CY_X050" NUMBER(20,2), "PARENT_MAX_PY_X060" NUMBER(20,2), "SUBSIDI_AMT_CY_X070" NUMBER(20,2), "SUBSIDI_AMT_PY_X080" NUMBER(20,2), "SUBSIDI_MAX_CY_X090" NUMBER(20,2), "SUBSIDI_MAX_PY_X100" NUMBER(20,2), "ASSOCIATE_JV_AMT_CY_X110" NUMBER(20,2), "ASSOCIATE_JV_AMT_PY_X120" NUMBER(20,2), "ASSOCIATE_JV_MAX_CY_X130" NUMBER(20,2), "ASSOCIATE_JV_MAX_PY_X140" NUMBER(20,2), "KMP_AMT_CY_X150" NUMBER(20,2), "KMP_AMT_PY_X160" NUMBER(20,2), "KMP_MAX_CY_X170" NUMBER(20,2), "KMP_MAX_PY_X180" NUMBER(20,2), "RELT_KMP_AMT_CY_X190" NUMBER(20,2), "RELT_KMP_AMT_PY_X200" NUMBER(20,2), "RELT_KMP_MAX_CY_X210" NUMBER(20,2), "RELT_KMP_MAX_PY_X220" NUMBER(20,2), "ORP_AMT_CY_X230" NUMBER(20,2), "ORP_AMT_PY_X240" NUMBER(20,2), "ORP_MAX_CY_X250" NUMBER(20,2), "ORP_MAX_PY_X260" NUMBER(20,2), "TOTAL_AMT_CY_X270" NUMBER(20,2), "TOTAL_AMT_PY_X280" NUMBER(20,2), "TOTAL_MAX_CY_X290" NUMBER(20,2), "TOTAL_MAX_PY_X300" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_RELTD_PARTY2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_RELTD_PARTY2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "PARENT_CY_X310" NUMBER(20,2), "PARENT_PY_X320" NUMBER(20,2), "SUBSIDI_CY_X330" NUMBER(20,2), "SUBSIDI_PY_X340" NUMBER(20,2), "ASSOCIATE_JV_CY_X350" NUMBER(20,2), "ASSOCIATE_JV_PY_X360" NUMBER(20,2), "KMP_CY_X370" NUMBER(20,2), "KMP_PY_X380" NUMBER(20,2), "RELT_KMP_CY_X390" NUMBER(20,2), "RELT_KMP_PY_X400" NUMBER(20,2), "ORP_CY_X410" NUMBER(20,2), "ORP_PY_X420" NUMBER(20,2), "TOTAL_CY_X430" NUMBER(20,2), "TOTAL_PY_X440" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_REPURCHASE_TRAN1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_REPURCHASE_TRAN1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(2000), "PY_X020" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_REPURCHASE_TRAN2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_REPURCHASE_TRAN2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "MIN_OUT_CY_X030" NUMBER(20,2), "MIN_OUT_PY_X040" NUMBER(20,2), "MAX_OUT_CY_X050" NUMBER(20,2), "MAX_OUT_PY_X060" NUMBER(20,2), "DAILY_AVG_CY_X070" NUMBER(20,2), "DAILY_AVG_PY_X080" NUMBER(20,2), "OUT_CY_X090" NUMBER(20,2), "OUT_PY_X100" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH1_T_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH1_T_1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH1_T_2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH1_T_2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "NUM_OF_SHARES_CY_X030" NUMBER, "NUM_OF_SHARES_PY_X040" NUMBER, "AMT_OF_PER_SHARE_CAP_CY_X050" NUMBER(20,2), "AMT_OF_PER_SHARE_CAP_PY_X060" NUMBER(20,2), "AMT_OF_CAP_CY_X070" NUMBER(20,2), "AMT_OF_CAP_PY_X080" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_10
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_10" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_11
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_11" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_12
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_12" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_13
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_13" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_14
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_14" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_15
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_15" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_16
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_16" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_1A
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_1A" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_2A
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_2A" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_3
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_4
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_4" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_5
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_5" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_6
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_6" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_7
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_7" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_8
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_8" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCH_9
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCH_9" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SCOP_QUE
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SCOP_QUE" ("SRNO" NUMBER, "DESCRIPTION" VARCHAR2(2000), "CODE" VARCHAR2(200), "VALUE" VARCHAR2(2000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SECTORWISENPA
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SECTORWISENPA" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(100), "CY_X010" NUMBER(18,2), "CY_X020" NUMBER(18,2), "CY_X030" NUMBER(18,4), "PY_X040" NUMBER(18,2), "PY_X050" NUMBER(18,2), "PY_X060" NUMBER(18,4), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SEC_WISENPA
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SEC_WISENPA" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_GROSS_ADV_X010" NUMBER(20,2), "CY_GROSS_NPA_X020" NUMBER(20,2), "CY_GROSS_NPA_PERC_X030" NUMBER(20,4), "PY_GROSS_ADV_X040" NUMBER(20,2), "PY_GROSS_NPA_X050" NUMBER(20,2), "PY_GROSS_NPA_PERC_X060" NUMBER(20,4), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SEGMENTS
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SEGMENTS" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "TREASURY_CY_X010" NUMBER(20,2), "TREASURY_PY_X020" NUMBER(20,2), "CORP_WB_CY_X030" NUMBER(20,2), "CORP_WB_PY_X040" NUMBER(20,2), "RETAIL_CY_X050" NUMBER(20,2), "RETAIL_PY_X060" NUMBER(20,2), "OTHER_CY_X070" NUMBER(20,2), "OTHER_PY_X080" NUMBER(20,2), "TOTAL_CY_X090" NUMBER(20,2), "TOTAL_PY_X100" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SEGMENTS1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SEGMENTS1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "DOM_CY_X110" NUMBER(20,2), "DOM_PY_X120" NUMBER(20,2), "INT_CY_X130" NUMBER(20,2), "INT_PY_X140" NUMBER(20,2), "TOTAL_CY_X150" NUMBER(20,2), "TOTAL_PY_X160" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SEGMENTS_1
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SEGMENTS_1" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(50), "X010" NUMBER(18,2), "X020" NUMBER(18,2), "X030" NUMBER(18,2), "X040" NUMBER(18,2), "X050" NUMBER(18,2), "X060" NUMBER(18,2), "X070" NUMBER(18,2), "X080" NUMBER(18,2), "X090" NUMBER(18,2), "X100" NUMBER(18,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
+--  DDL for Table CIMS_DSIM01_SEGMENTS_2
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_DSIM01_SEGMENTS_2" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(1000), "CODE" VARCHAR2(50), "X110" NUMBER(18,2), "X120" NUMBER(18,2), "X130" NUMBER(18,2), "X140" NUMBER(18,2), "X150" NUMBER(18,2), "X160" NUMBER(18,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+
+--------------------------------------------------------
 --  DDL for Table CIMS_FCY_EXPOSURE_STMT
 --------------------------------------------------------
 
@@ -4437,12 +4977,6 @@
   CREATE TABLE "CIMS_FORM_FR_ASSET_QUALITY1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CDR_CY_X030" VARCHAR2(200), "CDR_PY_X040" VARCHAR2(200), "SME_CY_X050" VARCHAR2(200), "SME_PY_X060" VARCHAR2(200), "OTHER_CY_X070" VARCHAR2(200), "OTHER_PY_X080" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
 
 --------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_ASSET_QUALITY2
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_ASSET_QUALITY2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(2000), "CY_X090" VARCHAR2(200), "PY_X100" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
 --  DDL for Table CIMS_FORM_FR_ASSET_QUALITY3
 --------------------------------------------------------
 
@@ -4465,12 +4999,6 @@
 --------------------------------------------------------
 
   CREATE TABLE "CIMS_FORM_FR_AUDITORS_REPORT_1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X110" VARCHAR2(4000), "PY_X120" VARCHAR2(4000), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_BALANCE_SHEET
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_BALANCE_SHEET" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(500), "CODE" VARCHAR2(500), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
 
 --------------------------------------------------------
 --  DDL for Table CIMS_FORM_FR_BUSS_RATIO
@@ -4596,7 +5124,13 @@
 --  DDL for Table CIMS_FORM_FR_INVESTMENT
 --------------------------------------------------------
 
-  CREATE TABLE "CIMS_FORM_FR_INVESTMENT" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
+  CREATE TABLE "CIMS_FORM_FR_INVESTMENT" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_Y010" NUMBER, "CY_Y020" NUMBER, "CY_Y030" NUMBER, "CY_Y040" NUMBER, "CY_Y050" NUMBER, "CY_Y060" NUMBER, "CY_Y070" NUMBER, "CY_Y080" NUMBER, "CY_Y090" NUMBER, "CY_Y100" NUMBER, "CY_Y110" NUMBER, "CY_Y120" NUMBER, "PY_Y130" NUMBER, "PY_Y140" NUMBER, "PY_Y150" NUMBER, "PY_Y160" NUMBER, "PY_Y170" NUMBER, "PY_Y180" NUMBER, "PY_Y190" NUMBER, "PY_Y200" NUMBER, "PY_Y210" NUMBER, "PY_Y220" NUMBER, "PY_Y230" NUMBER, "PY_Y240" NUMBER, "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(10), "CY_X250" NUMBER, "PY_X250" NUMBER);
+
+--------------------------------------------------------
+--  DDL for Table CIMS_FORM_FR_INVESTMENT_BKUP
+--------------------------------------------------------
+
+  CREATE TABLE "CIMS_FORM_FR_INVESTMENT_BKUP" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" VARCHAR2(200), "PY_X020" VARCHAR2(200), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
 
 --------------------------------------------------------
 --  DDL for Table CIMS_FORM_FR_MISCELLANEOUS
@@ -4689,18 +5223,6 @@
   CREATE TABLE "CIMS_FORM_FR_REPURCHASE_TRAN2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "MIN_OUT_CY_X030" NUMBER(20,2), "MIN_OUT_PY_X040" NUMBER(20,2), "MAX_OUT_CY_X050" NUMBER(20,2), "MAX_OUT_PY_X060" NUMBER(20,2), "DAILY_AVG_CY_X070" NUMBER(20,2), "DAILY_AVG_PY_X080" NUMBER(20,2), "OUT_CY_X090" NUMBER(20,2), "OUT_PY_X100" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
 
 --------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH1_T_1
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH1_T_1" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH1_T_2
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH1_T_2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "NUM_OF_SHARES_CY_X030" NUMBER, "NUM_OF_SHARES_PY_X040" NUMBER, "AMT_OF_PER_SHARE_CAP_CY_X050" NUMBER(20,2), "AMT_OF_PER_SHARE_CAP_PY_X060" NUMBER(20,2), "AMT_OF_CAP_CY_X070" NUMBER(20,2), "AMT_OF_CAP_PY_X080" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
 --  DDL for Table CIMS_FORM_FR_SCH_10
 --------------------------------------------------------
 
@@ -4747,60 +5269,6 @@
 --------------------------------------------------------
 
   CREATE TABLE "CIMS_FORM_FR_SCH_1A" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_2
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_2" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_2A
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_2A" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE);
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_3
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_3" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_4
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_4" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_5
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_5" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_6
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_6" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_7
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_7" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_8
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_8" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
-
---------------------------------------------------------
---  DDL for Table CIMS_FORM_FR_SCH_9
---------------------------------------------------------
-
-  CREATE TABLE "CIMS_FORM_FR_SCH_9" ("SRNO" NUMBER, "PARTICULARS" VARCHAR2(2000), "CODE" VARCHAR2(200), "CY_X010" NUMBER(20,2), "PY_X020" NUMBER(20,2), "RDATE" DATE, "CONSO_OR_STAND" VARCHAR2(20));
 
 --------------------------------------------------------
 --  DDL for Table CIMS_FORM_FR_SCOP_QUE
@@ -11013,6 +11481,234 @@
   CREATE TABLE "PROJECT_CONSTANT" ("CONSTANT_KEY" VARCHAR2(1020), "VALUE" VARCHAR2(1020));
 
 --------------------------------------------------------
+--  DDL for Table QCB_F010_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F010_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F010_RCM_IN_QTR
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F010_RCM_IN_QTR" ("SR_NO" NUMBER(20), "DESCRIPTION" VARCHAR2(200), "OVERNIGHT_LC" NUMBER(20,2), "OVERNIGHT_USD" NUMBER(20,2), "OVERNIGHT_OTHER_FC" NUMBER(20,2), "GT_1_TO_7_DAYS_LC" NUMBER(20,2), "GT_1_TO_7_DAYS_USD" NUMBER(20,2), "GT_1_TO_7_DAYS_OTHER_FC" NUMBER(20,2), "GT_7_TO_15_DAYS_LC" NUMBER(20,2), "GT_7_TO_15_DAYS_USD" NUMBER(20,2), "GT_7_TO_15_DAYS_OTHER_FC" NUMBER(20,2), "GT_15_TO_30_DAYS_LC" NUMBER(20,2), "GT_15_TO_30_DAYS_USD" NUMBER(20,2), "GT_15_TO_30_DAYS_OTHER_FC" NUMBER(20,2), "GT_1_TO_3_MONTHS_LC" NUMBER(20,2), "GT_1_TO_3_MONTHS_USD" NUMBER(20,2), "GT_1_TO_3_MONTHS_OTHER_FC" NUMBER(20,2), "GT_3_TO_6_MONTHS_LC" NUMBER(20,2), "GT_3_TO_6_MONTHS_USD" NUMBER(20,2), "GT_3_TO_6_MONTHS_OTHER_FC" NUMBER(20,2), "GT_6_TO_12_MONTHS_LC" NUMBER(20,2), "GT_6_TO_12_MONTHS_USD" NUMBER(20,2), "GT_6_TO_12_MONTHS_OTHER_FC" NUMBER(20,2), "GT_1_TO_3_YEARS_LC" NUMBER(20,2), "GT_1_TO_3_YEARS_USD" NUMBER(20,2), "GT_1_TO_3_YEARS_OTHER_FC" NUMBER(20,2), "GT_3_TO_5_YEARS_LC" NUMBER(20,2), "GT_3_TO_5_YEARS_USD" NUMBER(20,2), "GT_3_TO_5_YEARS_OTHER_FC" NUMBER(20,2), "GT_5_YEARS_LC" NUMBER(20,2), "GT_5_YEARS_USD" NUMBER(20,2), "GT_5_YEARS_OTHER_FC" NUMBER(20,2), "NO_CONTRA_MAT_LC" NUMBER(20,2), "NO_CONTRA_MAT_USD" NUMBER(20,2), "NO_CONTRA_MAT_OTHER_FC" NUMBER(20,2), "TOTAL_LC" NUMBER(20,2), "TOTAL_USD" NUMBER(20,2), "TOTAL_OTHER_FC" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F010_RCM_OUT_QTR
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F010_RCM_OUT_QTR" ("SR_NO" NUMBER(20), "DESCRIPTION" VARCHAR2(200), "OVERNIGHT_LC" NUMBER(20,2), "OVERNIGHT_USD" NUMBER(20,2), "OVERNIGHT_OTHER_FC" NUMBER(20,2), "GT_1_TO_7_DAYS_LC" NUMBER(20,2), "GT_1_TO_7_DAYS_USD" NUMBER(20,2), "GT_1_TO_7_DAYS_OTHER_FC" NUMBER(20,2), "GT_7_TO_15_DAYS_LC" NUMBER(20,2), "GT_7_TO_15_DAYS_USD" NUMBER(20,2), "GT_7_TO_15_DAYS_OTHER_FC" NUMBER(20,2), "GT_15_TO_30_DAYS_LC" NUMBER(20,2), "GT_15_TO_30_DAYS_USD" NUMBER(20,2), "GT_15_TO_30_DAYS_OTHER_FC" NUMBER(20,2), "GT_1_TO_3_MONTHS_LC" NUMBER(20,2), "GT_1_TO_3_MONTHS_USD" NUMBER(20,2), "GT_1_TO_3_MONTHS_OTHER_FC" NUMBER(20,2), "GT_3_TO_6_MONTHS_LC" NUMBER(20,2), "GT_3_TO_6_MONTHS_USD" NUMBER(20,2), "GT_3_TO_6_MONTHS_OTHER_FC" NUMBER(20,2), "GT_6_TO_12_MONTHS_LC" NUMBER(20,2), "GT_6_TO_12_MONTHS_USD" NUMBER(20,2), "GT_6_TO_12_MONTHS_OTHER_FC" NUMBER(20,2), "GT_1_TO_3_YEARS_LC" NUMBER(20,2), "GT_1_TO_3_YEARS_USD" NUMBER(20,2), "GT_1_TO_3_YEARS_OTHER_FC" NUMBER(20,2), "GT_3_TO_5_YEARS_LC" NUMBER(20,2), "GT_3_TO_5_YEARS_USD" NUMBER(20,2), "GT_3_TO_5_YEARS_OTHER_FC" NUMBER(20,2), "GT_5_YEARS_LC" NUMBER(20,2), "GT_5_YEARS_USD" NUMBER(20,2), "GT_5_YEARS_OTHER_FC" NUMBER(20,2), "NO_CONTRA_MAT_LC" NUMBER(20,2), "NO_CONTRA_MAT_USD" NUMBER(20,2), "NO_CONTRA_MAT_OTHER_FC" NUMBER(20,2), "TOTAL_LC" NUMBER(20,2), "TOTAL_USD" NUMBER(20,2), "TOTAL_OTHER_FC" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_CLAIM_COST_DTLS_MOTOR_INS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_CLAIM_COST_DTLS_MOTOR_INS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(500), "LOC_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_COMPLEMENTARY" NUMBER(20,2), "LOC_COMP_TOTAL" NUMBER(20,2), "FOR_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_COMPLEMENTARY" NUMBER(20,2), "FOR_COMP_TOTAL" NUMBER(20,2), "GRAND_TOTAL" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_CLAIM_COST_GEN
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_CLAIM_COST_GEN" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(100), "MOTOR_VEHICLE" NUMBER(20,2), "FIRE_AND_DAMAGE" NUMBER(20,2), "MARINE_AND_CARGO" NUMBER(20,2), "SHIPS_AND_AIRCRAFT" NUMBER(20,2), "ENG_AND_REL_LIAB" NUMBER(20,2), "OIL_AND_GAS_ENRG_INS" NUMBER(20,2), "MEDICAL" NUMBER(20,2), "OTHER_BRANCHES" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_COMPREHENSIVE_INCOME_STMT_IFRS4
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_COMPREHENSIVE_INCOME_STMT_IFRS4" ("SR_NO" NUMBER, "DESCRIPTION" VARCHAR2(200), "QUARTER1" NUMBER(20,2), "QUARTER2" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_EXPLANATION_FOR_DEVIATION
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_EXPLANATION_FOR_DEVIATION" ("SR_NO" NUMBER, "DESCRIPTION" VARCHAR2(500), "DTLS_EXP_REASON_FOR_MATERIAL_CHANGES" VARCHAR2(1000), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_EXPLANATION_FOR_DEVIATION_PART1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_EXPLANATION_FOR_DEVIATION_PART1" ("SR_NO" NUMBER, "DESCRIPTION" VARCHAR2(500), "DTLS_EXP_REASON_FOR_MATERIAL_CHANGES" VARCHAR2(1000), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_GEN_INS_PROF
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_GEN_INS_PROF" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(100), "MOTOR_VEHICLE" NUMBER(20,2), "FIRE_AND_DAMAGE" NUMBER(20,2), "MARINE_AND_CARGO" NUMBER(20,2), "SHIPS_AND_AIRCRAFT" NUMBER(20,2), "ENG_AND_REL_LIAB" NUMBER(20,2), "OIL_AND_GAS_ENRG_INS" NUMBER(20,2), "MEDICAL" NUMBER(20,2), "OTHER_BRANCHES" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_GEN_INS_UND
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_GEN_INS_UND" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(100), "MOTOR_VEHICLE" NUMBER(20,2), "FIRE_AND_DAMAGE" NUMBER(20,2), "MARINE_AND_CARGO" NUMBER(20,2), "SHIPS_AND_AIRCRAFT" NUMBER(20,2), "ENG_AND_REL_LIAB" NUMBER(20,2), "OIL_AND_GAS_ENRG_INS" NUMBER(20,2), "MEDICAL" NUMBER(20,2), "OTHER_BRANCHES" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_INS_COMP_RECEIVABLES
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_INS_COMP_RECEIVABLES" ("SR_NO" NUMBER, "STATEMENT" VARCHAR2(500), "RECEIVABLES_NOT_YET_DUE" NUMBER(20,2), "RECEIVABLES_DUE_WITHIN_90_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_90_TO_180_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_180_TO_360_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_OVER_360_DAYS" NUMBER(20,2), "TOTAL_RECEIVABLES" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_INV_CONC_RISK_TOP5_UNRELP
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_INV_CONC_RISK_TOP5_UNRELP" ("SR_NO" NUMBER, "NO_OF_COUNTERPARTY" VARCHAR2(20), "NAME_OF_COUNTERPARTY" VARCHAR2(500), "ON_BALANCE_SHEET_EXPOSURE" VARCHAR2(20), "OFF_BALANCE_SHEET_EXPOSURE" VARCHAR2(20), "TOTAL_EXPOSURE" VARCHAR2(20), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL1" ("SR_NO" NUMBER, "INVESTMENT_CONC_GEO_DIST" VARCHAR2(200), "ON_BAL_SHEET_EXPOSURE" NUMBER(20,2), "OFF_BAL_SHEET_EXPOSURE" NUMBER(20,2), "TOTAL" NUMBER(20,2), "TOTAL_IMPAIRMENT" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL2" ("SR_NO" NUMBER, "DERIVATIVES" VARCHAR2(500), "INT_RATE_CONT_TURNOVER" NUMBER(20,2), "INT_RATE_CONT_NOT_PRIN_AMT" NUMBER(20,2), "INT_RATE_CONT_FAIR_VAL_AST" NUMBER(20,2), "INT_RATE_CONT_FAIR_VAL_LIAB" NUMBER(20,2), "EQUITY_CONT_TURNOVER" NUMBER(20,2), "EQUITY_CONT_NOT_PRIN_AMT" NUMBER(20,2), "EQUITY_CONT_FAIR_VAL_AST" NUMBER(20,2), "EQUITY_CONT_FAIR_VAL_LIAB" NUMBER(20,2), "OTH_DER_CONT_TURNOVER" NUMBER(20,2), "OTH_DER_CONT_NOT_PRIN_AMT" NUMBER(20,2), "OTH_DER_CONT_FAIR_VAL_AST" NUMBER(20,2), "OTH_DER_CONT_FAIR_VAL_LIAB" NUMBER(20,2), "FX_CONT_TURNOVER" NUMBER(20,2), "FX_CONT_NOT_PRIN_AMT" NUMBER(20,2), "FX_CONT_FAIR_VAL_AST" NUMBER(20,2), "FX_CONT_FAIR_VAL_LIAB" NUMBER(20,2), "COM_CONT_TURNOVER" NUMBER(20,2), "COM_CONT_NOT_PRIN_AMT" NUMBER(20,2), "COM_CONT_FAIR_VAL_AST" NUMBER(20,2), "COM_CONT_FAIR_VAL_LIAB" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL3
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_INV_CONC_RISK_TOP5_UNRELP_TBL3" ("SR_NO" NUMBER, "ITEMS_DENOM_FOREIGN_CURR" VARCHAR2(500), "USD" NUMBER(20,2), "GCC" NUMBER(20,2), "USD_PEGGED" NUMBER(20,2), "EUR" NUMBER(20,2), "GBP" NUMBER(20,2), "CHF" NUMBER(20,2), "JPY" NUMBER(20,2), "INR" NUMBER(20,2), "RMB" NUMBER(20,2), "OTHER" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_LIFE_INS_CLAIM_COST
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_LIFE_INS_CLAIM_COST" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(200), "LIFE_INSURANCE" NUMBER(20,2), "RETIREMENT_INSURANCE" NUMBER(20,2), "INVESTMENT_LINKED" NUMBER(20,2), "PERSONAL_ACCIDENTS" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_LIFE_INS_PROF_LOSS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_LIFE_INS_PROF_LOSS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(200), "LIFE_INSURANCE" NUMBER(20,2), "RETIREMENT_INSURANCE" NUMBER(20,2), "INVESTMENT_LINKED" NUMBER(20,2), "PERSONAL_ACCIDENTS" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_LIFE_INS_UNDERWRI
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_LIFE_INS_UNDERWRI" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(100), "LIFE_INSURANCE" NUMBER(20,2), "RETIREMENT_INSURANCE" NUMBER(20,2), "INVESTMENT_LINKED" NUMBER(20,2), "PERSONAL_ACCIDENTS" NUMBER(20,2), "TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_PROFIT_LOSS_DTLS_MOTOR_INS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_PROFIT_LOSS_DTLS_MOTOR_INS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(500), "LOC_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_COMPLEMENTARY" NUMBER(20,2), "LOC_COMP_TOTAL" NUMBER(20,2), "FOR_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_COMPLEMENTARY" NUMBER(20,2), "FOR_COMP_TOTAL" NUMBER(20,2), "GRAND_TOTAL" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_PROFIT_LOSS_STMT_IFRS4
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_PROFIT_LOSS_STMT_IFRS4" ("SR_NO" NUMBER, "DESCRIPTION" VARCHAR2(200), "QUARTER1" NUMBER(20,2), "QUARTER2" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_RECEIVABLES_AGING_DIST
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_RECEIVABLES_AGING_DIST" ("SR_NO" NUMBER, "STATEMENT" VARCHAR2(500), "RECEIVABLES_NOT_YET_DUE" NUMBER(20,2), "RECEIVABLES_DUE_WITHIN_90_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_90_TO_180_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_180_TO_360_DAYS" NUMBER(20,2), "RECEIVABLES_DUE_OVER_360_DAYS" NUMBER(20,2), "TOTAL_RECEIVABLES" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_REINSURERS_RECEIVABLE
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_REINSURERS_RECEIVABLE" ("SR_NO" NUMBER, "REINSURERS" VARCHAR2(500), "RTNG_COUNTRY_OF_DOMICILE" VARCHAR2(200), "RTNG_GRADES" VARCHAR2(100), "RTNG_PREMIUM_CEDED" VARCHAR2(20), "RTNG_VAL_COLLATERAL_SECURITY_HELD" VARCHAR2(20), "REC_DUE_WITHIN_90_DAYS" VARCHAR2(20), "REC_DUE_90_TO_180_DAYS" VARCHAR2(20), "REC_DUE_180_TO_360_DAYS" VARCHAR2(20), "REC_MORE_THAN_360_DAYS" VARCHAR2(20), "AMT_DOUBTFUL_WRITTEN_OFF" VARCHAR2(20), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_REINSURERS_RECEIVABLE_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_REINSURERS_RECEIVABLE_TBL1" ("SR_NO" NUMBER, "REINSURERS" VARCHAR2(500), "RTNG_PREMIUM_CEDED" NUMBER(20,2), "RTNG_VAL_COLLATERAL_SECURITY_HELD" NUMBER(20,2), "REC_DUE_WITHIN_90_DAYS" NUMBER(20,2), "REC_DUE_90_TO_180_DAYS" NUMBER(20,2), "REC_DUE_180_TO_360_DAYS" NUMBER(20,2), "REC_MORE_THAN_360_DAYS" NUMBER(20,2), "AMT_DOUBTFUL_WRITTEN_OFF" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_REINSURERS_RECEIVABLE_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_REINSURERS_RECEIVABLE_TBL2" ("SR_NO" NUMBER, "LINE_OF_BUSINESS" VARCHAR2(500), "POLICY_LIMITS" VARCHAR2(20), "NET_RETENTION" VARCHAR2(20), "LARGEST_REINSURER_NAME" VARCHAR2(500), "SECOND_LARGEST_REINS_NAME" VARCHAR2(500), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STATE_ON_CO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STATE_ON_CO" ("SR_NO" NUMBER, "DESCRIPTION" VARCHAR2(200), "VALUE" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_CHANGES_LONG_TERM_BUS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_CHANGES_LONG_TERM_BUS" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(500), "TERM_INS_NO_CONTRACTS" NUMBER, "TERM_INS_NO_LIVES" NUMBER, "TERM_INS_ANNUAL_PREMIUMS" NUMBER(20,2), "ENDOW_NO_CONTRACTS" NUMBER, "ENDOW_NO_LIVES" NUMBER, "ENDOW_ANNUAL_PREMIUMS" NUMBER(20,2), "WHOLE_LIFE_NO_CONTRACTS" NUMBER, "WHOLE_LIFE_NO_LIVES" NUMBER, "WHOLE_LIFE_ANNUAL_PREMIUMS" NUMBER(20,2), "INV_LINK_NO_CONTRACTS" NUMBER, "INV_LINK_NO_LIVES" NUMBER, "INV_LINK_ANNUAL_PREMIUMS" NUMBER(20,2), "ANNUITY_NO_CONTRACTS" NUMBER, "ANNUITY_NO_LIVES" NUMBER, "ANNUITY_ANNUAL_PREMIUMS" NUMBER(20,2), "OLTB_NO_CONTRACTS" NUMBER, "OLTB_NO_LIVES" NUMBER, "OLTB_ANNUAL_PREMIUMS" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_PREMIUM_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_PREMIUM_INFO" ("SR_NO" NUMBER, "NO_OF_POL_SOLD_DUR_PERIOD" VARCHAR2(200), "QUARTER1" NUMBER(20,2), "QUARTER2" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_PREMIUM_INFO_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_PREMIUM_INFO_TBL1" ("SR_NO" NUMBER, "NO_OF_POL_CANCEL_NOT_RENEW" VARCHAR2(200), "QUARTER1" NUMBER(20,2), "QUARTER2" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_PREMIUM_INFO_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_PREMIUM_INFO_TBL2" ("SR_NO" NUMBER, "GROSS_PREM_VAL_POL_CANCEL_NOT_RENEW" VARCHAR2(200), "QUARTER1" NUMBER(20,2), "QUARTER2" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_PREMIUM_INFO_TBL3
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_PREMIUM_INFO_TBL3" ("SR_NO" NUMBER, "PREMIUM_RECEIVABLE" VARCHAR2(500), "NOT_YET_DUE" NUMBER(20,2), "DUE_1_TO_90_DAYS" NUMBER(20,2), "DUE_91_TO_180_DAYS" NUMBER(20,2), "DUE_OVER_180_DAYS" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_PREMIUM_INFO_TBL4
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_PREMIUM_INFO_TBL4" ("SR_NO" NUMBER, "LINE_OF_BUSINESS" VARCHAR2(500), "QATAR_GPW" NUMBER(20,2), "QATAR_NPW" NUMBER(20,2), "REST_GCC_GPW" NUMBER(20,2), "REST_GCC_NPW" NUMBER(20,2), "NORTH_AMERICA_GPW" NUMBER(20,2), "NORTH_AMERICA_NPW" NUMBER(20,2), "EUROPE_GPW" NUMBER(20,2), "EUROPE_NPW" NUMBER(20,2), "REST_WORLD_GPW" NUMBER(20,2), "REST_WORLD_NPW" NUMBER(20,2), "RETAIL_GPW" NUMBER(20,2), "RETAIL_NPW" NUMBER(20,2), "COMMERCIAL_GPW" NUMBER(20,2), "COMMERCIAL_NPW" NUMBER(20,2), "NEW_BUSINESS_GPW" NUMBER(20,2), "NEW_BUSINESS_NPW" NUMBER(20,2), "UNRELATED_GPW" NUMBER(20,2), "UNRELATED_NPW" NUMBER(20,2), "RELATED_GPW" NUMBER(20,2), "RELATED_NPW" NUMBER(20,2), "RENEWED_GPW" NUMBER(20,2), "RENEWED_NPW" NUMBER(20,2), "DIRECT_WRITING_GPW" NUMBER(20,2), "DIRECT_WRITING_NPW" NUMBER(20,2), "FAC_PROP_GPW" NUMBER(20,2), "FAC_PROP_NPW" NUMBER(20,2), "FAC_NON_PROP_GPW" NUMBER(20,2), "FAC_NON_PROP_NPW" NUMBER(20,2), "TREATY_PROP_GPW" NUMBER(20,2), "TREATY_PROP_NPW" NUMBER(20,2), "TREATY_NON_PROP_GPW" NUMBER(20,2), "TREATY_NON_PROP_NPW" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_TECH_PROV_CLAIMS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_TECH_PROV_CLAIMS" ("SR_NO" NUMBER, "GENERAL_INS_BUSINESS" VARCHAR2(500), "PAID_CLAIMS_GROSS" NUMBER(20,2), "PAID_CLAIMS_NET" NUMBER(20,2), "OUTSTD_CLAIMS_GROSS" NUMBER(20,2), "OUTSTD_CLAIMS_NET" NUMBER(20,2), "IBNR_CLAIMS_GROSS" NUMBER(20,2), "IBNR_CLAIMS_NET" NUMBER(20,2), "UNEARN_PREM_RES_GROSS" NUMBER(20,2), "UNEARN_PREM_RES_NET" NUMBER(20,2), "PREM_DEF_RES_GROSS" NUMBER(20,2), "PREM_DEF_RES_NET" NUMBER(20,2), "OTH_TECH_RES_GROSS" NUMBER(20,2), "OTH_TECH_RES_NET" NUMBER(20,2), "LOSS_RATIO" NUMBER(10,2), "COMBINED_RATIO" NUMBER(10,2), "NO_OF_REPORTED_CLAIMS" NUMBER, "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_TECH_PROV_CLAIMS_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_TECH_PROV_CLAIMS_TBL1" ("SR_NO" NUMBER, "LONG_TERM_INS_BUSINESS" VARCHAR2(500), "GROSS_LIABILITIES" NUMBER(20,2), "NET_LIABILITIES" NUMBER(20,2), "GROSS_PAY_DEATH" NUMBER(20,2), "GROSS_PAY_DISABILITY" NUMBER(20,2), "GROSS_PAY_SURRENDER" NUMBER(20,2), "GROSS_PAY_MATURITY" NUMBER(20,2), "GROSS_PAY_CONVERSIONS" NUMBER(20,2), "GROSS_PAY_OTHER" NUMBER(20,2), "GROSS_PAY_TOTAL" NUMBER(20,2), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_STMT_TECH_PROV_CLAIMS_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_STMT_TECH_PROV_CLAIMS_TBL2" ("SR_NO" NUMBER, "TEN_LARGEST_CLAIM_DTLS" VARCHAR2(1000), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F012_UNDERWRITING_REVENUE_DE
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F012_UNDERWRITING_REVENUE_DE" ("SR_NO" NUMBER, "PARTICULARS" VARCHAR2(500), "LOC_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_THIRD_PARTY" NUMBER(20,2), "LOC_COMP_COMPLEMENTARY" NUMBER(20,2), "LOC_COMP_TOTAL" NUMBER(20,2), "FOR_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_THIRD_PARTY" NUMBER(20,2), "FOR_COMP_COMPLEMENTARY" NUMBER(20,2), "FOR_COMP_TOTAL" NUMBER(20,2), "GRAND_TOTAL" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F013_BREAK_EXPOSURE
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F013_BREAK_EXPOSURE" ("COUNTRY" VARCHAR2(200), "SOVEREIGNS" NUMBER(20,2), "MULTI_DEV_BANKS" NUMBER(20,2), "PUBLIC_SECTOR_ENT" NUMBER(20,2), "FOR_PROFIT_GOV_RLTD_ENT" NUMBER(20,2), "BANKS" NUMBER(20,2), "PVT_SEC_LARGE_CORP" NUMBER(20,2), "PVT_SEC_SMES" NUMBER(20,2), "NBF_INSTITUTIONS" NUMBER(20,2), "RETAIL" NUMBER(20,2), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F013_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F013_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
 --  DDL for Table QCB_F014_FILING_INFO
 --------------------------------------------------------
 
@@ -11023,6 +11719,204 @@
 --------------------------------------------------------
 
   CREATE TABLE "QCB_F014_FUNDING_GEO" ("COUNTRY" VARCHAR2(200), "SOVEREIGNS" NUMBER(20,2), "MULTI_DEV_BANKS" NUMBER(20,2), "PUBLIC_SECTOR_ENT" NUMBER(20,2), "FOR_PROFIT_GOV_RLTD_ENT" NUMBER(20,2), "BANKS" NUMBER(20,2), "PVT_SEC_LARGE_CORP" NUMBER(20,2), "PVT_SEC_SMES" NUMBER(20,2), "NBF_INSTITUTIONS" NUMBER(20,2), "RETAIL" NUMBER(20,2), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F015_BANK_CAP_BASE
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F015_BANK_CAP_BASE" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F015_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F015_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F015_FOREIGN_CUR_NOP
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F015_FOREIGN_CUR_NOP" ("SR_NO" NUMBER(20,2), "CURRENCY" VARCHAR2(50), "CASH_EQ_TOTAL" NUMBER(20,2), "CASH_EQ_IN_QTR" NUMBER(20,2), "CASH_EQ_OUT_QTR" NUMBER(20,2), "CLAIMS_CB_TOTAL" NUMBER(20,2), "CLAIMS_CB_IN_QTR" NUMBER(20,2), "CLAIMS_CB_OUT_QTR" NUMBER(20,2), "CLAIMS_BANK_TOTAL" NUMBER(20,2), "CLAIMS_BANK_IN_QTR" NUMBER(20,2), "CLAIMS_BANK_OUT_QTR" NUMBER(20,2), "INVEST_SEC_TOTAL" NUMBER(20,2), "INVEST_SEC_IN_QTR" NUMBER(20,2), "INVEST_SEC_OUT_QTR" NUMBER(20,2), "LOANS_ADV_TOTAL" NUMBER(20,2), "LOANS_ADV_IN_QTR" NUMBER(20,2), "LOANS_ADV_OUT_QTR" NUMBER(20,2), "INVEST_SUB_ASSOC_TOTAL" NUMBER(20,2), "INVEST_SUB_ASSOC_IN_QTR" NUMBER(20,2), "INVEST_SUB_ASSOC_OUT_QTR" NUMBER(20,2), "INVEST_RE_TOTAL" NUMBER(20,2), "INVEST_RE_IN_QTR" NUMBER(20,2), "INVEST_RE_OUT_QTR" NUMBER(20,2), "NET_FIX_ASSETS_TOTAL" NUMBER(20,2), "NET_FIX_ASSETS_IN_QTR" NUMBER(20,2), "NET_FIX_ASSETS_OUT_QTR" NUMBER(20,2), "RIGHT_USE_ASSETS_TOTAL" NUMBER(20,2), "RIGHT_USE_ASSETS_IN_QTR" NUMBER(20,2), "RIGHT_USE_ASSETS_OUT_QTR" NUMBER(20,2), "INTANG_ASSETS_TOTAL" NUMBER(20,2), "INTANG_ASSETS_IN_QTR" NUMBER(20,2), "INTANG_ASSETS_OUT_QTR" NUMBER(20,2), "OTHER_ASSETS_TOTAL" NUMBER(20,2), "OTHER_ASSETS_IN_QTR" NUMBER(20,2), "OTHER_ASSETS_OUT_QTR" NUMBER(20,2), "TOTAL_ASSETS" NUMBER(20,2), "FORWARD_PURCHASES" NUMBER(20,2), "TOTAL_ASSETS_FORWD_PURCH" NUMBER(20,2), "DUE_CB_TOTAL" NUMBER(20,2), "DUE_CB_IN_QTR" NUMBER(20,2), "DUE_CB_OUT_QTR" NUMBER(20,2), "DUE_BANKS_TOTAL" NUMBER(20,2), "DUE_BANKS_IN_QTR" NUMBER(20,2), "DUE_BANKS_OUT_QTR" NUMBER(20,2), "CUST_DEPOSITS_TOTAL" NUMBER(20,2), "CUST_DEPOSITS_IN_QTR" NUMBER(20,2), "CUST_DEPOSITS_OUT_QTR" NUMBER(20,2), "SEC_ISSUED_TOTAL" NUMBER(20,2), "SEC_ISSUED_IN_QTR" NUMBER(20,2), "SEC_ISSUED_OUT_QTR" NUMBER(20,2), "OTHER_BORROW_TOTAL" NUMBER(20,2), "OTHER_BORROW_IN_QTR" NUMBER(20,2), "OTHER_BORROW_OUT_QTR" NUMBER(20,2), "LEASE_LIAB_TOTAL" NUMBER(20,2), "LEASE_LIAB_IN_QTR" NUMBER(20,2), "LEASE_LIAB_OUT_QTR" NUMBER(20,2), "PROVISIONS_TOTAL" NUMBER(20,2), "PROVISIONS_IN_QTR" NUMBER(20,2), "PROVISIONS_OUT_QTR" NUMBER(20,2), "OTHER_LIAB_TOTAL" NUMBER(20,2), "OTHER_LIAB_IN_QTR" NUMBER(20,2), "OTHER_LIAB_OUT_QTR" NUMBER(20,2), "TOTAL_LIAB" NUMBER(20,2), "TOTAL_EQUITY_TOTAL" NUMBER(20,2), "TOTAL_EQUITY_IN_QTR" NUMBER(20,2), "TOTAL_EQUITY_OUT_QTR" NUMBER(20,2), "TOTAL_LIAB_EQUITY" NUMBER(20,2), "DEFERRED_SALES" NUMBER(20,2), "TOTAL_EQUITY_LIAB_DEFRD" NUMBER(20,2), "SURPLUS_DEF" NUMBER(20,2), "SURPLUS_DEF_EXCL_EQUITY" NUMBER(20,2), "SURPLUS_DEF_EXCL_EQ_INV" NUMBER(20,2), "SURPLUS_CAP_BASE_RATIO" NUMBER(20,4), "EXCHANGE_RATE" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_OFFSHORE_ONE_FC_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_OFFSHORE_ONE_FC_TBL1" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "COUNTERPARTY" VARCHAR2(100), "AMT_IN_USD_EQUIV" NUMBER(20,2), "VALUE_DATE_1" VARCHAR2(100), "EXCH_RATE_SPOT" NUMBER(20,2), "VALUE_DATE_2" VARCHAR2(100), "EXCH_RATE_FORWARD" NUMBER(20,2), "FORWARD_POINT" NUMBER(20,2), "SWAP_TENOR_DAYS" NUMBER(10,2), "IMPLIED_RATE" NUMBER(10,4), "COMMENTS" VARCHAR2(500), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_OFFSHORE_ONE_FC_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_OFFSHORE_ONE_FC_TBL2" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "FOREIGN_CURR_NAME" VARCHAR2(100), "TENOR_UPTO_SPOT" NUMBER(20,2), "TENOR_SPOT_TO_1WEEK" NUMBER(20,2), "TENOR_1WEEK_TO_1MONTH" NUMBER(20,2), "TENOR_ABOVE_1MONTH" NUMBER(20,2), "TOTAL_AMT_USD_EQUIV" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_OFFSHORE_TWO_LC_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_OFFSHORE_TWO_LC_TBL1" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "COUNTERPARTY" VARCHAR2(100), "AMT_IN_USD_EQUIV" NUMBER(20,2), "VALUE_DATE_1" VARCHAR2(100), "EXCH_RATE_SPOT" NUMBER(20,2), "VALUE_DATE_2" VARCHAR2(100), "EXCH_RATE_FORWARD" NUMBER(20,2), "FORWARD_POINT" NUMBER(20,2), "SWAP_TENOR_DAYS" NUMBER(10,2), "IMPLIED_RATE" NUMBER(10,4), "COMMENTS" VARCHAR2(500), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_OFFSHORE_TWO_LC_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_OFFSHORE_TWO_LC_TBL2" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "FOREIGN_CURR_NAME" VARCHAR2(100), "TENOR_UPTO_SPOT" NUMBER(20,2), "TENOR_SPOT_TO_1WEEK" NUMBER(20,2), "TENOR_1WEEK_TO_1MONTH" NUMBER(20,2), "TENOR_ABOVE_1MONTH" NUMBER(20,2), "TOTAL_AMT_USD_EQUIV" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_ONSHORE_ONE_FC_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_ONSHORE_ONE_FC_TBL1" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "COUNTERPARTY" VARCHAR2(100), "AMT_IN_USD_EQUIV" NUMBER(20,2), "VALUE_DATE_1" VARCHAR2(100), "EXCH_RATE_SPOT" NUMBER(20,2), "VALUE_DATE_2" VARCHAR2(100), "EXCH_RATE_FORWARD" NUMBER(20,2), "FORWARD_POINT" NUMBER(20,2), "SWAP_TENOR_DAYS" NUMBER(10,2), "IMPLIED_RATE" NUMBER(10,4), "COMMENTS" VARCHAR2(500), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_ONSHORE_ONE_FC_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_ONSHORE_ONE_FC_TBL2" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "FOREIGN_CURR_NAME" VARCHAR2(100), "TENOR_UPTO_SPOT" NUMBER(20,2), "TENOR_SPOT_TO_1WEEK" NUMBER(20,2), "TENOR_1WEEK_TO_1MONTH" NUMBER(20,2), "TENOR_ABOVE_1MONTH" NUMBER(20,2), "TOTAL_AMT_USD_EQUIV" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_ONSHORE_TWO_LC_TBL1
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_ONSHORE_TWO_LC_TBL1" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "COUNTERPARTY" VARCHAR2(100), "AMT_IN_USD_EQUIV" NUMBER(20,2), "VALUE_DATE_1" VARCHAR2(100), "EXCH_RATE_SPOT" NUMBER(20,2), "VALUE_DATE_2" VARCHAR2(100), "EXCH_RATE_FORWARD" NUMBER(20,2), "FORWARD_POINT" NUMBER(20,2), "SWAP_TENOR_DAYS" NUMBER(10,2), "IMPLIED_RATE" NUMBER(10,4), "COMMENTS" VARCHAR2(500), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F019_ONSHORE_TWO_LC_TBL2
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F019_ONSHORE_TWO_LC_TBL2" ("SR_NO" NUMBER, "SWAP_CURR_PAIR" VARCHAR2(20), "FOREIGN_CURR_NAME" VARCHAR2(100), "TENOR_UPTO_SPOT" NUMBER(20,2), "TENOR_SPOT_TO_1WEEK" NUMBER(20,2), "TENOR_1WEEK_TO_1MONTH" NUMBER(20,2), "TENOR_ABOVE_1MONTH" NUMBER(20,2), "TOTAL_AMT_USD_EQUIV" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F026_CC_FX_BUYERS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F026_CC_FX_BUYERS" ("SR_NO" NUMBER, "NAME" VARCHAR2(255), "CUSTOMER_TYPE" VARCHAR2(50), "TYPE_OF_ID" VARCHAR2(100), "ID_NUMBER" VARCHAR2(100), "USD_EQUIVALENT" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F026_CC_FX_SELLERS
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F026_CC_FX_SELLERS" ("SR_NO" NUMBER, "NAME" VARCHAR2(255), "CUSTOMER_TYPE" VARCHAR2(50), "TYPE_OF_ID" VARCHAR2(100), "ID_NUMBER" VARCHAR2(100), "USD_EQUIVALENT" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F026_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F026_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FEFF_ALL
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FEFF_ALL" ("SR_NO" NUMBER(20), "DESCRIPTION" VARCHAR2(200), "VAL" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FEFF_QCB
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FEFF_QCB" ("SR_NO" NUMBER(20), "DESCRIPTION" VARCHAR2(200), "VAL" NUMBER(20,2), "CODE" VARCHAR2(20), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_BUY_BANK
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_BUY_BANK" ("SR_NO" NUMBER, "NAME_OF_FX_BUYER" VARCHAR2(255), "BANK_CODE" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_BUY_CORP
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_BUY_CORP" ("SR_NO" NUMBER, "NAME_OF_FX_BUYER" VARCHAR2(255), "CR_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_BUY_EXCH_H
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_BUY_EXCH_H" ("SR_NO" NUMBER, "NAME_OF_FX_BUYER" VARCHAR2(255), "CR_NO_LIC_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_BUY_IND
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_BUY_IND" ("SR_NO" NUMBER, "NAME_OF_FX_BUYER" VARCHAR2(255), "TYPE_OF_ID" VARCHAR2(50), "ID_NUMBER" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_BUY_OTH
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_BUY_OTH" ("SR_NO" NUMBER, "NAME_OF_FX_BUYER" VARCHAR2(255), "CR_NO_LIC_NO_EST_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_SELL_BANK
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_SELL_BANK" ("SR_NO" NUMBER, "NAME_OF_FX_SELLER" VARCHAR2(255), "BANK_CODE" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_SELL_CORP
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_SELL_CORP" ("SR_NO" NUMBER, "NAME_OF_FX_SELLER" VARCHAR2(255), "CR_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_SELL_EXCH_H
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_SELL_EXCH_H" ("SR_NO" NUMBER, "NAME_OF_FX_SELLER" VARCHAR2(255), "CR_NO_LIC_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_SELL_IND
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_SELL_IND" ("SR_NO" NUMBER, "NAME_OF_FX_SELLER" VARCHAR2(255), "TYPE_OF_ID" VARCHAR2(50), "ID_NUMBER" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F027_FX_SELL_OTH
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F027_FX_SELL_OTH" ("SR_NO" NUMBER, "NAME_OF_FX_SELLER" VARCHAR2(255), "CR_NO_LIC_NO_EST_NO" VARCHAR2(100), "TOTAL" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F028_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F028_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F028_TRANS_DATA
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F028_TRANS_DATA" ("SR_NO" NUMBER, "TRANSFER_DATE" VARCHAR2(20), "CUSTOMER_NAME" VARCHAR2(255), "CUSTOMER_TYPE" VARCHAR2(50), "BENEFICIARY_NAME" VARCHAR2(255), "BENEFICIARY_TYPE" VARCHAR2(50), "BENEFICIARY_COUNTRY" VARCHAR2(100), "CORRESPONDING_BANK" VARCHAR2(255), "ORIGINAL_CURRENCY" VARCHAR2(10), "AMOUNT_ORIGINAL_CURR" NUMBER(20,2), "AMOUNT" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F029_EXCH_HSE_BANK_ACC
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F029_EXCH_HSE_BANK_ACC" ("SR_NO" NUMBER, "EXCH_HOUSE" VARCHAR2(255), "MONTH_QCB_USD_FUND_APPR" NUMBER(20,2), "BK_TRF_TO_EXCH_HOUSES_USD_EQ" NUMBER(20,2), "ACT_ABROAD_TRF_USD_EQ" NUMBER(20,2), "DIFF_USD_EQUIV" NUMBER(20,2), "LOCAL_CUR_LOCAL_TRF_QAR" NUMBER(20,2), "LOCAL_CUR_ABROAD_TRF_QAR" NUMBER(20,2), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F029_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F029_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
+
+--------------------------------------------------------
+--  DDL for Table QCB_F030_FILING_INFO
+--------------------------------------------------------
+
+  CREATE TABLE "QCB_F030_FILING_INFO" ("DESCRIPTION" VARCHAR2(200), "VALUE" VARCHAR2(200), "CODE" VARCHAR2(200), "RDATE" DATE);
 
 --------------------------------------------------------
 --  DDL for Table QFCRA_BR330_CREDIT_RISK_CONC_ADDL_MEMO_ITEMS1_TBL3

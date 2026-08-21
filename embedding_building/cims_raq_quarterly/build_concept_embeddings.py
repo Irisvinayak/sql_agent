@@ -36,7 +36,13 @@ NOT embedded (kept only as payload, or dropped entirely):
 Run after build_concept_map.py (which this reads) and after build_embeddings.py
 (whose table index this rewrites):
     python embedding_building/cims_raq_quarterly/build_concept_embeddings.py
+
+INCREMENTAL BY DEFAULT: each of the three indexes below reuses cached vectors
+for any concept/member/table whose embedding text is unchanged since the last
+build — only new or edited entries actually go through the embedding model.
+Pass --full-rebuild to force re-embedding everything.
 """
+import argparse
 import json
 import os
 import sys
@@ -48,7 +54,7 @@ OUT_DIR = os.path.dirname(os.path.abspath(__file__))
 CONCEPT_MAP_PATH = os.path.join(OUT_DIR, "concept_map.json")
 SCHEMA_PATH = os.path.join(OUT_DIR, "schema.json")
 
-from src.vectorizer import embed_documents, build_faiss_index, save_index
+from src.vectorizer import embed_incremental, save_index
 
 # Cap the business-concept labels appended to a table's document. A table with 28
 # mapped concepts would otherwise contribute a 300-word blob that dilutes the
@@ -185,26 +191,35 @@ def enriched_table_documents(cm, schema):
     return records
 
 
-def _build(name, records, index_file, meta_file):
+def _build(name, records, key_fn, index_file, meta_file, force=False):
     if not records:
         print(f"  [--] {name}: nothing to embed, skipped")
         return
-    print(f"Embedding {len(records)} {name} records...")
-    vecs = embed_documents([r["text"] for r in records])
-    index = build_faiss_index(vecs)
+    print(f"{name}: {len(records)} records")
+    index, records = embed_incremental(
+        records, key_fn=key_fn, text_fn=lambda r: r["text"],
+        index_path=os.path.join(OUT_DIR, index_file),
+        meta_path=os.path.join(OUT_DIR, meta_file),
+        force=force,
+    )
     save_index(index, records,
                os.path.join(OUT_DIR, index_file), os.path.join(OUT_DIR, meta_file))
     print(f"  -> {index_file} ({index.ntotal} vectors)")
 
 
 def main():
-    # The member index is OPT-IN. It measured worse than not having it at every
-    # fusion weight tried (see CONCEPT_MAX_HITS_PER_TABLE / MEMBER_SIGNAL_WEIGHT in
-    # src/config.py), so config.MEMBER_SIGNAL_WEIGHT defaults to 0 and nothing
-    # reads the index. Building it by default would cost ~30s and 1.5MB for a file
-    # the pipeline never opens. Pass --with-member-index to rebuild it when
-    # revisiting that experiment.
-    build_members = "--with-member-index" in sys.argv
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--with-member-index", action="store_true",
+                     help="Also build the member index. It measured worse than "
+                          "not having it at every fusion weight tried (see "
+                          "CONCEPT_MAX_HITS_PER_TABLE / MEMBER_SIGNAL_WEIGHT in "
+                          "src/config.py), so config.MEMBER_SIGNAL_WEIGHT "
+                          "defaults to 0 and nothing reads this index at query "
+                          "time. Skipped by default to avoid the wasted cost.")
+    ap.add_argument("--full-rebuild", action="store_true",
+                     help="Ignore every cache and re-embed all concepts/members/"
+                          "tables from scratch.")
+    args = ap.parse_args()
 
     if not os.path.exists(CONCEPT_MAP_PATH):
         sys.exit(f"missing {CONCEPT_MAP_PATH} - run build_concept_map.py first")
@@ -216,19 +231,24 @@ def main():
     print(f"concept_map: return {cm['return_code']}, {len(cm['metrics'])} metrics\n")
 
     concepts = concept_documents(cm)
-    members = member_documents(cm)
     tables = enriched_table_documents(cm, schema)
 
     print("Sample concept document:\n  " + (concepts[0]["text"] if concepts else "-"))
-    print("Sample member document:\n  " + (members[0]["text"] if members else "-"))
     print()
 
-    _build("concept", concepts, "concept_index.faiss", "concept_meta.pkl")
-    _build("member", members, "member_index.faiss", "member_meta.pkl")
-    _build("enriched table", tables, "table_index.faiss", "table_meta.pkl")
+    _build("concept", concepts, lambda r: r["concept_id"],
+           "concept_index.faiss", "concept_meta.pkl", force=args.full_rebuild)
+    if args.with_member_index:
+        members = member_documents(cm)
+        print("Sample member document:\n  " + (members[0]["text"] if members else "-") + "\n")
+        _build("member", members, lambda r: r["member_id"],
+               "member_index.faiss", "member_meta.pkl", force=args.full_rebuild)
+    else:
+        print("  [--] member: skipped (pass --with-member-index to build it)")
+    _build("enriched table", tables, lambda r: r["table"],
+           "table_index.faiss", "table_meta.pkl", force=args.full_rebuild)
 
-    print("\n[ok] concept_index + member_index built; table_index re-embedded "
-          "with XBRL business text.")
+    print("\n[ok] concept_index built; table_index re-embedded with XBRL business text.")
     print("Restart the API process - src/retriever.py caches indexes for the life "
           "of the process.")
 

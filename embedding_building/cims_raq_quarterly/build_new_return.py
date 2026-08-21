@@ -59,8 +59,15 @@ TAXONOMY_REGISTRY = os.path.join(HERE, "taxonomies.json")
 
 
 def run(step_no, total, label, script_args):
-    print(f"\n{'=' * 70}\nSTEP {step_no}/{total}: {label}\n{'=' * 70}")
-    result = subprocess.run([sys.executable] + script_args, cwd=ROOT)
+    print(f"\n{'=' * 70}\nSTEP {step_no}/{total}: {label}\n{'=' * 70}", flush=True)
+    # -u (unbuffered) + PYTHONIOENCODING=utf-8: each step is a fresh subprocess
+    # whose stdout is piped, not a terminal, so Python fully block-buffers by
+    # default -- output (including real progress on long steps) would sit
+    # invisible until a buffer flushed or the process exited, making a slow
+    # step look identical to a hung one. utf-8 avoids a Windows console
+    # (cp1252) crash on any non-ASCII character a step prints.
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    result = subprocess.run([sys.executable, "-u"] + script_args, cwd=ROOT, env=env)
     if result.returncode != 0:
         sys.exit(f"\n[ABORT] Step {step_no} ({label}) failed "
                   f"(exit code {result.returncode}). Fix the error above and "
@@ -100,6 +107,23 @@ def main():
                           "embeddings.py (member index is unused today, "
                           "MEMBER_SIGNAL_WEIGHT=0 -- leave this off unless "
                           "you're specifically revisiting that signal).")
+    ap.add_argument("--generate-qa", type=int, default=None, metavar="PER_TABLE",
+                     help="After all indexes are rebuilt, also draft+validate+"
+                          "merge QA pairs for this return and rebuild "
+                          "qa_index.faiss, via add_qa_pairs.py --per-table "
+                          "PER_TABLE. Omit to leave QA pairs untouched "
+                          "(today's default, unchanged behavior).")
+    ap.add_argument("--full-rebuild", action="store_true",
+                     help="Force build_embeddings.py and build_concept_"
+                          "embeddings.py to re-embed and re-sample EVERYTHING "
+                          "(every table across every return, not just this "
+                          "one), ignoring their caches. Normal onboarding "
+                          "does not need this -- both scripts already skip "
+                          "any table whose text/columns are unchanged since "
+                          "the last build, which is what keeps onboarding one "
+                          "new return fast. Use this only after changing "
+                          "EMBED_MODEL, or a description-generation fix that "
+                          "could plausibly change text for many tables at once.")
     args = ap.parse_args()
 
     taxonomy_path = args.taxonomy
@@ -110,7 +134,8 @@ def main():
     if not os.path.exists(taxonomy_path):
         sys.exit(f"[ABORT] Taxonomy file not found: {args.taxonomy}")
 
-    total = 5 if args.skip_db else 7
+    base_total = 5 if args.skip_db else 7
+    total = base_total + 1 if args.generate_qa is not None else base_total
     step = 1
 
     if not args.skip_db:
@@ -132,10 +157,13 @@ def main():
         schema_args)
     step += 1
 
+    embeddings_args = [os.path.join(HERE, "build_embeddings.py")]
+    if args.full_rebuild:
+        embeddings_args.append("--full-rebuild")
     run(step, total,
         "Rebuild table_index / column_index / row_label_index from the "
-        "merged schema.json",
-        [os.path.join(HERE, "build_embeddings.py")])
+        "merged schema.json" + (" (forced full rebuild)" if args.full_rebuild else " (incremental)"),
+        embeddings_args)
     step += 1
 
     registry = load_registry()
@@ -155,15 +183,44 @@ def main():
     concept_emb_args = [os.path.join(HERE, "build_concept_embeddings.py")]
     if args.with_member_index:
         concept_emb_args.append("--with-member-index")
+    if args.full_rebuild:
+        concept_emb_args.append("--full-rebuild")
     run(step, total,
-        "Rebuild concept_index/member_index + re-embed table_index with "
-        "XBRL-enriched text",
+        "Rebuild concept_index + re-embed table_index with XBRL-enriched text"
+        + (" (forced full rebuild)" if args.full_rebuild else " (incremental)"),
         concept_emb_args)
     step += 1
 
     run(step, total, "Rebuild the BM25 lexical index",
         [os.path.join(HERE, "build_bm25_index.py")])
     step += 1
+
+    if args.generate_qa is not None:
+        run(step, total,
+            f"Draft, validate, and merge QA pairs for {args.return_name!r} "
+            f"(add_qa_pairs.py --per-table {args.generate_qa})",
+            [os.path.join(HERE, "add_qa_pairs.py"),
+             "--return-name", args.return_name, "--per-table", str(args.generate_qa)])
+        step += 1
+
+    if args.generate_qa is not None:
+        qa_reminder = (
+            "  1. QA pairs   Done automatically above via add_qa_pairs.py "
+            "(--generate-qa was passed).\n"
+            f"                Review qa_pairs.json entries for {args.return_name!r} if "
+            "you want extra scrutiny\n"
+            "                beyond the automated schema/column/validate_sql/"
+            "live-Oracle checks.\n"
+        )
+    else:
+        qa_reminder = (
+            "  1. QA pairs   Add 15-25 verified question/SQL examples for this return to\n"
+            "                qa_pairs.json, then run:\n"
+            "                    python embedding_building/cims_raq_quarterly/build_qa_index.py\n"
+            "                This is the single highest-weighted retrieval signal\n"
+            "                (QA_SIGNAL_WEIGHT=2.5) -- skipping it is the #1 reason a\n"
+            "                freshly-onboarded return retrieves worse than an established one.\n"
+        )
 
     print(f"""
 {'=' * 70}
@@ -172,13 +229,7 @@ DONE -- {args.return_name!r} is now in schema.json and every dense/BM25 index.
 
 Still needed BY HAND before {args.return_name!r} is reliable, in order of impact:
 
-  1. QA pairs   Add 15-25 verified question/SQL examples for this return to
-                qa_pairs.json, then run:
-                    python embedding_building/cims_raq_quarterly/build_qa_index.py
-                This is the single highest-weighted retrieval signal
-                (QA_SIGNAL_WEIGHT=2.5) -- skipping it is the #1 reason a
-                freshly-onboarded return retrieves worse than an established one.
-
+{qa_reminder}
   2. Aliases    Add this return's acronyms/section-name aliases to
                 embedding_building/business_dictionary.yaml, then run:
                     python scripts/validate_business_dictionary.py

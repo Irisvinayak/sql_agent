@@ -92,7 +92,8 @@ def ask_claude(system_prompt, user_prompt, model, timeout):
             "--allowedTools", "",
         ],
         input=user_prompt,
-        capture_output=True, text=True, timeout=timeout,
+        capture_output=True, text=True, encoding="utf-8", errors="replace",
+        timeout=timeout,
     )
     if result.returncode != 0:
         raise RuntimeError(f"claude CLI exited {result.returncode}: {result.stderr.strip()[:500]}")

@@ -1,0 +1,1629 @@
+{
+  "assets_master_cims": {
+    "primary_key": [
+      "assets_classfication"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "assets_classfication"
+    ]
+  },
+  "bin$04ohj2m4q/+ep8gttz3uvw==$0": {
+    "primary_key": [
+      "sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": []
+  },
+  "bin$0vua8aybre2xshboj2f5wa==$0": {
+    "primary_key": [
+      "rpt_sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [
+      [
+        "cin"
+      ],
+      [
+        "pan"
+      ],
+      [
+        "lei"
+      ]
+    ],
+    "not_null": []
+  },
+  "cims_form_x_m_part_ii": {
+    "primary_key": [
+      "sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "sr_no"
+    ]
+  },
+  "c_crilc_capitalfund": {
+    "primary_key": [
+      "rpt_sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no",
+      "capital_infusion_t1",
+      "capital_infusion_t2"
+    ]
+  },
+  "c_ideal_crilc_section_2_org_bkup": {
+    "primary_key": [
+      "rpt_sr_no"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "borrower_group_code"
+        ],
+        "ref_table": "group_master_cims_bkup",
+        "ref_columns": [
+          "code"
+        ]
+      },
+      {
+        "columns": [
+          "industry_code"
+        ],
+        "ref_table": "industry_detail_master_cims",
+        "ref_columns": [
+          "industry_code"
+        ]
+      }
+    ],
+    "unique": [
+      [
+        "pan"
+      ]
+    ],
+    "not_null": [
+      "rpt_sr_no",
+      "borrower_group_code",
+      "industry_code",
+      "bwr_clsfid_wilful",
+      "amount_techni_pru_writoff",
+      "datewhen_pru_techni_writtoff",
+      "wo_through_settle",
+      "other_wo",
+      "total_wo"
+    ]
+  },
+  "c_ideal_crilc_section_3_org_bkup": {
+    "primary_key": [
+      "rpt_sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [
+      [
+        "pan"
+      ]
+    ],
+    "not_null": [
+      "rpt_sr_no",
+      "totalcreditsumdurrepper",
+      "totaldebitsumdurrepper",
+      "balance_in_current_account"
+    ]
+  },
+  "c_ideal_crilc_section_4_org_bkup": {
+    "primary_key": [
+      "rpt_sr_no"
+    ],
+    "foreign_keys": [],
+    "unique": [
+      [
+        "pan",
+        "nme_of_dtrs_prtnrs_sle_propter"
+      ]
+    ],
+    "not_null": [
+      "rpt_sr_no",
+      "total_exposure",
+      "total_amt_otstndg_fund_nonfndd",
+      "nme_of_dtrs_prtnrs_sle_propter",
+      "director_identification_number",
+      "status"
+    ]
+  },
+  "emails": {
+    "primary_key": [
+      "email_id"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "email_id",
+      "email"
+    ]
+  },
+  "group_master_cims_bkup": {
+    "primary_key": [
+      "code"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "code"
+    ]
+  },
+  "industry_detail_master_cims": {
+    "primary_key": [
+      "industry_code"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "industry_code"
+    ]
+  },
+  "lonbuyouttakeovr_status_master_cims": {
+    "primary_key": [
+      "loan_buyout_takeover_status"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "loan_buyout_takeover_status"
+    ]
+  },
+  "masterslastupdatedlog": {
+    "primary_key": [
+      "srno"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "srno"
+    ]
+  },
+  "rbi_master_status": {
+    "primary_key": [
+      "id"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "id"
+    ]
+  },
+  "resolution_status_master_cims": {
+    "primary_key": [
+      "resolution_plan_status_master"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "resolution_plan_status_master"
+    ]
+  },
+  "tbl_category": {
+    "primary_key": [
+      "category_id"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "category_id",
+      "category_name",
+      "category_code",
+      "is_active",
+      "created_by_fk",
+      "created_on",
+      "last_update_on"
+    ]
+  },
+  "tbl_dynamic_custom_val_label": {
+    "primary_key": [
+      "custom_val_label_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "dyna_val_master_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_val_master",
+        "ref_columns": [
+          "val_master_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "custom_val_label_id"
+    ]
+  },
+  "tbl_dynamic_data": {
+    "primary_key": [
+      "dynamic_data_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "dyna_elr_table_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_elr_table_info",
+        "ref_columns": [
+          "table_id"
+        ]
+      },
+      {
+        "columns": [
+          "ele_col_mapping_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_ele_col_info",
+        "ref_columns": [
+          "ele_col_mapping_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "dynamic_data_id"
+    ]
+  },
+  "tbl_dynamic_ele_col_info": {
+    "primary_key": [
+      "ele_col_mapping_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "dyna_elr_table_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_elr_table_info",
+        "ref_columns": [
+          "table_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "ele_col_mapping_id"
+    ]
+  },
+  "tbl_dynamic_elr_info": {
+    "primary_key": [
+      "elr_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "return_id_fk"
+        ],
+        "ref_table": "tbl_return",
+        "ref_columns": [
+          "return_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "elr_id"
+    ]
+  },
+  "tbl_dynamic_elr_table_info": {
+    "primary_key": [
+      "table_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "elr_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_elr_info",
+        "ref_columns": [
+          "elr_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "table_id"
+    ]
+  },
+  "tbl_dynamic_fact": {
+    "primary_key": [
+      "dynamic_fact_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "dyna_elr_table_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_elr_table_info",
+        "ref_columns": [
+          "table_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "dynamic_fact_id"
+    ]
+  },
+  "tbl_dynamic_master_col_info": {
+    "primary_key": [
+      "master_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "dyna_elr_table_id_fk"
+        ],
+        "ref_table": "tbl_dynamic_elr_table_info",
+        "ref_columns": [
+          "table_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "master_id"
+    ]
+  },
+  "tbl_dynamic_validation_error": {
+    "primary_key": [
+      "dynamic_val_error_id"
+    ],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "dynamic_val_error_id"
+    ]
+  },
+  "tbl_dynamic_val_master": {
+    "primary_key": [
+      "val_master_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "category_id_fk"
+        ],
+        "ref_table": "tbl_category",
+        "ref_columns": [
+          "category_id"
+        ]
+      },
+      {
+        "columns": [
+          "return_id_fk"
+        ],
+        "ref_table": "tbl_return",
+        "ref_columns": [
+          "return_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "val_master_id",
+      "return_id_fk",
+      "category_id_fk"
+    ]
+  },
+  "tbl_entity": {
+    "primary_key": [
+      "entity_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "issuance_manager_id_fk"
+        ],
+        "ref_table": "tbl_entity",
+        "ref_columns": [
+          "entity_id"
+        ]
+      },
+      {
+        "columns": [
+          "category_id_fk"
+        ],
+        "ref_table": "tbl_category",
+        "ref_columns": [
+          "category_id"
+        ]
+      }
+    ],
+    "unique": [
+      [
+        "entity_code"
+      ],
+      [
+        "ifsc_code"
+      ]
+    ],
+    "not_null": [
+      "entity_id",
+      "entity_name",
+      "entity_short_name",
+      "comp_type_id_fk",
+      "category_id_fk",
+      "sub_category_id_fk",
+      "is_active",
+      "created_by_fk",
+      "entity_name_bil",
+      "entity_short_name_bil"
+    ]
+  },
+  "tbl_return": {
+    "primary_key": [
+      "return_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "is_parent_id_fk"
+        ],
+        "ref_table": "tbl_return",
+        "ref_columns": [
+          "return_id"
+        ]
+      }
+    ],
+    "unique": [
+      [
+        "return_code"
+      ]
+    ],
+    "not_null": [
+      "return_id",
+      "return_name",
+      "return_code",
+      "frequency_id_fk",
+      "is_parent",
+      "is_active",
+      "allow_revision",
+      "created_by_fk",
+      "created_on",
+      "last_update_on",
+      "is_non_xbrl"
+    ]
+  },
+  "tbl_returns_upload_details": {
+    "primary_key": [
+      "upload_id"
+    ],
+    "foreign_keys": [
+      {
+        "columns": [
+          "return_id_fk"
+        ],
+        "ref_table": "tbl_return",
+        "ref_columns": [
+          "return_id"
+        ]
+      },
+      {
+        "columns": [
+          "entity_id_fk"
+        ],
+        "ref_table": "tbl_entity",
+        "ref_columns": [
+          "entity_id"
+        ]
+      }
+    ],
+    "unique": [],
+    "not_null": [
+      "upload_id",
+      "return_id_fk",
+      "uploaded_date",
+      "uploaded_by",
+      "is_nillable",
+      "workflow_id_fk",
+      "upload_user_role",
+      "fin_yr_frequency_id_fk"
+    ]
+  },
+  "cims_cb_oss1_annex1_t5": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_cb_psa_a_geninfo": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_acc_ply_dis": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_lia_mgmt": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_lia_mgmt1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality5": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_asset_quality6": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_balance_sheet": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_buss_ratio": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_buss_ratio1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_cap_adequacy": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_cash_flow": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_complaints": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_complaints_1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives5": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_derivatives7": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_employee_data": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_expenses_in_excess_1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_exposr": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_exposr1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_exposr2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_exposr3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_exposr4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_investment1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_miscellaneous": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_nonslrinvest_prt1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_nonslrinvest_prt2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_nonslrinvest_prt3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_notestoaccounts_2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "x140_msme_supplier_name"
+    ]
+  },
+  "cims_dsim01_pandl": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_pillar_iii_requirement": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_reltd_party": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_reltd_party1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_reltd_party2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_repurchase_tran1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_repurchase_tran2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch1_t_1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch1_t_2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_10": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_11": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_12": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_13": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_14": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_15": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_16": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_1a": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_5": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_6": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_7": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_8": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_sch_9": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_scop_que": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_segments": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_segments1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_segments_1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_dsim01_segments_2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_acct_policies": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_acc_ply_dis": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_lia_mgmt": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_lia_mgmt1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_quality": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_quality1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_quality3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_asset_quality4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_auditors_report": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_auditors_report_1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_buss_ratio": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_buss_ratio1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_cap_adequacy": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_cash_flow": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives5": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_derivatives7": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_employee_data": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exposr": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exposr1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exposr2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exposr3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exposr4": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exp_in_excess": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_exp_in_excess1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_investment_bkup": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_miscellaneous": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_nonslrinvest_prt1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_nonslrinvest_prt2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_nonslrinvest_prt3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_notes_accounts": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_notes_accounts1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_notes_accounts2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_notes_accounts3": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_pandl": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_reltd_party": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_reltd_party1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_reltd_party2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_repurchase_tran1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_repurchase_tran2": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_10": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_11": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_12": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_13": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_14": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_15": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_16": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_sch_1a": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_scop_que": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_segments": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "cims_form_fr_segments1": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rdate"
+    ]
+  },
+  "c_crilc_capitalfund_rendered": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no",
+      "capital_infusion_t1",
+      "capital_infusion_t2"
+    ]
+  },
+  "c_crilc_section1_total": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no"
+    ]
+  },
+  "c_crilc_section1_total_dp": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no"
+    ]
+  },
+  "c_crilc_section1_total_hist": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no"
+    ]
+  },
+  "c_ideal_crilc_section_1_org_backup_06_03_26": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "rpt_sr_no",
+      "borrower_group_code",
+      "industry_code",
+      "sector_code",
+      "banking_arrangement",
+      "internal_rating",
+      "external_rating",
+      "assets_classification",
+      "brwr_clasifid_fraud_default",
+      "loan_buyout_takeover",
+      "aggregate_fund_based_wc_limit",
+      "limit_sanctioned_funded",
+      "cash_credit_overdraft",
+      "working_capital_demand_loan",
+      "inland_bills",
+      "packing_credit",
+      "export_bills",
+      "term_loan",
+      "bills_discontinued_defred",
+      "other_funded_outstanding",
+      "total_funded_outstanding",
+      "amt_eligible_netng_fundedexpo",
+      "funded_credit_exposure",
+      "secured_funded_amt",
+      "limit_sanctioned_non_funded",
+      "letter_of_credit",
+      "guarantees",
+      "acceptances",
+      "foreign_exchange_contracts",
+      "interest_rate_derivatives",
+      "other_nonfunded_outstanding",
+      "total_nonfunded_outstanding",
+      "amt_eligible_netng_nonfunded",
+      "nonfunded_credit_exposure",
+      "total_lmt_sanctioned_brwr",
+      "total_amt_outstanding",
+      "total_credit_exposure",
+      "total_credit_expo_crm",
+      "tce_as_prcnt_of_capital_funds",
+      "total_investment_exposure",
+      "total_exposure",
+      "ofte_foreign_currency_exposure",
+      "total_exposure_crm",
+      "te_as_prcnt_of_capital_funds",
+      "expo_overseas_brnch_indianbank",
+      "dicgc_ecgc_cgmtmse_otherclaims",
+      "unsecured_amt_outstanding",
+      "wo_through_settle",
+      "other_wo",
+      "total_wo"
+    ]
+  },
+  "group_master_cims": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "code"
+    ]
+  },
+  "rbi_master": {
+    "primary_key": [],
+    "foreign_keys": [],
+    "unique": [],
+    "not_null": [
+      "id"
+    ]
+  }
+}

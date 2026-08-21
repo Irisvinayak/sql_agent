@@ -18373,6 +18373,204 @@
           "return_name" : "CIMS_CRILC_FB",
           "isactive" : 1,
           "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_GEN_INFO",
+          "column_name" : "DESCRIPTION",
+          "column_Description" : "Description",
+          "template_sheet_no" : 1,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_GEN_INFO",
+          "column_name" : "VALUE",
+          "column_Description" : "Values",
+          "template_sheet_no" : 1,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_GEN_INFO",
+          "column_name" : "CODE",
+          "column_Description" : "CODE",
+          "template_sheet_no" : 1,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_GEN_INFO",
+          "column_name" : "RDATE",
+          "column_Description" : "RDATE",
+          "template_sheet_no" : 1,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "SR_NO",
+          "column_Description" : "Serial Number",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "CURRENCY",
+          "column_Description" : "Currency",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "DESCRIPTION",
+          "column_Description" : "Description of the rate-sensitive item",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "D1_TO_28D",
+          "column_Description" : "Amount maturing or repricing in 1 to 28 days",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "D29_TO_3M",
+          "column_Description" : "Amount maturing or repricing from 29 days to 3 months",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_3M_AND_UPTO_6M",
+          "column_Description" : "Amount maturing or repricing over 3 months and up to 6 months",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_6M_AND_UPTO_1Y",
+          "column_Description" : "Amount maturing or repricing over 6 months and up to 1 year",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_1Y_AND_UPTO_3Y",
+          "column_Description" : "Amount maturing or repricing over 1 year and up to 3 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_3Y_AND_UPTO_5Y",
+          "column_Description" : "Amount maturing or repricing over 3 years and up to 5 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_5Y_AND_UPTO_7Y",
+          "column_Description" : "Amount maturing or repricing over 5 years and up to 7 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_7Y_AND_UPTO_10Y",
+          "column_Description" : "Amount maturing or repricing over 7 years and up to 10 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_10Y_AND_UPTO_15Y",
+          "column_Description" : "Amount maturing or repricing over 10 years and up to 15 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "OVER_15Y",
+          "column_Description" : "Amount maturing or repricing over 15 years",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "NON_SENS",
+          "column_Description" : "Non-rate-sensitive amount",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "TOTAL_RSL",
+          "column_Description" : "Total rate-sensitive liabilities/assets",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "TOTAL",
+          "column_Description" : "Total",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : "Rs. Lakh"
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "CODE",
+          "column_Description" : "CODE",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
+        },
+        {
+          "table_name" : "CIMS_IRS_TGA",
+          "column_name" : "RDATE",
+          "column_Description" : "RDATE",
+          "template_sheet_no" : 2,
+          "return_name" : "CIMS_IRS",
+          "isactive" : 1,
+          "scale" : ""
         }
       ]
     }

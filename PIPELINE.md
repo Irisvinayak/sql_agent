@@ -18,19 +18,33 @@ Step 3 — Embed once (src/retriever.py::compute_query_embedding)
 
 Step 4 — Exact-match check (src/retriever.py::find_exact_qa_match)
          literal similarity >= 0.99 against a stored qa_pairs.json question?
-         YES -> replay the stored SQL directly, skip everything below, source=direct_match
+         YES -> frequency-resolve the matched table (Step 7b, same logic) against the
+         replayed SQL's table name, then execute that SQL directly, skip everything
+         below, source=direct_match
 
 Step 5 — Retrieval (src/retriever.py::get_relevant_schema)
          7 signals run concurrently, fused by RRF:
            qa 2.5 · table 2.0 · concept 2.0 · column 1.5 · bm25 1.5 · row_label 1.0 · member 0.0 (disabled)
          + hybrid-blend calibration (gamma 0.3) + QA-match bonus + relative-floor prune
-         + hard overrides: strong-QA-match -> alias pin -> explicit section reference
+         + hard overrides, in order: strong-QA-match -> alias pin -> explicit section
+           reference -> domain gate (src/context/domain.py::build_gate — explicit Part
+           A/B/C/D reference, narrows-only-if-non-empty)
+         the few-shot `qa_example` surfaced for the prompt is then restricted to the
+         table ranked #1 after all of the above — never a different table's example,
+         even one with a higher raw text-similarity score
 
 Step 6 — Selection (src/selector.py::select_tables) — DETERMINISTIC, no LLM call
          short-circuits: strong_match / <2 candidates / top dominates runner-up by >=2x
          else: a declared join (semantic_layer.yaml) may add a second table, else top-1
 
 Step 7 — Prune columns/labels of rejected tables
+
+Step 7b — Frequency resolution (src/frequency_alias.py::resolve_frequency_table)
+         question names a reporting cadence explicitly (monthly/quarterly/daily/
+         fortnightly/annual)? -> swap the selected table for its real sibling at that
+         cadence, discovered dynamically from the live Oracle catalog (no per-return
+         table-naming assumption). No sibling exists -> keep the selected table,
+         surface a warning. Applied on both the exact-match path (Step 4) and here.
 
 Step 8 — Generate (src/sql_generator.py::generate_sql)
          build_prompt(): static rules + DDL + business semantics + time-context + one QA example
@@ -59,7 +73,13 @@ Central settings, all environment-driven (see `.env.example`). Every other modul
 Wraps `sentence-transformers` (`BAAI/bge-large-en`, 1024-d) and FAISS. Documents are embedded without a prefix; queries use BGE's required asymmetric prefix (`QUERY_PREFIX`). `IndexFlatIP` on L2-normalized vectors gives exact cosine similarity.
 
 ### `src/retriever.py`
-Runs 7 signals concurrently in a thread pool: table/column/row-label dense search, QA (prior-question) match, XBRL concept match, dimension-member match (disabled, weight 0), and BM25 lexical search. Fuses them by reciprocal-rank fusion, then applies an additive hybrid-blend calibration term and a QA-match bonus, prunes by a relative floor, and finally applies hard overrides (strong QA match, business-dictionary alias pin, explicit section reference) that outrank the fused score entirely. FAISS indexes and metadata are cached at module scope for the life of the process — a rebuilt index needs a process restart to take effect.
+Runs 7 signals concurrently in a thread pool: table/column/row-label dense search, QA (prior-question) match, XBRL concept match, dimension-member match (disabled, weight 0), and BM25 lexical search. Fuses them by reciprocal-rank fusion, then applies an additive hybrid-blend calibration term and a QA-match bonus, prunes by a relative floor, and finally applies hard overrides (strong QA match, business-dictionary alias pin, explicit section reference, domain gate — see `src/context/domain.py`) that outrank the fused score entirely. FAISS indexes and metadata are cached at module scope for the life of the process — a rebuilt index needs a process restart to take effect.
+
+### `src/context/domain.py`
+`build_gate(query)` narrows the candidate table set using, in order: an explicit section reference (delegates to `src/section_alias.py`), an explicit Part A/B/C/D reference (`detect_parts`), and inferred periodicity wording (`detect_periodicity` — quarterly/monthly/annual/daily/fortnightly). Each layer only narrows if something survives — it can never empty the candidate set. Called from `src/retriever.py::get_relevant_schema` as the final hard override, after every other tier. `detect_periodicity()` is also reused directly by `src/frequency_alias.py` rather than re-implemented there.
+
+### `src/frequency_alias.py`
+Resolves a selected table to its sibling at a DIFFERENT reporting frequency when the question names one explicitly (e.g. "monthly sensitivity to securitization Part A" -> `CIMS_RAQ_M_SEC9_SENSEC_PARTA`, even though every embedding/QA pair was authored only against the quarterly tables). Sibling relationships are discovered dynamically from the live Oracle catalog (`src/executor.py::cached_accessible_tables`) — two tables are siblings if their names differ in exactly one underscore-token drawn from a small frequency vocabulary (Q/M/D/F/A and their spelled-out forms), with a guard against false positives like `PART_A`/`PART_B`/`PART_C`. This means a new return family gets frequency support automatically the moment its tables exist in Oracle — no per-return table-naming regex. No sibling for the requested frequency -> the originally selected table is kept and a warning is surfaced in the response.
 
 ### `src/selector.py`
 Deterministic. **Makes no LLM call and no network call at all** — an earlier version routed through Ollama (`qwen2.5-coder:7b`) but was replaced because a single call cost 75–135s+. Short-circuits on a strong match, fewer than 2 candidates, or a dominant top score (>=2x the runner-up); otherwise a declared join from `semantic_layer.yaml` may pair two tables, or it falls back to top-1.
@@ -100,6 +120,9 @@ These fixes shaped why the code looks the way it does today — recorded so a fu
 - **Row-label sampling stripped values that Oracle stores with padding** — `description_fetcher.py` used to `.strip()` sampled values, but several real DB values have leading whitespace (e.g. `'     C2. Slipped to NPAs'`). An exact `=` filter using the stripped sample silently returned zero rows. Any prompt drawing on sampled row-labels should use `TRIM()` for label-column filters.
 - **Excel-sourced descriptions were never actually merged into any schema build** — `formatter.py::load_descriptions()` read field names (`db_name`/`excel_name`) that don't exist in the real source file (the actual fields are `column_name`/`column_Description`), so it silently returned `{}` on every run. Fixed at the source; this benefited every schema build going forward, not just the one that surfaced it.
 - **The selector used to be an LLM call** — replaced with the deterministic logic in `src/selector.py` after repeated 75–135s+ latencies and outright 404s against the configured Ollama proxy made it unreliable. See `src/selector.py`'s own module docstring for the full reasoning.
+- **`build_gate()` was written but never called** — `src/context/domain.py::build_gate` already implemented explicit-section/explicit-part/inferred-periodicity narrowing, but no module in the live request path (`retriever.py`, `selector.py`, `api/routes/query.py`) ever invoked it. Concretely: "sensitivity to securitization Part A" scored `cims_raq_q_sec9_sensec_PARTB` (0.78) above the correct `..._PARTA` (0.631) on embedding similarity alone — the explicit "Part A" in the question had zero effect on table selection. Fixed by calling `build_gate()` from `get_relevant_schema()` as the final override tier, after strong-QA-match/alias/section-reference.
+- **Monthly/daily/fortnightly questions had no path to the right table at all** — every embedding/QA pair was authored only against quarterly RAQ/ALE tables, and building a full second embedding set per cadence would mean re-authoring near-identical questions for tables whose schema is already known to be identical (ALE) or a documented subset (RAQ). Solved with `src/frequency_alias.py`'s dynamic, catalog-driven sibling resolution instead of a second embedding build or a per-return table-naming regex — see that module's entry above.
+- **The few-shot `qa_example` could belong to a completely different table than the one actually selected for generation** — it was chosen purely by global question-text similarity across ALL of `qa_pairs.json`, with no check against the table retrieval/selection actually settled on. Real case: "sensitivity to securitization Part A ... monthly" selected `CIMS_RAQ_Q_SEC9_SENSEC_PARTA` but the injected worked example was for `CIMS_RAQ_Q_SEC1_PART_A_DOM` (real columns `PERIOD_DELINQUENCY`, `TOTAL_LOAN_ASSETS` — nothing to do with the selected table), and the model duly hallucinated a JOIN plus invented columns blending both tables. Fixed in `get_relevant_schema()` to only surface a `qa_example` whose table matches `tables[0]` (the table the selector will almost always pick — `select_tables()` returns top-1 except for a declared join); if no qualifying example exists for that table, no example is shown at all, which is safer than showing a wrong-table one.
 
 ---
 

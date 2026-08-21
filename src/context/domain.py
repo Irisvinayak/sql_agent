@@ -53,11 +53,15 @@ _PERIODICITY_PREFIXES = {
     "quarterly": ("_q_",),
     "monthly": ("_m_",),
     "annual": ("_a_",),
+    "daily": ("_d_",),
+    "fortnightly": ("_f_",),
 }
 _PERIODICITY_RE = {
     "quarterly": re.compile(r"\b(quarterly|per\s+quarter|each\s+quarter)\b", re.I),
     "monthly": re.compile(r"\b(monthly|per\s+month|each\s+month)\b", re.I),
     "annual": re.compile(r"\b(annual|annually|yearly|per\s+year|each\s+year)\b", re.I),
+    "daily": re.compile(r"\b(daily|per\s+day|each\s+day)\b", re.I),
+    "fortnightly": re.compile(r"\b(fortnightly|per\s+fortnight|each\s+fortnight|bi-?weekly)\b", re.I),
 }
 
 # "part A" / "part B" — matched on the expanded query, where "parta" has already

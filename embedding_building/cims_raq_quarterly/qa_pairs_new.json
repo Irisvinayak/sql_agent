@@ -1,212 +1,302 @@
 [
   {
-    "table": "CIMS_RAQ_Q_GEN_INFO",
-    "question": "Show the general information section of this return",
-    "sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_Q_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_GEN_INFO)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "List all borrowers who have defaulted along with their PAN, date of default, and total amount outstanding.",
+    "sql": "SELECT borrower_pan, borrower_name, date_default, total_amt_outstand FROM cims_rdb_default_borrowers ORDER BY date_default"
   },
   {
-    "table": "CIMS_RAQ_Q_GEN_INFO",
-    "question": "What is the reporting period of the latest RAQ return?",
-    "sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_Q_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_GEN_INFO) AND UPPER(DESCRIPTION) LIKE '%PERIOD%'"
+    "table": "cims_rdb_default_borrowers",
+    "question": "What is the total funded and non-funded amount outstanding across all defaulted borrowers?",
+    "sql": "SELECT SUM(fund_amt_outstand) AS total_funded, SUM(non_fund_amt_outstand) AS total_non_funded, SUM(total_amt_outstand) AS total_outstanding FROM cims_rdb_default_borrowers"
   },
   {
-    "table": "CIMS_RAQ_Q_GEN_INFO",
-    "question": "Give me the bank name and general details reported in the quarterly RAQ",
-    "sql": "SELECT CODE, RDATE, DESCRIPTION, VALUE FROM CIMS_RAQ_Q_GEN_INFO WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_GEN_INFO)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Show the top 10 borrowers with the highest total amount outstanding.",
+    "sql": "SELECT borrower_pan, borrower_name, total_amt_outstand FROM cims_rdb_default_borrowers ORDER BY total_amt_outstand DESC FETCH FIRST 10 ROWS ONLY"
   },
   {
-    "table": "CIMS_RAQ_Q_SIGNATORY",
-    "question": "Who are the signatories for the latest reporting period?",
-    "sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_Q_SIGNATORY WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SIGNATORY)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "How many distinct borrowers have defaulted as per the RDB return?",
+    "sql": "SELECT COUNT(DISTINCT borrower_pan) AS distinct_defaulted_borrowers FROM cims_rdb_default_borrowers"
   },
   {
-    "table": "CIMS_RAQ_Q_SIGNATORY",
-    "question": "Show the signatory details and designation for the RAQ return",
-    "sql": "SELECT CODE, RDATE, DESCRIPTION, VALUE FROM CIMS_RAQ_Q_SIGNATORY WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SIGNATORY)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Give me the count of defaults grouped by whether it is project finance or not.",
+    "sql": "SELECT whether_project_finance, COUNT(*) AS default_count FROM cims_rdb_default_borrowers GROUP BY whether_project_finance"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "What is the country risk exposure by country?",
-    "sql": "SELECT COUNTRY_BRW_CUNTR_PARTY, COUNTRY_RISK, TOTAL FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11) ORDER BY TOTAL DESC"
+    "table": "cims_rdb_default_borrowers",
+    "question": "List all defaulted borrowers along with the reason for the credit event.",
+    "sql": "SELECT borrower_pan, borrower_name, reason_for_credit_event FROM cims_rdb_default_borrowers ORDER BY borrower_name"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "Show the provision held on country risk exposure",
-    "sql": "SELECT COUNTRY_BRW_CUNTR_PARTY, PROV_HELD_COUNTRY, PRO_AS_NET_FUND FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "What is the total outstanding amount grouped by reason for credit event?",
+    "sql": "SELECT reason_for_credit_event, SUM(total_amt_outstand) AS total_outstanding FROM cims_rdb_default_borrowers GROUP BY reason_for_credit_event ORDER BY total_outstanding DESC"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "Top 5 countries by total exposure",
-    "sql": "SELECT COUNTRY_BRW_CUNTR_PARTY, TOTAL FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11) ORDER BY TOTAL DESC FETCH FIRST 5 ROWS ONLY"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Find all borrower records with non-funded amount outstanding greater than the funded amount outstanding.",
+    "sql": "SELECT borrower_pan, borrower_name, fund_amt_outstand, non_fund_amt_outstand FROM cims_rdb_default_borrowers WHERE non_fund_amt_outstand > fund_amt_outstand"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "Break up country risk exposure into standard, sub-standard, doubtful and loss",
-    "sql": "SELECT COUNTRY_BRW_CUNTR_PARTY, STD, SUB_STD, DOUBTFUL, LOSS, TOTAL FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Show me all defaults reported for a specific transaction ID, say TXN123456.",
+    "sql": "SELECT sr_no, borrower_pan, borrower_name, date_default, total_amt_outstand FROM cims_rdb_default_borrowers WHERE transaction_id = 'TXN123456'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "What is the short term country exposure and net funded exposure?",
-    "sql": "SELECT COUNTRY_BRW_CUNTR_PARTY, OF_SHRT_TR_EXP, NET_FUND_TOTAL, NET_FUND_OF_SHRT_TR_EXP FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "List all records along with remarks where remarks are not blank.",
+    "sql": "SELECT borrower_pan, borrower_name, remarks FROM cims_rdb_default_borrowers WHERE remarks IS NOT NULL"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "Show non funded country risk exposure sector wise",
-    "sql": "SELECT SECTOR, COUNTRY_BRW_CUNTR_PARTY, GR_NONFUND_EXP FROM CIMS_RAQ_Q_SEC11 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC11)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "What is the average total amount outstanding per defaulted borrower for project finance cases versus non-project finance cases?",
+    "sql": "SELECT whether_project_finance, AVG(total_amt_outstand) AS avg_total_outstanding FROM cims_rdb_default_borrowers GROUP BY whether_project_finance"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC2_PART_C",
-    "question": "Show the asset classification breakup by item, domestic and overseas",
-    "sql": "SELECT ITEM, TOTAL_DOM, TOTAL_O FROM CIMS_RAQ_Q_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_C)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Retrieve all default records submitted on a specific reporting date, say 31-Jul-2026.",
+    "sql": "SELECT sr_no, borrower_pan, borrower_name, date_default, total_amt_outstand FROM cims_rdb_default_borrowers WHERE rdate = TO_DATE('31-07-2026','DD-MM-YYYY')"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC2_PART_C",
-    "question": "What are the standard and sub-standard amounts by item for domestic operations?",
-    "sql": "SELECT ITEM, STANDARD_DOM, SUBSTANDARD_DOM FROM CIMS_RAQ_Q_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_C)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Find the borrower with the single largest funded amount outstanding.",
+    "sql": "SELECT borrower_pan, borrower_name, fund_amt_outstand FROM cims_rdb_default_borrowers WHERE fund_amt_outstand = (SELECT MAX(fund_amt_outstand) FROM cims_rdb_default_borrowers)"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC2_PART_C",
-    "question": "Give me combined domestic and overseas total by item in section 2 part C",
-    "sql": "SELECT ITEM, (TOTAL_DOM + TOTAL_O) AS TOTAL_COMBINED FROM CIMS_RAQ_Q_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_C)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "Search for a borrower's default history using their PAN, say ABCDE1234F.",
+    "sql": "SELECT sr_no, date_default, reason_for_credit_event, fund_amt_outstand, non_fund_amt_outstand, total_amt_outstand FROM cims_rdb_default_borrowers WHERE borrower_pan = 'ABCDE1234F'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC3_PART_A",
-    "question": "Show restructured accounts by category, domestic",
-    "sql": "SELECT CATEGORY, DESCRIPTION, ACC_RES_DOM, OUT_ACC_RES_DOM FROM CIMS_RAQ_Q_SEC3_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC3_PART_A)"
+    "table": "cims_rdb_default_borrowers",
+    "question": "How many defaults were reported for each rdate, ordered by the most recent reporting date first?",
+    "sql": "SELECT rdate, COUNT(*) AS default_count FROM cims_rdb_default_borrowers GROUP BY rdate ORDER BY rdate DESC"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC3_PART_A",
-    "question": "How many restructured accounts slipped, domestic versus overseas?",
-    "sql": "SELECT CATEGORY, ACC_SLIP_DOM, ACC_SLIP_OS, OUT_ACC_SLIP_DOM, OUT_ACC_SLIP_OS FROM CIMS_RAQ_Q_SEC3_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC3_PART_A)"
+    "table": "cims_rdb_gen_info",
+    "question": "What is the Name of the Reporting Institution recorded for bank entity code 'BK001' as of reporting date 18-AUG-2026?",
+    "sql": "SELECT value FROM cims_rdb_gen_info WHERE description = 'Name of the Reporting Institution' AND code = 'BK001' AND rdate = TO_DATE('18-08-2026','DD-MM-YYYY')"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC3_PART_A",
-    "question": "Show CDR restructured accounts and outstanding amounts",
-    "sql": "SELECT CATEGORY, ACC_RES_CDR_DOM, OUT_ACC_RES_CDR_DOM, ACC_RES_CDR_OS, OUT_ACC_RES_CDR_OS FROM CIMS_RAQ_Q_SEC3_PART_A WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC3_PART_A)"
+    "table": "cims_rdb_gen_info",
+    "question": "List the Return Code and Return Name captured for each bank entity as of the latest reporting date.",
+    "sql": "SELECT code, description, value, rdate FROM cims_rdb_gen_info WHERE description IN ('Return Code', 'Return Name') AND rdate = (SELECT MAX(rdate) FROM cims_rdb_gen_info)"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC4_PART_C",
-    "question": "Show section 4 part C figures for domestic, overseas and global",
-    "sql": "SELECT DESCRIPTION, DOMESTIC, OVERSEAS, GLODAL FROM CIMS_RAQ_Q_SEC4_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_C)"
+    "table": "cims_rdb_gen_info",
+    "question": "What Reporting Frequency has been set for bank code 'BK001'?",
+    "sql": "SELECT value FROM cims_rdb_gen_info WHERE description = 'Reporting Frequency' AND code = 'BK001'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC4_PART_C",
-    "question": "What is the global figure reported in section 4 part C?",
-    "sql": "SELECT DESCRIPTION, GLODAL FROM CIMS_RAQ_Q_SEC4_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_C)"
+    "table": "cims_rdb_gen_info",
+    "question": "Show me the Return Version used by each bank entity on the reporting date 18-AUG-2026.",
+    "sql": "SELECT code, value AS return_version FROM cims_rdb_gen_info WHERE description = 'Return Version' AND rdate = TO_DATE('18-08-2026','DD-MM-YYYY')"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC4_PART_D",
-    "question": "How many cases and what amount are reported in section 4 part D?",
-    "sql": "SELECT DESCRIPTION, NO_OF_CASE, AMOUNT FROM CIMS_RAQ_Q_SEC4_PART_D WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_D)"
+    "table": "cims_rdb_gen_info",
+    "question": "What is the Reporting Start Date recorded against bank code 'BK002'?",
+    "sql": "SELECT value FROM cims_rdb_gen_info WHERE description = 'Reporting Start Date' AND code = 'BK002'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC4_PART_D",
-    "question": "Show the number of cases reported with the highest amount",
-    "sql": "SELECT DESCRIPTION, NO_OF_CASE, AMOUNT FROM CIMS_RAQ_Q_SEC4_PART_D WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC4_PART_D) ORDER BY AMOUNT DESC"
+    "table": "cims_rdb_gen_info",
+    "question": "Which Tool Name was used to generate the return for bank code 'BK001' as of 18-AUG-2026?",
+    "sql": "SELECT value FROM cims_rdb_gen_info WHERE description = 'Tool Name' AND code = 'BK001' AND rdate = TO_DATE('18-08-2026','DD-MM-YYYY')"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "Show the top credit exposures with borrower names",
-    "sql": "SELECT SR_NO, NAME_DEFAULTER, TOTAL_CR_EXP, RISK_CLASSIFICATION FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR) ORDER BY TOTAL_CR_EXP DESC"
+    "table": "cims_rdb_gen_info",
+    "question": "For each distinct bank code, what is the Reference Date of Return currently on file?",
+    "sql": "SELECT code, value AS reference_date_of_return FROM cims_rdb_gen_info WHERE description = 'Reference Date of Return' ORDER BY code"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "Top 10 borrowers by total exposure",
-    "sql": "SELECT NAME_DEFAULTER, TOTAL_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR) ORDER BY TOTAL_EXP DESC FETCH FIRST 10 ROWS ONLY"
+    "table": "cims_rdb_gen_info",
+    "question": "Retrieve all general information fields recorded for bank code 'BK001' on reporting date 18-AUG-2026, ordered by description.",
+    "sql": "SELECT description, value FROM cims_rdb_gen_info WHERE code = 'BK001' AND rdate = TO_DATE('18-08-2026','DD-MM-YYYY') ORDER BY description"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "What is the funded and non funded credit exposure of the largest borrowers?",
-    "sql": "SELECT NAME_DEFAULTER, FUND_CR_EXP, NONFUND_CR_EXP, TOTAL_CR_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR) ORDER BY TOTAL_CR_EXP DESC"
+    "table": "cims_rdb_gen_info",
+    "question": "How many distinct bank codes have submitted 'Return Name' information in the table?",
+    "sql": "SELECT COUNT(DISTINCT code) AS bank_count FROM cims_rdb_gen_info WHERE description = 'Return Name'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "Show loss provision held and interest in arrears for top credit exposures",
-    "sql": "SELECT NAME_DEFAULTER, LOSS_PRO_HELD, INTR_ARREARS FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR)"
+    "table": "cims_rdb_gen_info",
+    "question": "List all distinct Return Names captured across all bank entities and reporting dates.",
+    "sql": "SELECT DISTINCT value AS return_name FROM cims_rdb_gen_info WHERE description = 'Return Name'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "Which top borrowers are classified as NPA?",
-    "sql": "SELECT NAME_DEFAULTER, RISK_CLASSIFICATION, TOTAL_CR_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR) AND UPPER(RISK_CLASSIFICATION) NOT LIKE '%STANDARD%'"
+    "table": "cims_rdb_gen_info",
+    "question": "What is the Bank Code value stored for entity code 'BK001', and does it match the entity code itself?",
+    "sql": "SELECT code, value AS bank_code_value FROM cims_rdb_gen_info WHERE description = 'Bank Code' AND code = 'BK001'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR_TL",
-    "question": "Show the total of top credit exposures",
-    "sql": "SELECT DESCRIPTION, FUND_CR_EXP, NONFUND_CR_EXP, TOTAL_CR_EXP, TOTAL_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR_TL WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR_TL)"
+    "table": "cims_rdb_gen_info",
+    "question": "Find all reporting dates on which a 'Return Version' entry was recorded for bank code 'BK003'.",
+    "sql": "SELECT DISTINCT rdate FROM cims_rdb_gen_info WHERE description = 'Return Version' AND code = 'BK003' ORDER BY rdate"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR_TL",
-    "question": "What is the aggregate investment exposure of the top borrowers?",
-    "sql": "SELECT DESCRIPTION, TOTAL_INV_EXP_IF, TOTAL_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR_TL WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR_TL)"
+    "table": "cims_rdb_gen_info",
+    "question": "Which bank entities reported a 'Reporting Frequency' of 'Quarterly'?",
+    "sql": "SELECT DISTINCT code FROM cims_rdb_gen_info WHERE description = 'Reporting Frequency' AND value = 'Quarterly'"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_B",
-    "question": "Show investment amounts credited for the quarter and the year",
-    "sql": "SELECT ITEM, AMT_CR_QTR, AMT_CR_YR FROM CIMS_RAQ_Q_SEC6_PART_B WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_B)"
+    "table": "cims_rdb_gen_info",
+    "question": "Give me a pivoted summary of Name of the Reporting Institution, Return Code and Return Name for bank code 'BK001' as of 18-AUG-2026.",
+    "sql": "SELECT code, rdate, MAX(CASE WHEN description = 'Name of the Reporting Institution' THEN value END) AS institution_name, MAX(CASE WHEN description = 'Return Code' THEN value END) AS return_code, MAX(CASE WHEN description = 'Return Name' THEN value END) AS return_name FROM cims_rdb_gen_info WHERE code = 'BK001' AND rdate = TO_DATE('18-08-2026','DD-MM-YYYY') GROUP BY code, rdate"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_B",
-    "question": "What is the total credited during the quarter in section 6 part B?",
-    "sql": "SELECT ITEM, TOTAL_CR_QTR, TOTAL_CR_YR FROM CIMS_RAQ_Q_SEC6_PART_B WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_B)"
+    "table": "cims_rdb_gen_info",
+    "question": "List all reporting dates available in the general info table for bank code 'BK001', most recent first.",
+    "sql": "SELECT DISTINCT rdate FROM cims_rdb_gen_info WHERE code = 'BK001' ORDER BY rdate DESC"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_C",
-    "question": "Show rated and unrated investment holdings by category",
-    "sql": "SELECT CATEGORY, ITEM, TL_HLD_RATE, TL_HLD_UNRATE FROM CIMS_RAQ_Q_SEC6_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_C)"
+    "table": "cims_rdb_out_default",
+    "question": "List all borrowers who have moved out of default along with the date of moving out of default.",
+    "sql": "SELECT borrower_pan, borrower_name, dt_moving_out_default FROM cims_rdb_out_default ORDER BY dt_moving_out_default"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_C",
-    "question": "What are the investment holdings of borrower and non borrower entities?",
-    "sql": "SELECT CATEGORY, ITEM, TL_HLD_BRWR, TL_HLD_NONBRWR FROM CIMS_RAQ_Q_SEC6_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_C)"
+    "table": "cims_rdb_out_default",
+    "question": "What is the total funded, non-funded and total amount outstanding across all accounts that moved out of default?",
+    "sql": "SELECT SUM(fund_amt_outstand) AS total_funded, SUM(non_fund_amt_outstand) AS total_non_funded, SUM(total_amt_outstand) AS total_outstanding FROM cims_rdb_out_default"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_C",
-    "question": "Show NPA and provision held on the investment portfolio",
-    "sql": "SELECT CATEGORY, ITEM, TOTAL_NPA, TOTAL_PRO_HELD FROM CIMS_RAQ_Q_SEC6_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_C)"
+    "table": "cims_rdb_out_default",
+    "question": "Show the top 10 borrowers by total amount outstanding among accounts that moved out of default.",
+    "sql": "SELECT borrower_pan, borrower_name, total_amt_outstand FROM cims_rdb_out_default ORDER BY total_amt_outstand DESC FETCH FIRST 10 ROWS ONLY"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_C_2",
-    "question": "Show the additional investment details reported in section 6 part C",
-    "sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_Q_SEC6_PART_C_2 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_C_2)"
+    "table": "cims_rdb_out_default",
+    "question": "How many accounts moved out of default are project finance accounts versus non-project finance accounts?",
+    "sql": "SELECT whether_project_finance, COUNT(*) AS account_count FROM cims_rdb_out_default GROUP BY whether_project_finance"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_D",
-    "question": "Show section 6 part D investment figures for domestic, overseas and global",
-    "sql": "SELECT DESCRIPTION, DOMESTIC, OVERSEAS, GLOBAL FROM CIMS_RAQ_Q_SEC6_PART_D WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_D)"
+    "table": "cims_rdb_out_default",
+    "question": "Give me the details of a specific borrower's out-of-default record by PAN.",
+    "sql": "SELECT sr_no, borrower_pan, borrower_name, whether_project_finance, dt_moving_out_default, fund_amt_outstand, non_fund_amt_outstand, total_amt_outstand, remarks FROM cims_rdb_out_default WHERE borrower_pan = :borrower_pan"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_D",
-    "question": "What is the global investment position in section 6 part D?",
-    "sql": "SELECT DESCRIPTION, GLOBAL FROM CIMS_RAQ_Q_SEC6_PART_D WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_D)"
+    "table": "cims_rdb_out_default",
+    "question": "Which records were submitted in the current return submission dated today?",
+    "sql": "SELECT sr_no, borrower_pan, borrower_name, total_amt_outstand, rdate FROM cims_rdb_out_default WHERE rdate = TO_DATE('2026-08-18','YYYY-MM-DD')"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC6_PART_D",
-    "question": "Compare domestic and overseas investments in section 6",
-    "sql": "SELECT DESCRIPTION, DOMESTIC, OVERSEAS FROM CIMS_RAQ_Q_SEC6_PART_D WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC6_PART_D)"
+    "table": "cims_rdb_out_default",
+    "question": "List all out-of-default accounts having remarks recorded, along with the remark text.",
+    "sql": "SELECT borrower_pan, borrower_name, remarks FROM cims_rdb_out_default WHERE remarks IS NOT NULL"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC8_SEC_CREDIT_1",
-    "question": "Show the additional sectoral credit details",
-    "sql": "SELECT DESCRIPTION, VALUE FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT_1 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT_1)"
+    "table": "cims_rdb_out_default",
+    "question": "Find accounts with non-funded amount outstanding greater than the funded amount outstanding.",
+    "sql": "SELECT borrower_pan, borrower_name, fund_amt_outstand, non_fund_amt_outstand FROM cims_rdb_out_default WHERE non_fund_amt_outstand > fund_amt_outstand"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC8_SEC_CREDIT_1",
-    "question": "What supplementary sector credit values are reported for the latest quarter?",
-    "sql": "SELECT CODE, RDATE, DESCRIPTION, VALUE FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT_1 WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC8_SEC_CREDIT_1)"
+    "table": "cims_rdb_out_default",
+    "question": "What is the average total amount outstanding for project finance accounts that moved out of default?",
+    "sql": "SELECT whether_project_finance, AVG(total_amt_outstand) AS avg_total_outstand FROM cims_rdb_out_default GROUP BY whether_project_finance"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC11",
-    "question": "Show country wise exposure trend over the last four quarters",
-    "sql": "SELECT RDATE, COUNTRY_BRW_CUNTR_PARTY, TOTAL FROM CIMS_RAQ_Q_SEC11 WHERE RDATE IN (SELECT RDATE FROM (SELECT DISTINCT RDATE FROM CIMS_RAQ_Q_SEC11 ORDER BY RDATE DESC) WHERE ROWNUM <= 4) ORDER BY RDATE ASC"
+    "table": "cims_rdb_out_default",
+    "question": "Show me all out-of-default records along with their transaction IDs and submission dates for audit trail purposes.",
+    "sql": "SELECT transaction_id, borrower_pan, borrower_name, rdate FROM cims_rdb_out_default ORDER BY rdate DESC"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC5_TOP_CR",
-    "question": "Show top credit exposures sanctioned with their PAN and sanction date",
-    "sql": "SELECT NAME_DEFAULTER, PAN_DEFAULTER, DATE_SANCTION, TOTAL_CR_EXP FROM CIMS_RAQ_Q_SEC5_TOP_CR WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC5_TOP_CR)"
+    "table": "cims_rdb_out_default",
+    "question": "Identify duplicate borrower PAN entries appearing more than once in the out-of-default table.",
+    "sql": "SELECT borrower_pan, COUNT(*) AS occurrence_count FROM cims_rdb_out_default GROUP BY borrower_pan HAVING COUNT(*) > 1"
   },
   {
-    "table": "CIMS_RAQ_Q_SEC2_PART_C",
-    "question": "Show loss and doubtful amounts by item for overseas operations",
-    "sql": "SELECT ITEM, DOUBTFUL_O, LOSS_O FROM CIMS_RAQ_Q_SEC2_PART_C WHERE RDATE = (SELECT MAX(RDATE) FROM CIMS_RAQ_Q_SEC2_PART_C)"
+    "table": "cims_rdb_out_default",
+    "question": "List accounts where the total amount outstanding does not equal the sum of funded and non-funded amounts outstanding, indicating a possible data quality issue.",
+    "sql": "SELECT borrower_pan, borrower_name, fund_amt_outstand, non_fund_amt_outstand, total_amt_outstand FROM cims_rdb_out_default WHERE total_amt_outstand <> NVL(fund_amt_outstand,0) + NVL(non_fund_amt_outstand,0)"
+  },
+  {
+    "table": "cims_rdb_out_default",
+    "question": "What is the count and total outstanding amount of out-of-default accounts reported for each submission date?",
+    "sql": "SELECT rdate, COUNT(*) AS account_count, SUM(total_amt_outstand) AS total_outstanding FROM cims_rdb_out_default GROUP BY rdate ORDER BY rdate"
+  },
+  {
+    "table": "cims_rdb_out_default",
+    "question": "List borrowers who moved out of default with zero non-funded exposure but positive funded exposure.",
+    "sql": "SELECT borrower_pan, borrower_name, fund_amt_outstand, non_fund_amt_outstand FROM cims_rdb_out_default WHERE non_fund_amt_outstand = 0 AND fund_amt_outstand > 0"
+  },
+  {
+    "table": "cims_rdb_out_default",
+    "question": "Search for a borrower's out-of-default record by partial name match.",
+    "sql": "SELECT borrower_pan, borrower_name, dt_moving_out_default, total_amt_outstand FROM cims_rdb_out_default WHERE UPPER(borrower_name) LIKE UPPER('%' || :borrower_name_search || '%')"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "What is the name of the signatory reported for bank entity code 'BK001' as on 31-Jul-2026?",
+    "sql": "SELECT code, rdate, value AS signatory_name FROM cims_rdb_signatory WHERE code = 'BK001' AND description = 'Name' AND rdate = TO_DATE('31-07-2026','DD-MM-YYYY')"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "List the designation of the signatory for each bank entity as on the latest reporting date.",
+    "sql": "SELECT code, value AS designation FROM cims_rdb_signatory WHERE description = 'Designation' AND rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory)"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Retrieve the registered e-mail id of the signatory for bank entity code 'BK015'.",
+    "sql": "SELECT code, rdate, value AS email_id FROM cims_rdb_signatory WHERE code = 'BK015' AND description = 'E-mail Id' ORDER BY rdate DESC"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Give me the mobile number on record for the signatory of bank entity code 'BK007' for the reporting date 30-Jun-2026.",
+    "sql": "SELECT code, rdate, value AS mobile_no FROM cims_rdb_signatory WHERE code = 'BK007' AND description = 'Mobile No.' AND rdate = TO_DATE('30-06-2026','DD-MM-YYYY')"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Is a landline number available for the signatory of bank entity code 'BK022'? Show the value if present.",
+    "sql": "SELECT code, rdate, value AS landline_no FROM cims_rdb_signatory WHERE code = 'BK022' AND description = 'Landline No.' ORDER BY rdate DESC"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Show the complete signatory profile (all fields) for bank entity code 'BK001' as on the latest reporting date.",
+    "sql": "SELECT code, rdate, description, value FROM cims_rdb_signatory WHERE code = 'BK001' AND rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory WHERE code = 'BK001') ORDER BY description"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "List all bank entity codes for which the signatory name has not been furnished (null or blank value) as on the latest reporting date.",
+    "sql": "SELECT code FROM cims_rdb_signatory WHERE description = 'Name' AND rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory) AND (value IS NULL OR TRIM(value) = '')"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "How many distinct bank entities have submitted signatory details for the reporting date 31-Jul-2026?",
+    "sql": "SELECT COUNT(DISTINCT code) AS entity_count FROM cims_rdb_signatory WHERE rdate = TO_DATE('31-07-2026','DD-MM-YYYY')"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Has the signatory name changed for bank entity code 'BK001' between the reporting dates 30-Jun-2026 and 31-Jul-2026?",
+    "sql": "SELECT code, MAX(CASE WHEN rdate = TO_DATE('30-06-2026','DD-MM-YYYY') THEN value END) AS name_jun, MAX(CASE WHEN rdate = TO_DATE('31-07-2026','DD-MM-YYYY') THEN value END) AS name_jul FROM cims_rdb_signatory WHERE code = 'BK001' AND description = 'Name' GROUP BY code"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "List all distinct reporting dates for which signatory data exists for bank entity code 'BK009'.",
+    "sql": "SELECT DISTINCT rdate FROM cims_rdb_signatory WHERE code = 'BK009' ORDER BY rdate"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Find bank entity codes where both a mobile number and an e-mail id are missing for the latest reporting date.",
+    "sql": "SELECT code FROM cims_rdb_signatory WHERE rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory) AND description IN ('Mobile No.','E-mail Id') AND (value IS NULL OR TRIM(value) = '') GROUP BY code HAVING COUNT(DISTINCT description) = 2"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Provide the designation and name of the signatory together in one row for bank entity code 'BK030' as on the latest reporting date.",
+    "sql": "SELECT code, MAX(CASE WHEN description = 'Name' THEN value END) AS signatory_name, MAX(CASE WHEN description = 'Designation' THEN value END) AS designation FROM cims_rdb_signatory WHERE code = 'BK030' AND rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory WHERE code = 'BK030') GROUP BY code"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "List all mobile numbers reported across all bank entities for the reporting date 31-Jul-2026.",
+    "sql": "SELECT code, value AS mobile_no FROM cims_rdb_signatory WHERE description = 'Mobile No.' AND rdate = TO_DATE('31-07-2026','DD-MM-YYYY') ORDER BY code"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Count how many bank entities have each designation value reported for the latest reporting date.",
+    "sql": "SELECT value AS designation, COUNT(DISTINCT code) AS entity_count FROM cims_rdb_signatory WHERE description = 'Designation' AND rdate = (SELECT MAX(rdate) FROM cims_rdb_signatory) GROUP BY value ORDER BY entity_count DESC"
+  },
+  {
+    "table": "cims_rdb_signatory",
+    "question": "Show the full history of e-mail id changes reported for bank entity code 'BK011' across all reporting dates.",
+    "sql": "SELECT code, rdate, value AS email_id FROM cims_rdb_signatory WHERE code = 'BK011' AND description = 'E-mail Id' ORDER BY rdate"
   }
 ]

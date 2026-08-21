@@ -65,6 +65,28 @@ def get_accessible_tables() -> set:
         return set()
 
 
+# Process-lifetime cache around get_accessible_tables() — same convention as
+# retriever._index_cache / schema_store._schema_cache. A full USER_TABLES scan
+# is cheap once but not worth repeating on every request; src.frequency_alias
+# calls cached_accessible_tables() lazily (only when a query actually names a
+# frequency), so a normal request never pays for this at all.
+_accessible_tables_cache: set | None = None
+
+
+def cached_accessible_tables() -> set:
+    global _accessible_tables_cache
+    if _accessible_tables_cache is None:
+        _accessible_tables_cache = get_accessible_tables()
+    return _accessible_tables_cache
+
+
+def clear_cache():
+    """Drop the cached table set — call after tables are added/removed in
+    Oracle and you want the next request to see them without a restart."""
+    global _accessible_tables_cache
+    _accessible_tables_cache = None
+
+
 def dry_run_sql(sql):
     """Timed wrapper around _dry_run_sql — see that function's docstring.
     This round-trip previously had no latency visibility of its own; it was

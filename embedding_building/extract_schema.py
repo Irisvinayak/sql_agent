@@ -63,7 +63,8 @@ def extract_schema():
             "--------------------------------------------------------\n"
         ]
 
-        for tname in sorted(table_cols):
+        sorted_names = sorted(table_cols)
+        for i, tname in enumerate(sorted_names, 1):
             cols_str = ", ".join(table_cols[tname])
             # No schema prefix — parser regex expects CREATE TABLE "TABLE" (...)
             ddl = f'CREATE TABLE "{tname}" ({cols_str});'
@@ -73,12 +74,17 @@ def extract_schema():
                 "--------------------------------------------------------\n\n"
                 f"  {ddl}\n"
             )
-            print(f"  ✓ {tname}")
+            # One line per table used to be printed here (2000+ lines for the
+            # full schema) — nobody reads that many lines, and it was pure I/O
+            # overhead on every run. A periodic progress line is enough to show
+            # this is actually moving.
+            if i % 200 == 0 or i == len(sorted_names):
+                print(f"  [ok] {i}/{len(sorted_names)} tables processed")
 
         with open(OUTPUT_PATH, "w", encoding="utf-8") as fh:
             fh.write("\n".join(ddl_parts))
 
-    print(f"\n✅ Schema extracted → {OUTPUT_PATH}  ({len(table_cols)} tables)")
+    print(f"\n[done] Schema extracted -> {OUTPUT_PATH}  ({len(table_cols)} tables)")
 
 
 if __name__ == "__main__":

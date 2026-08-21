@@ -138,6 +138,23 @@
       "Place"
     ]
   },
+  "cims_irs_gen_info": {
+    "description": [
+      "Bank Code",
+      "Date of Audit",
+      "Date of Report ",
+      "For the Period Ended",
+      "General Remarks",
+      "Reporting Frequency",
+      "Reporting Institution",
+      "Reporting period start date",
+      "Return Code",
+      "Return Name",
+      "Return Version",
+      "Status",
+      "Validation Status"
+    ]
+  },
   "cims_raq_q_sec10": {
     "description": [
       "    B.2.1 Micro Enterprises",
@@ -637,6 +654,484 @@
       "Regulatory Retail",
       "Total Advances",
       "Wholesale Advances"
+    ]
+  },
+  "cims_rbs_q_gen_info": {
+    "description": [
+      "Bank Category",
+      "Bank Code",
+      "Date Of Audit",
+      "Date of Report ",
+      "For the Period Ended",
+      "General Remark",
+      "Indian Bank With Subsidiary Or Joint Venture",
+      "Reporting Frequency",
+      "Reporting Institution",
+      "Reporting period start date",
+      "Return Code",
+      "Return Name",
+      "Return Version",
+      "Status",
+      "Validation Status "
+    ]
+  },
+  "cims_rbs_q_net_ove_inv": {
+    "description": [
+      "(a) Gross daily overseas borrowings (excluding Head Office borrowings for Tier I and II Capital purposes) as on date",
+      "(a) Gross overseas daily placements as on date",
+      "(a) Net Overseas daily placements as on date {(i)(a)- (ii)(a)}",
+      "(b) Net average daily outstanding placements over year to date {(i)(b)- (ii)(b)}",
+      "(b) The average daily gross borrowings over year to date (excluding Head Office borrowings for Tier I and II Capital purposes).",
+      "(b) The average daily gross placements over year to date CRAR\ufffd",
+      "Higher of (iii) (a) and (iii) (b) as a percentage of (iv)CRAR\ufffd",
+      "Minimum capital requirement to maintain regulatory CRAR\ufffd "
+    ]
+  },
+  "cims_rbs_q_rating_wise_memo": {
+    "description": [
+      "Hurdle Rate (One of the internal ratings given above)",
+      "at the beginning of the quarter",
+      "at the end of the quarter"
+    ]
+  },
+  "cims_rbs_q_sec4_cr_card_bse": {
+    "category": [
+      "Amount Written Off",
+      "Doubtful",
+      "Gross NPAs",
+      "Loss",
+      "NPAs Recovered",
+      "Provisions",
+      "Standard",
+      "Standard Advances",
+      "Substandard",
+      "Total",
+      "Total Advance Outstanding",
+      "Total Limit Sanctioned",
+      "Total Number of Card Holders",
+      "Total Unavailed Limits",
+      "Total amount written off for dues outstanding for three months or less"
+    ]
+  },
+  "cims_rbs_q_signatory": {
+    "description": [
+      "Date",
+      "Designation",
+      "E-mail Id",
+      "Landline No.",
+      "Mobile No.",
+      "Name",
+      "Place"
+    ]
+  },
+  "cims_rca3_c_general_informtion": {
+    "description": [
+      "BankCode",
+      "BankName",
+      "DateOfAudit",
+      "FormName",
+      "Report Status",
+      "ReportType",
+      "ReportingDate",
+      "ReportingFrequency",
+      "ReportingStartDate",
+      "Return Name",
+      "Return Version",
+      "Status"
+    ]
+  },
+  "cims_rca3_c_general_informtion_hist": {
+    "description": [
+      "BankCode",
+      "BankName",
+      "DateOfAudit",
+      "FormName",
+      "Report Status",
+      "ReportType",
+      "ReportingDate",
+      "ReportingFrequency",
+      "ReportingStartDate",
+      "Return Name",
+      "Return Version",
+      "Status"
+    ]
+  },
+  "cims_rca3_general_information": {
+    "description": [
+      "BankCode",
+      "BankName",
+      "DateOfAudit",
+      "FormName",
+      "Report Status",
+      "ReportType",
+      "ReportingDate",
+      "ReportingFrequency",
+      "ReportingStartDate",
+      "Return Name",
+      "Return Version",
+      "Status"
+    ]
+  },
+  "cims_rdb_gen_info": {
+    "description": [
+      "Bank Code",
+      "Name of the Reporting Institution",
+      "Reference Date of Return",
+      "Reporting Frequency",
+      "Reporting Start Date",
+      "Return Code",
+      "Return Name",
+      "Return Version",
+      "Tool Name"
+    ]
+  },
+  "cims_rdb_signatory": {
+    "description": [
+      "Designation",
+      "E-mail Id",
+      "Landline No.",
+      "Mobile No.",
+      "Name"
+    ]
+  },
+  "cims_ror_q_sec_a": {
+    "item": [
+      "(MEMORANDUM ITEM) Interest receivable on NPAs not recognized as income",
+      "(i) Profit/(loss) on Sale of Fixed Assets",
+      "(ii) Pension Expenses/Provisions",
+      "(ii) Profit/(loss) on Sale of Other Assets",
+      "(iii) Gratuity Expenses/Provisions",
+      "(iv) Leave Encashment/Provisions",
+      "(v) Provisions for Wage Revision",
+      "(vi) Others Expenses/Provisions",
+      "A. Interest Income (including Interest Tax) [I to V]",
+      "I. Interest on balances with RBI/ Foreign Central Banks/ FIs/ Banks",
+      "I. Value Adjustment of Securities held for Trading",
+      "I.1 Interest on balances with RBI/ Foreign Central Banks",
+      "I.2 Interest on dues from FIs / Central Counter Parties (CCPs) in India",
+      "I.3 Interest on Interbank Deposits and Placements",
+      "II. Interest on Loans & Advances (Non-bank) (II.1 to II.5 = II.A + II.B)",
+      "II.(i) Loans to Real Estate (incl.Non Real Estate Loans secured by Real Estate)",
+      "II.(i).1 Loans to Commercial Real Estate",
+      "II.(i).2 Housing Loans",
+      "II.1 Agricultural Loans/Advances",
+      "II.2 Industrial Loans/Advances",
+      "II.3 Service Loans/Advances",
+      "II.4 Retail Loans/Advances",
+      "II.4.1 Secured Retail Loans/Advances",
+      "II.4.2 Unsecured Loans/Advances",
+      "II.5 Other Loans/Advances",
+      "II.A Regulatory Retail Loans/Advances",
+      "II.B Wholesale Loans/Advances",
+      "J. Net Operating Income [G-H-I]",
+      "K. Capital Gains/(Losses)",
+      "L. Other Non-operating Income/ (expenses)",
+      "M. Earning Before Provisions & Taxes (EBPT) [J + K + L]",
+      "X.1 LCs",
+      "X.2 BGs",
+      "XIV.1 Issue/Renewal of Credit/Debit Cards/Other PPIs",
+      "XIV.4 Income from other Parabanking Activities",
+      "XIV.5 Income from Demat Services",
+      "XIX All other Operating Expenses",
+      "a) Payments to Outsourced Agencies *",
+      "b) AUDITORS' FEES AND EXPENSES",
+      "c) Others",
+      "dfdsf",
+      "dfdsfsf",
+      "gdfg",
+      "i.Balance at the beginning of the period",
+      "ii.Interest receivable not recognized during the period (i.e. suspended interest)",
+      "iii.Interest received and reversed to income from (i)during the period on NPAs upgraded to Performing / accrual basis",
+      "iv.Interest Receivable (part of (i)) from NPA accounts, written-off during the period",
+      "of which, income from Credit Card Dues",
+      "tretrett",
+      "v.Balance at the end of the quarter [(i) + (ii) - (iii) - (iv)]"
+    ]
+  },
+  "cims_ror_q_sec_a1": {
+    "line_item": [
+      " (i) CEOs/MDs/CMD",
+      " (iii) Clerical Staff",
+      "(ii) Officer Staff",
+      "(iv) Subordinate Staff",
+      "Total Number of Staff"
+    ]
+  },
+  "cims_ror_q_sec_b": {
+    "line_item": [
+      "A Earnings Before Provisions & Taxes",
+      "B Risk Provisions",
+      "B1 For Standard Advances",
+      "B2 For Restructured Standard Advances",
+      "B3 For Country Risk",
+      "B4 For Non-Performing Loans & Advances",
+      "B41 Provisions made out of EBPT (A)",
+      "B42 Provisions taken back from the Provisions made earlier (including for upgradations and write-offs)",
+      "B5 For Depreciation in Securities and Investments",
+      "B6 For Other Impaired Assets",
+      "B7 For Contingent Credit Exposures",
+      "B8 For Other Losses",
+      "C Write Offs",
+      "C1 Bad and doubtful debts",
+      "C11 Amount of W/O out of EBPT (A)",
+      "C12 Amount of W/O out of the Provisions made earlier",
+      "C2 Other assets",
+      "D Provisions For Liabilities",
+      "E Profit/Loss Before Tax (PBT) [A - B - C - D]",
+      "F Provision For Income Taxes",
+      "G Net Profit/Loss (PAT) [E - F]",
+      "H Below the line adjustment",
+      "I   Prior Period Credits",
+      "I Dividend Payable",
+      "II  Prior Period Charges",
+      "III Extra-ordinary Credits",
+      "IV Extra-ordinary Charges",
+      "J Retained Earnings [G -H-I]",
+      "K Appropriations",
+      "K1 Transfer to Statutory Reserves",
+      "K2 Transfer to Other Reserves",
+      "K3 Transfer to Govt / Remittance to HO",
+      "L Unallocated Surplus [J-K]",
+      "M Balance of Profit/(Loss) Brought FORWARD",
+      "MEMORANDUM ITEM                                                                                                                                                                                            ",
+      "N Surplus/(Loss) On Profit & Loss Account Carried Forward [L+M]",
+      "V Net Profit after extra-ordinary and prior period items [N +I- II+III-IV]"
+    ]
+  },
+  "cims_ror_q_sec_c": {
+    "country_code": [
+      " BH - BAHRAIN",
+      "SG",
+      "ZZ"
+    ],
+    "country_name": [
+      " BH - BAHRAIN",
+      "ALL Countries",
+      "SG - Singapore"
+    ],
+    "line_item": [
+      "1 Management fees/ Supervisory charges received",
+      "1 Total Amount of Capital Remitted by HO to Br/Sub/JVs",
+      "2 Dividend income from",
+      "2 For Retained Earnings Remitted",
+      "3 Total Amount of HO support Funds Remitted for Funding Requirements of Br/Sub/JVs",
+      "3 Total Profits of the country",
+      "4 Any other - please specify",
+      "4 Total  Amount of Provisions transferred from HO to  Br/Sub/JVs (a+b+c)",
+      "5 Amount transferred on account of write offs ",
+      "6 Any other",
+      "Net Inflows (Total Inflows -Total Outflows)",
+      "Total Inflows ( 1+2+3+4)",
+      "Total Outflows (1+2+3+4+5+6)",
+      "a Provisions transferred from HO to   Br/Sub/JVs on account of Non Performing Loans",
+      "a Rep Office expenses ",
+      "a out of which amount of profits repatriated  (please specify period) to parent bank and % of  total profit",
+      "b Other Outflow (specify) ",
+      "b Provisions transferred from HO  to Br/Sub/JVs on account of Special Mention Loans etc",
+      "c Provisions  transferred from HO to  Br/Sub/JVs on account of  Non performing Investments"
+    ]
+  },
+  "cims_irs_agg_all_cur_dga": {
+    "description": [
+      "        (i)RSA of Rupee Assets",
+      "        (i)RSL of rupee liabilities",
+      "        (ii)Rupee equivalants of RSA in different currencies",
+      "        (ii)Rupee equivalents of RSL in different currencies",
+      "       (i)There is 100 bps change in interest rates i,e ^ i = 1%",
+      "       (ii)There is 200 bps change in interest rates i,e ^ i =2%",
+      "       (iii)There is 300 bps change in the interest rates i,e ^ i - 3%",
+      "       (iv)Other scenarios (pl. specify)",
+      "A. Computatoin of Aggregate RSL (i) + (ii)",
+      "B. Computation of Aggregate RSA (i) + (ii)",
+      "C. Weighted Average MD of RSL across all currencies (MD RSL)",
+      "D. Weighted Average MD of RSA across all currencies (MD RSA)",
+      "E. Modified Duration Gap (MDG) [MDA - MDL * (RSL/RSA)]",
+      "Equity (i.e., Net worth) (E)"
+    ]
+  },
+  "cims_irs_agg_allcur_tga_memitm": {
+    "description": [
+      "1. Total Investments (Book Value)",
+      "2. Total Investments (Realisable Market Value)",
+      "3. Total Provision Held for Depreciation in Investment Account",
+      "4. PV01 (Limit Sanctioned)",
+      "5. PV01 (Actual)",
+      "6. Modified Duration (%)"
+    ]
+  },
+  "cims_irs_aggall_cur_tga_partb": {
+    "description": [
+      "(i) RSA of Rupee Assets",
+      "(i) RSL of Rupee Liabilities",
+      "(i) Rupee Assets",
+      "(ii) Rupee Equivalent of RSA in different currencies",
+      "(ii) Rupee Equivalent of RSL in different currencies",
+      "(ii) Rupee equivalent of Assets in different currencies",
+      "A. Computation of Aggregate RSL (i+ii)",
+      "B. Computation of Aggregate RSA (i+ii)",
+      "C. Total Assets (i+ii)",
+      "D. Net Gap (Aggregate RSA - Aggregate RSL) i.e., B-A",
+      "E. Cumulative Gap",
+      "F. Net Gap as a % to Total Assets"
+    ]
+  },
+  "cims_irs_coupon_yield_dga": {
+    "description": [
+      "       iv) Options",
+      "      iii) Futures",
+      "(ii)Other Off-balance sheet positions",
+      "2",
+      "Advances (Performing)",
+      "Assets",
+      "Balances with RBI",
+      "Balances with other Banks",
+      "Bills Rediscounted (DUPN) ",
+      "Bills purchases and Discounted (including bills under FUPN)",
+      "Cash",
+      "Cash Credits, Overdrafts and Loans repayable on demand",
+      "Current Account",
+      "Current Deposits",
+      "Deposits [(i) to (v) ]",
+      "Fixed Assets",
+      "FootNote(Others (specify))",
+      "Forex Swaps (buy/ Sell)",
+      "IPDI",
+      "Inter-office Adjustment",
+      "Investments (including those Reverse Repos but excluding Repos)",
+      "Investments in SRs issued by ARCs",
+      "Leased Assets",
+      "NPAs (Advances and Investments)",
+      "Non-SLR Investments",
+      "Off- Balance Sheet Positions equivalent to long positions in bonds",
+      "Other Assets",
+      "Other Off-balance sheet positions",
+      "Others",
+      "Others (specify)",
+      "Perpetual Cumulative Preference Shares",
+      "Perpetual Non- Cumulative Preference Shares ( Tier I)",
+      "Positions related to Derivatives",
+      "Re-Capitalisation bonds",
+      "Redeemable Cumulative  Preference Shares",
+      "Redeemable Non- cumulative Preference Shares",
+      "Redeemable debt instruments( Lower Tier II)",
+      "Redeemable debt instruments( Upper Tier II)",
+      "Reverse Repos",
+      "SLR Investments",
+      "Savings Bank Deposits",
+      "Term Deposits and Other Placements",
+      "Term Loans",
+      "Tier I capital instruments other than equity ( i and ii )",
+      "Tier II Capital instruments [(i) to (v) ]",
+      "Total Assets",
+      "i) FRAs",
+      "ii) Swaps",
+      "iii) Futures",
+      "iv) Options"
+    ]
+  },
+  "cims_irs_dga": {
+    "description": [
+      "Bills Payable",
+      "Bills Purchased and Discounted(Inluding Bills under DUPN)",
+      "Bills Redicounted (DUPN)",
+      "Borrowings",
+      "Call and short Notice",
+      "Capital instrument other than equity(i+ii)",
+      "Cash Credits, Overdrafts and Loans Repayable on Demand",
+      "Certificates of Deposits",
+      "Current Deposits",
+      "Deposits [Sum of(i) to (v)]",
+      "FRAs",
+      "Fixed Assets",
+      "FootNote(Others (Specify))",
+      "Forex Swaps( Sell / Buy)",
+      "Futures",
+      "IPDI",
+      "Inter - Office Adjustment",
+      "Inter Bank (Term)",
+      "Inter-Office Adjustment",
+      "Leased Assets",
+      "NPAs (Advances and Investment)",
+      "Off-Balance Sheet Position(sum of (i)to(v))",
+      "Options",
+      "Other Assets",
+      "Other Deposits",
+      "Other Liabilities and provisions [Sum of(i) to (iv)]",
+      "Others ",
+      "Others (Specify)",
+      "Perpetual Cumulative Preference Shares",
+      "Perpetual Non-Cumulative Preference Shares(Tier I)",
+      "Provisions",
+      "Redeemable Cumulative Preference Shares",
+      "Redeemable Non-Cumulative Preference Shares",
+      "Redeemable debt instruments(Lower Tier II)",
+      "Redeemable debt instruments(Upper Tier II)",
+      "Refinances",
+      "Repos",
+      "Reverse Repos",
+      "Savings Bank Deposits",
+      "Swaps",
+      "Term Deposits",
+      "Term Loans",
+      "Tier II Capital instruments [Sum of (i) to (v)]",
+      "Total Assets",
+      "Total RSA (D+E)"
+    ]
+  },
+  "cims_irs_memo_tga_a": {
+    "description": [
+      "Modified Duration (%)",
+      "PV01 (Actual)",
+      "PV01 (Limit Sanctioned)",
+      "Total Investments (Book Value)",
+      "Total Investments (Realisable Market Value)",
+      "Total Provision Held for Depreciation in Investment Account"
+    ]
+  },
+  "cims_irs_tga": {
+    "description": [
+      "Advances (performing)",
+      "Balances with RBI",
+      "Balances with other Banks",
+      "Bills Purchased and Discounted(Inluding Bills under DUPN)\n",
+      "Bills Redicounted (DUPN)",
+      "Capital instrument other than equity(i+ii)",
+      "Capital-Equity Shares",
+      "Cash",
+      "Cash Credits, Overdrafts and Loans Repayable on Demand",
+      "Cumulative Gap",
+      "Current Account",
+      "FRAs",
+      "Fixed Assets",
+      "FootNote(Others (Specify))",
+      "Forex Swaps( Sell / Buy)",
+      "Futures",
+      "Inter-Office Adjustment",
+      "Investments in SRs issued by ARCs",
+      "Leased Assets",
+      "Money at Call and Short Notice",
+      "NPAs (Advances and Investment)",
+      "Net Gap (Total RSA- Total RSL)",
+      "Net Gap as % to Total Assets",
+      "Non-SLR Investments",
+      "Off-Balance Sheet Position(sum of (i)to(v))",
+      "Options",
+      "Other Assets",
+      "Others ",
+      "Others (Specify)",
+      "Out of total Performing Investments (including those under reverse repos but excluding repos), investments held in HTM",
+      "Performing Investments (including those under reverse repos but excluding repos)",
+      "Perpetual Non-Cumulative Preference Shares(Tier I)",
+      "Re-Capitalisation bonds",
+      "Reserves and Surplus",
+      "Reverse Repos",
+      "SLR Investments",
+      "Swaps",
+      "Term Deposits and Other Placements",
+      "Term Loans",
+      "Total Assets",
+      "Total RSA (D+E)",
+      "Total RSL(A+B)"
     ]
   }
 }

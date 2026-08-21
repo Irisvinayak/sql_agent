@@ -8,6 +8,7 @@ from api.schemas import QueryRequest, QueryResult
 from api.utils import serialize_rows
 from src import config
 from src.executor import execute_query
+from src.frequency_alias import apply_frequency_override
 from src.retriever import get_relevant_schema, find_exact_qa_match, compute_query_embedding
 from src.selector import select_tables
 from src.semantic_layer import load_join_graph
@@ -103,10 +104,28 @@ def run_text_query(body: QueryRequest):
     if exact:
         log.info("EXACT QA MATCH (text_similarity=%.3f): %s", exact["text_similarity"], exact["question"])
         sql = exact["sql"]
-        tables = [{"table": exact["table"]}]
+        exact_table = exact["table"]
+
+        tables = [{"table": exact_table}]
         is_valid, reason = validate_sql(sql, tables, [])
         _mark("validation")
         log.info("VALID   : %s  reason=%s", is_valid, reason)
+
+        # If the user explicitly named a frequency (monthly/quarterly/daily/
+        # fortnightly/annual) different from this stored example's own table,
+        # swap in that frequency's real sibling table — discovered dynamically
+        # from the live Oracle catalog (src/frequency_alias.py) and verified
+        # with a live Oracle dry-run before being trusted, since schema.json
+        # never has column info for a sibling table (only the canonical/
+        # embedded table this SQL was just validated against). MUST run only
+        # AFTER validate_sql above, never before: validating against the
+        # sibling table name directly would flag every real column as
+        # hallucinated (schema.json has no entry for it at all).
+        freq_warning = None
+        if is_valid:
+            sql, exact_table, freq_warning = apply_frequency_override(exact_table, sql, q)
+            tables = [{"table": exact_table}]
+        _mark("frequency_resolution")
 
         col_names, rows, db_error = [], [], None
         if is_valid:
@@ -120,7 +139,7 @@ def run_text_query(body: QueryRequest):
 
         return QueryResult(
             query=q,
-            matched_tables=[exact["table"]],
+            matched_tables=[exact_table],
             matched_columns=[],
             sql=sql,
             is_valid=is_valid,
@@ -131,6 +150,7 @@ def run_text_query(body: QueryRequest):
             source="direct_match",
             match_score=exact["text_similarity"],
             timings_ms=timings_ms,
+            warnings=[freq_warning] if freq_warning else [],
         )
 
     # Step 1 — schema retrieval (L1: tables/columns  L2: row-label values  L3: qa example
@@ -202,6 +222,24 @@ def run_text_query(body: QueryRequest):
     _mark("validation")
     log.info("VALID   : %s  reason=%s", is_valid, reason)
 
+    # Step 3b — frequency resolution: if the question explicitly names a
+    # reporting frequency (monthly/quarterly/daily/fortnightly/annual)
+    # different from the selected table's own, swap in that frequency's real
+    # sibling table (discovered dynamically from the live Oracle catalog,
+    # verified with a live Oracle dry-run — see src/frequency_alias.py). MUST
+    # run only AFTER generate_sql/validate_sql above, never before: those
+    # validate columns against `tables[0]`'s schema.json entry, which never
+    # exists for a sibling table (only the canonical/embedded table generation
+    # actually used) — validating against the sibling directly would flag
+    # every real column as hallucinated.
+    freq_warning = None
+    if is_valid and tables:
+        canonical_table = tables[0]["table"]
+        sql, resolved_table, freq_warning = apply_frequency_override(canonical_table, sql, q)
+        if resolved_table != canonical_table:
+            tables[0] = {**tables[0], "table": resolved_table}
+    _mark("frequency_resolution")
+
     # Step 4 — execution (only if valid)
     col_names, rows, db_error = [], [], None
     if is_valid:
@@ -227,5 +265,5 @@ def run_text_query(body: QueryRequest):
         source=source,
         match_score=match_score,
         timings_ms=timings_ms,
-        warnings=result.get("warnings", []),
+        warnings=result.get("warnings", []) + ([freq_warning] if freq_warning else []),
     )
